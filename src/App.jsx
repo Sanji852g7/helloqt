@@ -10,6 +10,8 @@ import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import About from './pages/About'
 import Contact from './pages/Contact'
+import Login from './pages/Login'
+import Account from './pages/Account'
 
 // Scrolls to top on route change, or to a hash anchor
 function ScrollToTop() {
@@ -42,6 +44,8 @@ export default function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/account" element={<Account />} />
         </Routes>
       </main>
       <Footer />

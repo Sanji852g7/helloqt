@@ -168,3 +168,11 @@ export const LockIcon = (props) => (
     <path d="M8.5 10.5V8a3.5 3.5 0 1 1 7 0v2.5" />
   </svg>
 )
+
+// Person icon for account/login links
+export const UserIcon = (props) => (
+  <svg {...base} {...props}>
+    <circle cx="12" cy="8" r="3.5" />
+    <path d="M5 20c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5" />
+  </svg>
+)

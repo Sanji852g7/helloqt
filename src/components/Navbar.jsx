@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { BagIcon, CloseIcon, MenuIcon } from './Icons'
+import { useAuth } from '../context/AuthContext'
+import { BagIcon, CloseIcon, MenuIcon, UserIcon } from './Icons'
 
 const links = [
   { to: '/', label: 'Home' },
@@ -14,6 +15,7 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const { count } = useCart()
+  const { user } = useAuth()
   const { pathname } = useLocation()
 
   useEffect(() => setOpen(false), [pathname])
@@ -56,6 +58,14 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Link
+            to={user ? '/account' : '/login'}
+            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 hover:text-blush-700"
+            aria-label={user ? 'Your account' : 'Log in'}
+          >
+            <UserIcon className="h-6 w-6" />
+          </Link>
+
           <Link
             to="/cart"
             className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 hover:text-blush-700"
