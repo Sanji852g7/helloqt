@@ -9,6 +9,7 @@ export const collections = {
       'Our longest, boldest lashes, 25mm of full-blown drama, tucked inside a little pink travel suitcase so they are just as fun to unbox as they are to wear.',
     cover: '/media/king.JPG',
     accent: 'plum',
+    wornImage: '/media/suitcase-set.JPG',
   },
   compact: {
     id: 'compact',

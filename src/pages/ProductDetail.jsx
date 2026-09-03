@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { getProduct, products } from '../data/products'
+import { getCollection, getProduct, products } from '../data/products'
 import { formatPrice, useCart } from '../context/CartContext'
 import ProductCard from '../components/ProductCard'
 import {
@@ -52,6 +52,7 @@ export default function ProductDetail() {
   ]
 
   const related = products.filter((p) => p.slug !== product.slug).slice(0, 4)
+  const collection = getCollection(product.collection)
 
   return (
     <div className="section py-10 sm:py-14">
@@ -97,6 +98,21 @@ export default function ProductDetail() {
             <span className="absolute left-5 top-5 rounded-full bg-gold-600 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
               {product.badge}
             </span>
+          )}
+
+          {collection?.wornImage && (
+            <div className="mt-4">
+              <img
+                src={collection.wornImage}
+                alt={`${collection.name} lashes worn on the eye`}
+                width="800"
+                height="800"
+                className="w-full rounded-[2rem] border border-blush-200 bg-white object-cover shadow-soft"
+              />
+              <p className="mt-2 text-center text-xs text-plum-500">
+                How {collection.name} styles look worn
+              </p>
+            </div>
           )}
         </div>
 
