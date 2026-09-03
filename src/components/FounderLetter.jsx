@@ -77,8 +77,9 @@ export default function FounderLetter({ headingLevel = 'p' }) {
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
                 It started because I kept losing my lashes, one always went missing in my bag or
-                just vanished, so I made ones that come with their own little box to live in. Good
-                quality too, so you&apos;re not binning them after one wear.
+                just vanished, so I made ones that come with their own little box to live in.
+                Durable and comfortable too, with flexible bands so you&apos;re not binning them
+                after one wear.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
                 I pack every order myself. And this is only the start, I want to take HelloQT
