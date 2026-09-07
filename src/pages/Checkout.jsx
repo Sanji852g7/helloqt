@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { formatPrice, useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabaseClient'
 import { CheckIcon, LockIcon } from '../components/Icons'
 
 const fields = [
@@ -44,9 +46,19 @@ const validate = (values) => {
   return errors
 }
 
+// Asks the backend to email the customer their order confirmation
+function sendOrderEmail({ to, orderRef, fullName, items, total }) {
+  fetch('/api/send-order-confirmation', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to, orderRef, fullName, items, total }),
+  }).catch((error) => console.error('[helloqt] failed to send order email:', error))
+}
+
 // Checkout page: delivery form, order summary, demo submit
 export default function Checkout() {
   const { items, subtotal, shipping, total, clearCart } = useCart()
+  const { user } = useAuth()
   const [values, setValues] = useState({})
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
@@ -65,7 +77,7 @@ export default function Checkout() {
         <h1 className="mt-6 font-display text-3xl font-bold sm:text-4xl">Thank you, lovely!</h1>
         <p className="mx-auto mt-3 max-w-md text-plum-600">
           Your order <strong className="text-plum-800">{orderRef}</strong> is confirmed. We have
-          sent a confirmation email and your lashes will be on their way within two working days.
+          sent a confirmation email and your lashes will be on their way within 2-3 working days.
         </p>
         <p className="mt-6 font-script text-3xl text-blush-600">
           Enhance your beauty with HelloQT
@@ -91,8 +103,8 @@ export default function Checkout() {
     setErrors(validate(values))
   }
 
-  // Validates the form, then fakes placing the demo order
-  const handleSubmit = (event) => {
+  // Validates the form, saves the order if logged in, then fakes payment
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const found = validate(values)
     setErrors(found)
@@ -104,8 +116,27 @@ export default function Checkout() {
     }
 
     setSubmitting(true)
+    // Fallback for guest checkouts, which don't save an order to get a real number
+    let ref = `HQT-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+
+    if (user) {
+      const { data, error } = await supabase
+        .from('orders')
+        .insert({ user_id: user.id, items, subtotal, shipping, total })
+        .select('order_ref')
+        .single()
+
+      if (error) {
+        console.error('[helloqt] failed to save order:', error.message)
+      } else {
+        ref = data.order_ref
+      }
+    }
+
+    sendOrderEmail({ to: values.email, orderRef: ref, fullName: values.fullName, items, total })
+
     window.setTimeout(() => {
-      setOrderRef(`HQT-${Math.random().toString(36).slice(2, 8).toUpperCase()}`)
+      setOrderRef(ref)
       clearCart()
       setSubmitting(false)
     }, 900)
