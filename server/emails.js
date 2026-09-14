@@ -11,9 +11,15 @@ export const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL || `http://localhos
 // The one shared 10%-off code every subscriber gets; usage is tracked per email
 export const WELCOME_CODE = 'WELCOME10'
 
-// Raw GitHub URLs so email clients can load images before the site has real hosting
+// Raw GitHub URLs so email clients and Stripe can load images before the site
+// has real hosting
 const MEDIA_BASE = 'https://raw.githubusercontent.com/Sanji852g7/helloqt/main/public/media'
 const LOGO_URL = `${MEDIA_BASE}/helloqtlogo.JPG`
+
+// Turns a local image path like /media/angel.JPG into a publicly reachable URL
+export function mediaUrl(imagePath) {
+  return `${MEDIA_BASE}/${encodeURIComponent(String(imagePath).split('/').pop())}`
+}
 
 // Signs unsubscribe links so only a real HelloQT email can unsubscribe someone.
 // Derived from the service role key when no dedicated secret is configured.
@@ -132,7 +138,7 @@ function emailFooter({ unsubscribeEmail } = {}) {
 export function orderEmailHtml({ orderRef, fullName, items, total }) {
   const itemRows = items
     .map((item) => {
-      const imageUrl = `${MEDIA_BASE}/${encodeURIComponent(item.image.split('/').pop())}`
+      const imageUrl = mediaUrl(item.image)
       return `
         <tr>
           <td style="padding:10px 0; width:56px;">

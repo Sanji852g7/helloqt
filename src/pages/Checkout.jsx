@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { formatPrice, useCart } from '../context/CartContext'
 import { DISCOUNT_RATE } from '../data/pricing'
 import { supabase } from '../lib/supabaseClient'
-import { CheckIcon, LockIcon } from '../components/Icons'
+import { LockIcon } from '../components/Icons'
 
 const fields = [
   { id: 'fullName', label: 'Full name', type: 'text', autoComplete: 'name' },
@@ -54,38 +54,17 @@ export default function Checkout() {
   const [touched, setTouched] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [orderError, setOrderError] = useState(null)
-  const [orderRef, setOrderRef] = useState(null)
   const [discountCode, setDiscountCode] = useState('')
   const [appliedCode, setAppliedCode] = useState(null)
   const [discountStatus, setDiscountStatus] = useState('idle')
   const summaryRef = useRef(null)
+  const cancelled = new URLSearchParams(useLocation().search).get('cancelled')
 
   // Shown to the shopper only; the real total is always recalculated server-side
   const discountAmount = appliedCode ? subtotal * DISCOUNT_RATE : 0
   const discountedTotal = total - discountAmount
 
-  if (items.length === 0 && !orderRef) return <Navigate to="/cart" replace />
-
-  if (orderRef) {
-    return (
-      <div className="section py-20 text-center sm:py-28">
-        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blush-100 text-blush-600">
-          <CheckIcon className="h-10 w-10" />
-        </span>
-        <h1 className="mt-6 font-display text-3xl font-bold sm:text-4xl">Thank you, lovely!</h1>
-        <p className="mx-auto mt-3 max-w-md text-plum-600">
-          Your order <strong className="text-plum-800">{orderRef}</strong> is confirmed. We have
-          sent a confirmation email and your lashes will be on their way within 2-3 working days.
-        </p>
-        <p className="mt-6 font-script text-3xl text-blush-600">
-          Enhance your beauty with HelloQT
-        </p>
-        <Link to="/shop" className="btn-primary mt-8">
-          Continue shopping
-        </Link>
-      </div>
-    )
-  }
+  if (items.length === 0) return <Navigate to="/cart" replace />
 
   // Updates one field's value and re-validates if touched
   const setField = (id, value) => {
@@ -132,7 +111,7 @@ export default function Checkout() {
     }
   }
 
-  // Validates the form, then asks the backend to price and save the order
+  // Validates the form, then hands over to Stripe's secure payment page
   const handleSubmit = async (event) => {
     event.preventDefault()
     const found = validate(values)
@@ -153,7 +132,7 @@ export default function Checkout() {
       const { data: session } = await supabase.auth.getSession()
       const accessToken = session?.session?.access_token
 
-      const res = await fetch('/api/create-order', {
+      const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,16 +147,16 @@ export default function Checkout() {
         }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Something went wrong placing your order.')
+      if (!res.ok) throw new Error(data.error || 'Something went wrong starting your payment.')
 
-      setOrderRef(data.orderRef)
-      clearCart()
+      // The cart is deliberately left alone until the payment actually
+      // succeeds, so nothing is lost if they change their mind on Stripe
+      window.location.href = data.url
     } catch (err) {
-      console.error('[helloqt] failed to place order:', err)
+      console.error('[helloqt] failed to start payment:', err)
       setOrderError(err.message)
-      window.requestAnimationFrame(() => summaryRef.current?.focus())
-    } finally {
       setSubmitting(false)
+      window.requestAnimationFrame(() => summaryRef.current?.focus())
     }
   }
 
@@ -187,6 +166,12 @@ export default function Checkout() {
     <div className="section py-12 sm:py-16">
       <h1 className="font-display text-4xl font-bold sm:text-5xl">Checkout</h1>
       <p className="mt-2 text-plum-600">Almost there, just your delivery details.</p>
+
+      {cancelled && (
+        <p className="mt-6 rounded-2xl border border-blush-200 bg-blush-50 p-4 text-sm text-plum-700">
+          No payment was taken and your basket is exactly as you left it. Whenever you're ready.
+        </p>
+      )}
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
         <form onSubmit={handleSubmit} noValidate>
@@ -290,12 +275,13 @@ export default function Checkout() {
           <div className="mt-6 flex items-center gap-2.5 rounded-2xl border border-gold-300 bg-gold-100/60 p-4 text-sm text-plum-700">
             <LockIcon className="h-5 w-5 shrink-0 text-gold-700" />
             <p>
-              This is a demo checkout, no payment is taken and no card details are collected.
+              Payment is handled securely by Stripe. Your card details go straight to them and
+              are never seen by HelloQT.
             </p>
           </div>
 
           <button type="submit" disabled={submitting} className="btn-primary mt-6 w-full sm:w-auto">
-            {submitting ? 'Placing your order…' : `Place order · ${formatPrice(discountedTotal)}`}
+            {submitting ? 'Taking you to payment…' : `Pay ${formatPrice(discountedTotal)}`}
           </button>
         </form>
 

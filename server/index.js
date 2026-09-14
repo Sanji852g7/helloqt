@@ -6,11 +6,13 @@ import rateLimit from 'express-rate-limit'
 import Anthropic from '@anthropic-ai/sdk'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import Stripe from 'stripe'
 import { products, collections } from '../src/data/products.js'
-import { priceOrder } from '../src/data/pricing.js'
+import { DISCOUNT_RATE, priceOrder } from '../src/data/pricing.js'
 import {
   SITE_BASE_URL,
   WELCOME_CODE,
+  mediaUrl,
   orderEmailHtml,
   shippingEmailHtml,
   unsubscribeToken,
@@ -38,8 +40,13 @@ app.use(
         : callback(new Error('Origin not allowed')),
   }),
 )
-// Small cap so nobody can tie the server up with a giant JSON payload
-app.use(express.json({ limit: '100kb' }))
+// Small cap so nobody can tie the server up with a giant JSON payload.
+// Stripe's webhook is skipped because its signature is checked against the
+// exact raw bytes Stripe sent, which parsing would destroy.
+const parseJson = express.json({ limit: '100kb' })
+app.use((req, res, next) =>
+  req.path === '/api/stripe-webhook' ? next() : parseJson(req, res, next),
+)
 
 // Turns a blocked origin or malformed JSON into a clean reply, not a crash page
 app.use((err, req, res, next) => {
@@ -102,6 +109,25 @@ const supabaseAdmin =
     ? createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
     : null
 
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.warn(
+    '\n[helloqt-server] STRIPE_SECRET_KEY is not set. Add it to a .env file to take payments.\n',
+  )
+}
+
+// Handles card payments. Everything Stripe is told comes from the catalogue,
+// never from the browser, so the amount charged is always the real price.
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
+
+// Proves an incoming payment notification genuinely came from Stripe
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || null
+
+if (stripe && !STRIPE_WEBHOOK_SECRET) {
+  console.warn(
+    '\n[helloqt-server] STRIPE_WEBHOOK_SECRET is not set. Orders will not be saved after payment until it is.\n',
+  )
+}
+
 // Shared password Supabase must send with every order webhook call
 const ORDER_WEBHOOK_SECRET = process.env.ORDER_WEBHOOK_SECRET || null
 
@@ -132,6 +158,32 @@ function secretsMatch(a, b) {
   const bufferB = Buffer.from(b)
   if (bufferA.length !== bufferB.length) return false
   return crypto.timingSafeEqual(bufferA, bufferB)
+}
+
+/**
+ * Sends an email through Resend and actually checks whether it worked.
+ *
+ * Resend's SDK does not throw on a failed send — it resolves normally with
+ * `{ error }` set instead. A plain try/catch around resend.emails.send()
+ * never sees that, so a failed send would previously look identical to a
+ * successful one and go completely unnoticed. This logs either way and
+ * reports back whether the email genuinely went out.
+ */
+async function sendEmail(label, message) {
+  if (!resend) return false
+  try {
+    const { data, error } = await resend.emails.send(message)
+    if (error) {
+      console.error(`[helloqt-server] ${label} was rejected by Resend:`, error)
+      return false
+    }
+    console.log(`[helloqt-server] ${label} sent, Resend id ${data?.id}`)
+    return true
+  } catch (error) {
+    // A genuine network/connection failure, not an API-level rejection
+    console.error(`[helloqt-server] ${label} failed to send:`, error)
+    return false
+  }
 }
 
 // Reads the logged-in user from the request's Supabase access token, if any
@@ -208,97 +260,226 @@ app.post('/api/lash-chat', chatLimit, async (req, res) => {
 })
 
 /* ------------------------------------------------------------------ */
-/* Orders                                                              */
+/* Payment and orders                                                  */
 /* ------------------------------------------------------------------ */
 
-// Places an order. The browser only says which lashes and how many — every
-// price, the delivery charge, the discount and the total are worked out here
-// from the real catalogue, so the total can never be tampered with.
-app.post('/api/create-order', orderLimit, async (req, res) => {
+// Turns pounds into the whole pence Stripe works in
+const toStripeAmount = (pounds) => Math.round(pounds * 100)
+
+// Checks, without using it up, whether this email has an unused welcome code
+async function discountIsAvailable(email, code) {
+  if (!supabaseAdmin) return false
+  if (cleanText(code, 40).toUpperCase() !== WELCOME_CODE) return false
+  const { data, error } = await supabaseAdmin
+    .from('subscribers')
+    .select('used')
+    .eq('email', email)
+    .maybeSingle()
+  return Boolean(!error && data && !data.used)
+}
+
+/**
+ * Starts a card payment.
+ *
+ * The browser sends only which lashes and how many. Every price, the delivery
+ * charge and the discount are worked out here from the real catalogue, and it
+ * is those figures that are handed to Stripe — so the amount charged can never
+ * be talked down by editing the page.
+ *
+ * No order is saved yet: the order row is only created once Stripe confirms
+ * the money actually arrived.
+ */
+app.post('/api/create-checkout-session', orderLimit, async (req, res) => {
   const { items: requestedItems, discountCode } = req.body
   const email = cleanText(req.body.email, 254).toLowerCase()
   const fullName = cleanText(req.body.fullName, 100)
 
   if (!isValidEmail(email)) return res.status(400).json({ error: 'Enter a valid email address.' })
   if (!fullName) return res.status(400).json({ error: 'Enter your full name.' })
-
-  if (!supabaseAdmin) return res.status(503).json({ error: 'Orders are not configured yet.' })
+  if (!stripe) return res.status(503).json({ error: 'Card payments are not set up yet.' })
 
   // Logged-in shoppers send their Supabase token; the order is filed against
   // the account that token really belongs to, never an id the browser claims
   const user = await userFromRequest(req)
 
-  // Only consider a discount if this email genuinely has an unused code
-  let discountApplied = false
-  if (discountCode && cleanText(discountCode, 40).toUpperCase() === WELCOME_CODE) {
-    const { data: consumed } = await supabaseAdmin
-      .from('subscribers')
-      .update({ used: true })
-      .eq('email', email)
-      .eq('used', false)
-      .select('id')
-      .maybeSingle()
-    discountApplied = Boolean(consumed)
-  }
-
+  const discountApplied = await discountIsAvailable(email, discountCode)
   const priced = priceOrder(requestedItems, { discountApplied })
+  if (priced.error) return res.status(400).json({ error: priced.error })
 
-  // Hand the code back if the basket itself turned out to be invalid
-  if (priced.error) {
-    if (discountApplied) {
-      await supabaseAdmin.from('subscribers').update({ used: false }).eq('email', email)
-    }
-    return res.status(400).json({ error: priced.error })
+  // The basket is remembered on the payment itself, so the order can be
+  // rebuilt from the catalogue again once the payment is confirmed
+  const cart = JSON.stringify(priced.items.map((item) => [item.slug, item.quantity]))
+  if (cart.length > 480) {
+    return res.status(400).json({ error: 'That basket is too large, please order in two goes.' })
   }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer_email: email,
+      line_items: priced.items.map((item) => ({
+        quantity: item.quantity,
+        price_data: {
+          currency: 'gbp',
+          unit_amount: toStripeAmount(item.price),
+          product_data: {
+            name: item.name,
+            description: `${item.style} lashes`,
+            images: [mediaUrl(item.image)],
+          },
+        },
+      })),
+      // Delivery is charged separately so the shopper sees it broken out,
+      // and so a percentage discount never comes off the postage
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            display_name: priced.shipping === 0 ? 'Free delivery' : 'Royal Mail delivery',
+            fixed_amount: { amount: toStripeAmount(priced.shipping), currency: 'gbp' },
+          },
+        },
+      ],
+      discounts: discountApplied
+        ? [
+            {
+              coupon: (
+                await stripe.coupons.create({
+                  percent_off: DISCOUNT_RATE * 100,
+                  duration: 'once',
+                  name: 'HelloQT welcome 10% off',
+                })
+              ).id,
+            },
+          ]
+        : undefined,
+      metadata: {
+        email,
+        fullName,
+        cart,
+        userId: user?.id ?? '',
+        discountApplied: discountApplied ? '1' : '0',
+      },
+      success_url: `${SITE_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${SITE_BASE_URL}/checkout?cancelled=1`,
+    })
+
+    res.json({ url: session.url })
+  } catch (error) {
+    console.error('[helloqt-server] Stripe session error:', error)
+    res.status(500).json({ error: 'Something went wrong starting your payment.' })
+  }
+})
+
+// Saves a paid order and emails the confirmation. Only ever called after
+// Stripe has confirmed the money arrived.
+async function savePaidOrder(session) {
+  const { email, fullName, cart, userId, discountApplied } = session.metadata ?? {}
+  if (!email || !cart) throw new Error('payment is missing its order details')
+
+  // Already handled? Stripe retries webhooks, and a customer refreshing the
+  // success page must never produce a second order
+  const { data: existing } = await supabaseAdmin
+    .from('orders')
+    .select('order_ref')
+    .eq('stripe_session_id', session.id)
+    .maybeSingle()
+  if (existing) return existing.order_ref
+
+  const wasDiscounted = discountApplied === '1'
+  // Rebuilt from the catalogue again, never from anything the browser sent
+  const priced = priceOrder(
+    JSON.parse(cart).map(([slug, quantity]) => ({ slug, quantity })),
+    { discountApplied: wasDiscounted },
+  )
+  if (priced.error) throw new Error(priced.error)
 
   const { data, error } = await supabaseAdmin
     .from('orders')
     .insert({
-      user_id: user?.id ?? null,
+      user_id: userId || null,
       email,
       full_name: fullName,
       items: priced.items,
       subtotal: priced.subtotal,
       shipping: priced.shipping,
       total: priced.total,
+      stripe_session_id: session.id,
     })
     .select('order_ref')
     .single()
 
-  if (error) {
-    console.error('[helloqt-server] Order creation error:', error)
-    if (discountApplied) {
-      await supabaseAdmin.from('subscribers').update({ used: false }).eq('email', email)
-    }
-    return res.status(500).json({ error: 'Something went wrong placing your order.' })
-  }
-
+  if (error) throw error
   const orderRef = data.order_ref
 
-  // Confirmation is sent from the order we just saved, so the email always
-  // matches the real order and cannot be triggered on its own
-  if (resend) {
-    try {
-      await resend.emails.send({
-        from: FROM_EMAIL,
-        to: email,
-        subject: `Your HelloQT order ${orderRef} is confirmed`,
-        html: orderEmailHtml({ orderRef, fullName, items: priced.items, total: priced.total }),
-      })
-    } catch (emailError) {
-      // The order is already safe in the database, so never fail the checkout
-      console.error('[helloqt-server] Confirmation email error:', emailError)
-    }
+  // Now the order exists, the code is genuinely spent
+  if (wasDiscounted) {
+    await supabaseAdmin
+      .from('subscribers')
+      .update({ used: true })
+      .eq('email', email)
+      .eq('used', false)
   }
 
-  res.json({
-    orderRef,
-    discountApplied,
-    subtotal: priced.subtotal,
-    shipping: priced.shipping,
-    discount: priced.discount,
-    total: priced.total,
+  // The order and the payment are both already safe, so a failed email here
+  // never undoes the checkout — sendEmail logs it either way
+  await sendEmail(`Order confirmation for ${orderRef}`, {
+    from: FROM_EMAIL,
+    to: email,
+    subject: `Your HelloQT order ${orderRef} is confirmed`,
+    html: orderEmailHtml({ orderRef, fullName, items: priced.items, total: priced.total }),
   })
+
+  console.log(`[helloqt-server] Payment received, saved order ${orderRef}`)
+  return orderRef
+}
+
+// Stripe calls this the moment a payment succeeds. The signature check means
+// nobody else can announce a payment that never happened.
+app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!stripe || !STRIPE_WEBHOOK_SECRET) {
+    return res.status(503).json({ error: 'Payments are not fully set up yet.' })
+  }
+
+  let event
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      req.headers['stripe-signature'],
+      STRIPE_WEBHOOK_SECRET,
+    )
+  } catch (error) {
+    console.error('[helloqt-server] Stripe signature check failed:', error.message)
+    return res.status(400).json({ error: 'Invalid signature' })
+  }
+
+  if (event.type !== 'checkout.session.completed') return res.json({ ignored: true })
+
+  const session = event.data.object
+  if (session.payment_status !== 'paid') return res.json({ ignored: true, reason: 'not paid' })
+
+  try {
+    const orderRef = await savePaidOrder(session)
+    res.json({ received: true, orderRef })
+  } catch (error) {
+    console.error('[helloqt-server] Failed to save paid order:', error)
+    // A non-2xx tells Stripe to try again, so a paid order is never lost
+    res.status(500).json({ error: 'Could not save the order' })
+  }
+})
+
+// Lets the thank-you page show the order number once the payment lands
+app.get('/api/order-by-session', async (req, res) => {
+  const sessionId = cleanText(req.query.session_id, 100)
+  if (!sessionId || !supabaseAdmin) return res.status(400).json({ error: 'session_id is required' })
+
+  const { data } = await supabaseAdmin
+    .from('orders')
+    .select('order_ref')
+    .eq('stripe_session_id', sessionId)
+    .maybeSingle()
+
+  res.json({ orderRef: data?.order_ref ?? null })
 })
 
 /* ------------------------------------------------------------------ */
@@ -336,7 +517,7 @@ app.post('/api/subscribe', emailLimit, async (req, res) => {
         .insert({ email, source })
       if (insertError) throw insertError
 
-      await resend.emails.send({
+      await sendEmail(`Welcome code for ${email}`, {
         from: FROM_EMAIL,
         to: email,
         subject: 'Your 10% off HelloQT code',
@@ -445,22 +626,19 @@ app.post('/api/order-webhook', async (req, res) => {
     return res.json({ skipped: true, reason: 'no email on order' })
   }
 
-  try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: record.email,
-      subject: `Your HelloQT order ${record.order_ref} has shipped!`,
-      html: shippingEmailHtml({
-        orderRef: record.order_ref,
-        fullName: record.full_name,
-        trackingNumber: record.tracking_number,
-      }),
-    })
-    res.json({ sent: true })
-  } catch (error) {
-    console.error('[helloqt-server] Shipping email error:', error)
-    res.status(500).json({ error: 'Something went wrong sending the shipping email.' })
-  }
+  const sent = await sendEmail(`Shipping notice for ${record.order_ref}`, {
+    from: FROM_EMAIL,
+    to: record.email,
+    subject: `Your HelloQT order ${record.order_ref} has shipped!`,
+    html: shippingEmailHtml({
+      orderRef: record.order_ref,
+      fullName: record.full_name,
+      trackingNumber: record.tracking_number,
+    }),
+  })
+
+  if (!sent) return res.status(502).json({ error: 'Something went wrong sending the shipping email.' })
+  res.json({ sent: true })
 })
 
 // Starts the Express server for the AI chat backend
