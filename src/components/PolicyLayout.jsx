@@ -3,11 +3,14 @@ import { PinIcon } from './Icons'
 /**
  * Business details shown on the legal pages.
  *
- * TRADING_ADDRESS is a legal requirement, not a nicety: UK e-commerce rules
- * say an online seller must show a real geographic address (a PO box is not
- * enough). Replace the placeholder below with the address HelloQT trades from,
- * or a registered business address service if you would rather not publish
- * your home address.
+ * tradingAddress needs to become a real, full address before launch. The
+ * Electronic Commerce Regulations 2002 require an online seller to show a
+ * geographic address, and "London, United Kingdom" on its own is not one.
+ *
+ * You do NOT have to publish your home address to satisfy this. A virtual
+ * business address service (roughly £25–£60 a year) gives you a real address
+ * that forwards or scans your post, and is what most sole traders working
+ * from home use. Swap the line below once you have one.
  */
 export const BUSINESS = {
   name: 'HelloQT',
