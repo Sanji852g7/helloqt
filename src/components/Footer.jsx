@@ -104,9 +104,17 @@ export default function Footer() {
       </div>
 
       <div className="h-px gold-rule" />
-      <div className="section flex flex-col gap-2 py-6 text-center text-xs text-plum-500 sm:flex-row sm:justify-between sm:text-left">
+      <div className="section flex flex-col gap-3 py-6 text-center text-xs text-plum-500 sm:flex-row sm:items-center sm:justify-between sm:text-left">
         <p>© {new Date().getFullYear()} HelloQT. All rights reserved.</p>
-        <p>Cruelty-free · Vegan friendly · Made with love</p>
+        <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:justify-end">
+          <Link to="/privacy" className="transition hover:text-blush-700">
+            Privacy policy
+          </Link>
+          <Link to="/terms" className="transition hover:text-blush-700">
+            Terms &amp; conditions
+          </Link>
+          <span>Cruelty-free · Vegan friendly · Made with love</span>
+        </p>
       </div>
     </footer>
   )
