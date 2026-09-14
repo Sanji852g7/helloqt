@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { formatPrice, useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
+import { DISCOUNT_RATE } from '../data/pricing'
 import { supabase } from '../lib/supabaseClient'
 import { CheckIcon, LockIcon } from '../components/Icons'
 
@@ -46,25 +46,23 @@ const validate = (values) => {
   return errors
 }
 
-// Asks the backend to email the customer their order confirmation
-function sendOrderEmail({ to, orderRef, fullName, items, total }) {
-  fetch('/api/send-order-confirmation', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to, orderRef, fullName, items, total }),
-  }).catch((error) => console.error('[helloqt] failed to send order email:', error))
-}
-
 // Checkout page: delivery form, order summary, demo submit
 export default function Checkout() {
   const { items, subtotal, shipping, total, clearCart } = useCart()
-  const { user } = useAuth()
   const [values, setValues] = useState({})
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
   const [submitting, setSubmitting] = useState(false)
+  const [orderError, setOrderError] = useState(null)
   const [orderRef, setOrderRef] = useState(null)
+  const [discountCode, setDiscountCode] = useState('')
+  const [appliedCode, setAppliedCode] = useState(null)
+  const [discountStatus, setDiscountStatus] = useState('idle')
   const summaryRef = useRef(null)
+
+  // Shown to the shopper only; the real total is always recalculated server-side
+  const discountAmount = appliedCode ? subtotal * DISCOUNT_RATE : 0
+  const discountedTotal = total - discountAmount
 
   if (items.length === 0 && !orderRef) return <Navigate to="/cart" replace />
 
@@ -95,6 +93,11 @@ export default function Checkout() {
     if (touched[id]) {
       setErrors(validate({ ...values, [id]: value }))
     }
+    // Discount was validated against the old email, so re-check is required
+    if (id === 'email' && appliedCode) {
+      setAppliedCode(null)
+      setDiscountStatus('idle')
+    }
   }
 
   // Marks a field touched and re-runs validation on blur
@@ -103,7 +106,33 @@ export default function Checkout() {
     setErrors(validate(values))
   }
 
-  // Validates the form, saves the order if logged in, then fakes payment
+  // Checks the discount code against this checkout's email and applies it if valid
+  const applyDiscountCode = async () => {
+    const code = discountCode.trim().toUpperCase()
+    if (!code) return
+
+    if (!values.email?.trim()) {
+      setDiscountStatus('needs_email')
+      return
+    }
+
+    setDiscountStatus('checking')
+    try {
+      const res = await fetch('/api/validate-discount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, email: values.email.trim() }),
+      })
+      const data = await res.json()
+
+      setAppliedCode(data.valid ? code : null)
+      setDiscountStatus(data.valid ? 'applied' : 'invalid')
+    } catch {
+      setDiscountStatus('invalid')
+    }
+  }
+
+  // Validates the form, then asks the backend to price and save the order
   const handleSubmit = async (event) => {
     event.preventDefault()
     const found = validate(values)
@@ -116,30 +145,40 @@ export default function Checkout() {
     }
 
     setSubmitting(true)
-    // Fallback for guest checkouts, which don't save an order to get a real number
-    let ref = `HQT-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+    setOrderError(null)
 
-    if (user) {
-      const { data, error } = await supabase
-        .from('orders')
-        .insert({ user_id: user.id, items, subtotal, shipping, total })
-        .select('order_ref')
-        .single()
+    try {
+      // Logged-in shoppers send their session token so the backend can file the
+      // order against their real account without trusting anything we send
+      const { data: session } = await supabase.auth.getSession()
+      const accessToken = session?.session?.access_token
 
-      if (error) {
-        console.error('[helloqt] failed to save order:', error.message)
-      } else {
-        ref = data.order_ref
-      }
-    }
+      const res = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        // Only the lashes and quantities: every price is worked out server-side
+        body: JSON.stringify({
+          email: values.email.trim(),
+          fullName: values.fullName.trim(),
+          items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+          discountCode: appliedCode,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong placing your order.')
 
-    sendOrderEmail({ to: values.email, orderRef: ref, fullName: values.fullName, items, total })
-
-    window.setTimeout(() => {
-      setOrderRef(ref)
+      setOrderRef(data.orderRef)
       clearCart()
+    } catch (err) {
+      console.error('[helloqt] failed to place order:', err)
+      setOrderError(err.message)
+      window.requestAnimationFrame(() => summaryRef.current?.focus())
+    } finally {
       setSubmitting(false)
-    }, 900)
+    }
   }
 
   const errorList = fields.filter((f) => errors[f.id] && touched[f.id])
@@ -151,7 +190,7 @@ export default function Checkout() {
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
         <form onSubmit={handleSubmit} noValidate>
-          {errorList.length > 0 && (
+          {(errorList.length > 0 || orderError) && (
             <div
               ref={summaryRef}
               tabIndex={-1}
@@ -159,21 +198,26 @@ export default function Checkout() {
               className="mb-8 rounded-2xl border-2 border-red-300 bg-red-50 p-5"
             >
               <h2 className="font-display text-lg font-bold text-red-800">
-                There {errorList.length === 1 ? 'is 1 problem' : `are ${errorList.length} problems`}{' '}
-                with your details
+                {orderError
+                  ? 'We could not place your order'
+                  : `There ${errorList.length === 1 ? 'is 1 problem' : `are ${errorList.length} problems`} with your details`}
               </h2>
-              <ul className="mt-3 space-y-1.5 text-sm">
-                {errorList.map((field) => (
-                  <li key={field.id}>
-                    <a
-                      href={`#${field.id}`}
-                      className="font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
-                    >
-                      {errors[field.id]}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              {orderError ? (
+                <p className="mt-3 text-sm font-medium text-red-700">{orderError}</p>
+              ) : (
+                <ul className="mt-3 space-y-1.5 text-sm">
+                  {errorList.map((field) => (
+                    <li key={field.id}>
+                      <a
+                        href={`#${field.id}`}
+                        className="font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
+                      >
+                        {errors[field.id]}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 
@@ -251,7 +295,7 @@ export default function Checkout() {
           </div>
 
           <button type="submit" disabled={submitting} className="btn-primary mt-6 w-full sm:w-auto">
-            {submitting ? 'Placing your order…' : `Place order · ${formatPrice(total)}`}
+            {submitting ? 'Placing your order…' : `Place order · ${formatPrice(discountedTotal)}`}
           </button>
         </form>
 
@@ -279,11 +323,60 @@ export default function Checkout() {
             ))}
           </ul>
 
+          <div className="mt-6 border-t border-blush-200 pt-5">
+            <label htmlFor="discount" className="mb-1.5 block text-sm font-semibold text-plum-700">
+              Discount code
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="discount"
+                type="text"
+                placeholder="WELCOME10"
+                value={discountCode}
+                onChange={(e) => {
+                  setDiscountCode(e.target.value)
+                  if (appliedCode) {
+                    setAppliedCode(null)
+                    setDiscountStatus('idle')
+                  }
+                }}
+                className="field"
+              />
+              <button
+                type="button"
+                onClick={applyDiscountCode}
+                disabled={discountStatus === 'checking' || !discountCode.trim()}
+                className="btn-secondary shrink-0 px-5"
+              >
+                Apply
+              </button>
+            </div>
+            {discountStatus === 'applied' && (
+              <p className="mt-2 text-sm font-semibold text-blush-700">10% off applied!</p>
+            )}
+            {discountStatus === 'invalid' && (
+              <p className="mt-2 text-sm font-medium text-red-700">
+                That code isn't valid for this email, or it's already been used.
+              </p>
+            )}
+            {discountStatus === 'needs_email' && (
+              <p className="mt-2 text-sm font-medium text-red-700">
+                Add your email address above first, then apply your code.
+              </p>
+            )}
+          </div>
+
           <dl className="mt-6 space-y-3 border-t border-blush-200 pt-5 text-sm">
             <div className="flex justify-between">
               <dt className="text-plum-600">Subtotal</dt>
               <dd className="font-semibold tabular-nums">{formatPrice(subtotal)}</dd>
             </div>
+            {appliedCode && (
+              <div className="flex justify-between text-blush-700">
+                <dt>Discount (10%)</dt>
+                <dd className="font-semibold tabular-nums">-{formatPrice(discountAmount)}</dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-plum-600">Delivery</dt>
               <dd className="font-semibold tabular-nums">
@@ -292,7 +385,9 @@ export default function Checkout() {
             </div>
             <div className="flex justify-between border-t border-blush-200 pt-3">
               <dt className="font-display text-lg font-bold">Total</dt>
-              <dd className="font-display text-lg font-bold tabular-nums">{formatPrice(total)}</dd>
+              <dd className="font-display text-lg font-bold tabular-nums">
+                {formatPrice(discountedTotal)}
+              </dd>
             </div>
           </dl>
         </aside>

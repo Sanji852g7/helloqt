@@ -3,6 +3,85 @@ import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { formatPrice } from '../context/CartContext'
 import { supabase } from '../lib/supabaseClient'
+import { BagIcon, CheckIcon, TruckIcon } from '../components/Icons'
+
+// Builds the Royal Mail tracking page URL for a given tracking number
+const royalMailTrackingUrl = (trackingNumber) =>
+  `https://www.royalmail.com/track-your-item#/tracking-results/${encodeURIComponent(trackingNumber)}`
+
+const TRACKING_STAGES = [
+  { key: 'paid', label: 'Order placed' },
+  { key: 'packed', label: 'Packed' },
+  { key: 'shipped', label: 'Shipped' },
+  { key: 'delivered', label: 'Delivered' },
+]
+
+// Visual progress tracker for an order's fulfilment status
+function OrderTracker({ status }) {
+  const currentIndex = Math.max(
+    0,
+    TRACKING_STAGES.findIndex((stage) => stage.key === status),
+  )
+
+  return (
+    <div className="mt-4">
+      <div className="flex items-center">
+        {TRACKING_STAGES.map((stage, i) => (
+          <div key={stage.key} className="flex flex-1 items-center last:flex-none">
+            <span
+              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                i <= currentIndex ? 'bg-blush-600 text-white' : 'bg-blush-100 text-plum-400'
+              }`}
+            >
+              {i < currentIndex ? <CheckIcon className="h-3 w-3" /> : i + 1}
+            </span>
+            {i < TRACKING_STAGES.length - 1 && (
+              <span
+                className={`mx-1 h-0.5 flex-1 ${i < currentIndex ? 'bg-blush-600' : 'bg-blush-100'}`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="mt-1.5 grid grid-cols-4 gap-1">
+        {TRACKING_STAGES.map((stage, i) => (
+          <span
+            key={stage.key}
+            className={`text-center text-[10px] font-semibold leading-tight ${
+              i <= currentIndex ? 'text-plum-700' : 'text-plum-400'
+            }`}
+          >
+            {stage.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Order item photo that falls back to a plain icon if the image is missing or fails to load
+function OrderItemThumbnail({ src, alt }) {
+  const [failed, setFailed] = useState(false)
+
+  if (!src || failed) {
+    return (
+      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-blush-200 bg-blush-50 text-blush-400">
+        <BagIcon className="h-6 w-6" />
+      </span>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width="56"
+      height="56"
+      onError={() => setFailed(true)}
+      className="h-14 w-14 shrink-0 rounded-xl border border-blush-200 bg-white object-cover"
+    />
+  )
+}
 
 // Account page showing the logged-in user's details and orders
 export default function Account() {
@@ -60,16 +139,24 @@ export default function Account() {
                   </p>
                 </div>
 
-                <ul className="mt-3 space-y-3">
+                <OrderTracker status={order.status} />
+
+                {order.tracking_number && (
+                  <a
+                    href={royalMailTrackingUrl(order.tracking_number)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-2 rounded-full bg-blush-50 px-4 py-2 text-sm font-semibold text-blush-700 transition hover:bg-blush-100"
+                  >
+                    <TruckIcon className="h-4 w-4" />
+                    Track with Royal Mail · {order.tracking_number}
+                  </a>
+                )}
+
+                <ul className="mt-4 space-y-3">
                   {order.items.map((item) => (
                     <li key={item.slug} className="flex items-center gap-3">
-                      <img
-                        src={item.image}
-                        alt={`${item.name} lashes`}
-                        width="56"
-                        height="56"
-                        className="h-14 w-14 shrink-0 rounded-xl border border-blush-200 bg-white object-cover"
-                      />
+                      <OrderItemThumbnail src={item.image} alt={`${item.name} lashes`} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold text-plum-800">{item.name}</p>
                         <p className="text-sm text-plum-500">Qty {item.quantity}</p>

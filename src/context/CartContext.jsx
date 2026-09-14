@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { shippingFor } from '../data/pricing'
 
 const CartContext = createContext(null)
 const STORAGE_KEY = 'helloqt-cart'
@@ -69,7 +70,8 @@ export function CartProvider({ children }) {
 
     const count = items.reduce((total, item) => total + item.quantity, 0)
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
-    const shipping = items.length === 0 || subtotal >= 40 ? 0 : 3.49
+    // Same rule the server uses, so the shown total always matches the charge
+    const shipping = shippingFor(subtotal, count)
     const total = subtotal + shipping
 
     return {

@@ -34,6 +34,14 @@ export default function Login() {
       return
     }
 
+    if (mode === 'signup') {
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'account_signup' }),
+      }).catch((err) => console.error('[helloqt] failed to subscribe on signup:', err))
+    }
+
     if (data?.session) {
       setSuccess(true)
       window.setTimeout(() => navigate('/account'), 2000)
