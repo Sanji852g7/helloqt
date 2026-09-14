@@ -1,160 +1,296 @@
-import { Link } from 'react-router-dom'
-import { PinIcon } from '../components/Icons'
+import PolicyLayout, { BUSINESS, EmailLink, Section } from '../components/PolicyLayout'
 
-const LAST_UPDATED = '14 September 2026'
+const sections = [
+  { id: 'who-i-am', title: 'Who I am' },
+  { id: 'what-i-collect', title: 'What I collect' },
+  { id: 'why-and-lawful-basis', title: 'Why, and my lawful basis' },
+  { id: 'who-i-share-with', title: 'Who I share it with' },
+  { id: 'outside-the-uk', title: 'Data outside the UK' },
+  { id: 'how-long', title: 'How long I keep it' },
+  { id: 'marketing', title: 'Marketing emails' },
+  { id: 'cookies', title: 'Cookies and your basket' },
+  { id: 'mini-sanji', title: 'Mini Sanji, the AI advisor' },
+  { id: 'security', title: 'Keeping it safe' },
+  { id: 'your-rights', title: 'Your rights' },
+  { id: 'complaints', title: 'Complaints' },
+  { id: 'children', title: 'Children' },
+  { id: 'changes', title: 'Changes to this policy' },
+]
 
-// One section of the policy: a heading plus its body content
-function Section({ title, children }) {
-  return (
-    <section className="border-t border-blush-200 py-8 first:border-t-0 first:pt-0">
-      <h2 className="font-display text-xl font-bold text-plum-900">{title}</h2>
-      <div className="mt-3 space-y-3 leading-relaxed text-plum-600">{children}</div>
-    </section>
-  )
-}
+// Each thing HelloQT does with personal data, and the legal reason for it.
+// The ICO expects this link to be spelled out rather than described in general
+// terms, which is why it is set out as a table.
+const lawfulBases = [
+  {
+    purpose: 'Taking payment and sending you your order',
+    data: 'Name, email, delivery address, phone (if given), order details',
+    basis: 'Performance of a contract',
+  },
+  {
+    purpose: 'Emailing your order confirmation and delivery tracking',
+    data: 'Name, email, order details, tracking number',
+    basis: 'Performance of a contract',
+  },
+  {
+    purpose: 'Running your account and showing your order history',
+    data: 'Email, password (stored encrypted), order history',
+    basis: 'Performance of a contract',
+  },
+  {
+    purpose: 'Sending your 10% code and occasional emails about HelloQT',
+    data: 'Email address',
+    basis: 'Consent, which you can withdraw at any time',
+  },
+  {
+    purpose: 'Replying to your message or Mini Sanji question',
+    data: 'Name, email, what you wrote',
+    basis: 'Legitimate interests (answering customers)',
+  },
+  {
+    purpose: 'Keeping the site secure and preventing fraud',
+    data: 'IP address, request history',
+    basis: 'Legitimate interests (protecting the shop)',
+  },
+  {
+    purpose: 'Keeping business and tax records',
+    data: 'Order and payment records',
+    basis: 'Legal obligation',
+  },
+]
 
 // Privacy policy: what data HelloQT collects, why, and how to control it
 export default function Privacy() {
   return (
-    <div>
-      <section className="bg-cream py-8 sm:py-10">
-        <div className="section max-w-3xl">
-          <p className="inline-flex items-center gap-2 rounded-full border border-gold-300 bg-white/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-gold-700">
-            <PinIcon className="h-3.5 w-3.5" />
-            Privacy policy
-          </p>
-          <h1 className="mt-4 font-display text-4xl font-bold sm:text-5xl">Your privacy</h1>
-          <p className="mt-3 text-sm text-plum-500">Last updated {LAST_UPDATED}</p>
+    <PolicyLayout
+      eyebrow="Privacy policy"
+      title="Your privacy"
+      sections={sections}
+      intro={`${BUSINESS.name} is a small, one-woman lash brand run by me, Sanji, in London. This page explains exactly what personal information I collect when you use this site, why I collect it, who else sees it and what you can ask me to do about it. I only ever use your details to run your order and, if you have asked for them, my emails.`}
+    >
+      <Section id="who-i-am" title="Who I am">
+        <p>
+          {BUSINESS.name} is run by {BUSINESS.owner}, trading from {BUSINESS.tradingAddress}. For
+          anything in this policy, including any request about your data, email <EmailLink />.
+        </p>
+        <p>
+          I am the data controller for the information described here, which means I am the one
+          responsible for how it is looked after.
+        </p>
+      </Section>
+
+      <Section id="what-i-collect" title="What I collect">
+        <p>Depending on how you use the site, I may collect:</p>
+        <ul className="list-disc space-y-1.5 pl-5">
+          <li>
+            <strong className="text-plum-800">When you order:</strong> your name, email address,
+            delivery address, phone number if you give one, and what you bought
+          </li>
+          <li>
+            <strong className="text-plum-800">When you create an account:</strong> your email
+            address and a password, which is stored encrypted and which I cannot see
+          </li>
+          <li>
+            <strong className="text-plum-800">When you sign up for 10% off:</strong> your email
+            address
+          </li>
+          <li>
+            <strong className="text-plum-800">When you get in touch:</strong> your name, email and
+            whatever you write to me, including messages to Mini Sanji
+          </li>
+          <li>
+            <strong className="text-plum-800">Automatically:</strong> your IP address and basic
+            request information, used to keep the site secure and stop it being abused
+          </li>
+        </ul>
+        <p>
+          <strong className="text-plum-800">I never see your card details.</strong> Payment is
+          handled entirely by Stripe. Your card number goes directly to them and never reaches my
+          website or my records.
+        </p>
+      </Section>
+
+      <Section id="why-and-lawful-basis" title="Why, and my lawful basis">
+        <p>
+          Data protection law says I must have a specific legal reason for each thing I do with your
+          information. Here is every one of them:
+        </p>
+        <div className="overflow-x-auto">
+          <table className="mt-2 w-full min-w-[34rem] border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-blush-200">
+                <th className="py-2 pr-4 font-display font-bold text-plum-900">What for</th>
+                <th className="py-2 pr-4 font-display font-bold text-plum-900">What I use</th>
+                <th className="py-2 font-display font-bold text-plum-900">Legal reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lawfulBases.map((row) => (
+                <tr key={row.purpose} className="border-b border-blush-100 align-top">
+                  <td className="py-3 pr-4 text-plum-700">{row.purpose}</td>
+                  <td className="py-3 pr-4 text-plum-600">{row.data}</td>
+                  <td className="py-3 text-plum-600">{row.basis}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </section>
-
-      <div className="section max-w-2xl py-12 sm:py-16">
-        <p className="leading-relaxed text-plum-700">
-          HelloQT is a small, one-woman lash brand based in London, UK, run by me, Sanji. This page
-          explains what personal information I collect when you use this website, why, and what
-          choices you have about it. I only ever use your details to run your order and, if you've
-          asked for them, my emails, never anything else.
+        <p>
+          I do not use your information to make any automated decision about you, and I never sell
+          it or share it for anyone else's marketing.
         </p>
+      </Section>
 
-        <Section title="Who I am">
-          <p>
-            HelloQT is operated by Sanji Gurung, based in London, United Kingdom. If you have any
-            question about your data, email me at{' '}
-            <a href="mailto:helloqts@hotmail.com" className="font-semibold text-blush-700">
-              helloqts@hotmail.com
-            </a>
-            .
-          </p>
-        </Section>
-
-        <Section title="What I collect">
-          <p>Depending on how you use the site, I may collect:</p>
-          <ul className="list-disc space-y-1.5 pl-5">
-            <li>Your name, email address, delivery address and phone number, when you check out</li>
-            <li>Your email address, when you sign up for 10% off or create an account</li>
-            <li>Your account login details, if you create an account</li>
-            <li>Messages you send through the contact form or to Mini Sanji, the AI lash advisor</li>
-            <li>
-              Basic technical information your browser sends automatically (like your basket
-              contents, saved on your own device so it's there next time you visit)
-            </li>
-          </ul>
-          <p>
-            I never ask for or store your card details. Payment is handled entirely by Stripe, a
-            regulated payment provider; your card information goes straight to them and I never see
-            or hold it.
-          </p>
-        </Section>
-
-        <Section title="Why I collect it">
-          <ul className="list-disc space-y-1.5 pl-5">
-            <li>To take payment for and deliver your order, and to email you about its status</li>
-            <li>To send your 10% off code and, if you've agreed, occasional emails about HelloQT</li>
-            <li>To let you log in and see your past orders and delivery tracking</li>
-            <li>To answer questions you send through the contact form or Mini Sanji</li>
-            <li>To keep the site secure and stop it being misused</li>
-          </ul>
-        </Section>
-
-        <Section title="Who I share it with">
-          <p>
-            I use a small number of trusted companies to run HelloQT, and your information is only
-            ever shared with them for the purpose of running this shop, never sold or shared for
-            anyone else's marketing:
-          </p>
-          <ul className="list-disc space-y-1.5 pl-5">
-            <li>
-              <strong className="text-plum-800">Stripe</strong> — processes your payment securely
-            </li>
-            <li>
-              <strong className="text-plum-800">Supabase</strong> — securely stores your account and
-              order details
-            </li>
-            <li>
-              <strong className="text-plum-800">Resend</strong> — sends order, shipping and account
-              emails on my behalf
-            </li>
-            <li>
-              <strong className="text-plum-800">Anthropic</strong> — powers Mini Sanji; only messages
-              you choose to send it are shared, and only to generate a reply
-            </li>
-          </ul>
-        </Section>
-
-        <Section title="How long I keep it">
-          <p>
-            Order information is kept for as long as needed for accounting and to handle any
-            after-sales questions. If you unsubscribe from marketing emails, I stop emailing you but
-            may keep a record that you unsubscribed, so that choice is respected.
-          </p>
-        </Section>
-
-        <Section title="Cookies and your basket">
-          <p>
-            This site stores your shopping basket and a couple of small preferences (like whether
-            you've already seen the discount pop-up) directly in your browser, on your own device.
-            It never tracks you across other websites.
-          </p>
-        </Section>
-
-        <Section title="Your rights">
-          <p>Under UK data protection law, you can ask me at any time to:</p>
-          <ul className="list-disc space-y-1.5 pl-5">
-            <li>See what personal information I hold about you</li>
-            <li>Correct anything that's wrong</li>
-            <li>Delete your information, where I'm not required to keep it (such as for tax records)</li>
-            <li>Stop using your information for marketing</li>
-          </ul>
-          <p>
-            Just email{' '}
-            <a href="mailto:helloqts@hotmail.com" className="font-semibold text-blush-700">
-              helloqts@hotmail.com
-            </a>{' '}
-            and I'll sort it out. You can also unsubscribe from marketing emails any time using the
-            link at the bottom of any HelloQT email, or complain to the UK's Information
-            Commissioner's Office (ico.org.uk) if you're unhappy with how I've handled your data.
-          </p>
-        </Section>
-
-        <Section title="Changes to this policy">
-          <p>
-            If this policy changes, I'll update this page and the date at the top. Please check back
-            occasionally.
-          </p>
-        </Section>
-
-        <p className="mt-8 text-sm text-plum-500">
-          Questions? See the{' '}
-          <Link to="/contact" className="font-semibold text-blush-700">
-            contact page
-          </Link>
-          , or email{' '}
-          <a href="mailto:helloqts@hotmail.com" className="font-semibold text-blush-700">
-            helloqts@hotmail.com
-          </a>
-          .
+      <Section id="who-i-share-with" title="Who I share it with">
+        <p>
+          I use a few trusted companies to actually run the shop. They only ever receive what they
+          need for their part of it:
         </p>
-      </div>
-    </div>
+        <ul className="list-disc space-y-1.5 pl-5">
+          <li>
+            <strong className="text-plum-800">Stripe</strong> — takes your payment securely and
+            receives your name, email and payment details
+          </li>
+          <li>
+            <strong className="text-plum-800">Supabase</strong> — stores your account and order
+            records
+          </li>
+          <li>
+            <strong className="text-plum-800">Resend</strong> — sends your order, delivery and
+            account emails on my behalf
+          </li>
+          <li>
+            <strong className="text-plum-800">Anthropic</strong> — powers Mini Sanji, and receives
+            only the messages you choose to send it
+          </li>
+          <li>
+            <strong className="text-plum-800">Royal Mail</strong> — receives your name and delivery
+            address so your parcel can reach you
+          </li>
+        </ul>
+        <p>
+          I may also share information where I am legally required to, for example with HMRC for tax
+          records.
+        </p>
+      </Section>
+
+      <Section id="outside-the-uk" title="Data outside the UK">
+        <p>
+          Some of the companies above are based in, or store data in, countries outside the UK,
+          including the United States. Where that happens, they are required to protect your
+          information to a standard recognised by UK law, using safeguards such as the UK's
+          International Data Transfer Agreement or an adequacy decision. If you would like more
+          detail about a specific one, just ask.
+        </p>
+      </Section>
+
+      <Section id="how-long" title="How long I keep it">
+        <ul className="list-disc space-y-1.5 pl-5">
+          <li>
+            <strong className="text-plum-800">Order and payment records:</strong> six years from the
+            end of the tax year they fall in, because HMRC requires it
+          </li>
+          <li>
+            <strong className="text-plum-800">Your account:</strong> until you ask me to close it
+          </li>
+          <li>
+            <strong className="text-plum-800">Marketing sign-ups:</strong> until you unsubscribe.
+            After that I keep a note of your unsubscribe so I do not email you again by mistake
+          </li>
+          <li>
+            <strong className="text-plum-800">Messages you send me:</strong> up to two years, so I
+            have context if you get back in touch
+          </li>
+        </ul>
+      </Section>
+
+      <Section id="marketing" title="Marketing emails">
+        <p>
+          I only send marketing emails to people who have asked for them, or who have bought from me
+          and were offered the choice to opt out at the time. Every single marketing email has an
+          unsubscribe link at the bottom, and unsubscribing takes effect straight away.
+        </p>
+        <p>
+          Order confirmations and delivery updates are not marketing, so you will still receive
+          those for any order you place, even if you have unsubscribed.
+        </p>
+      </Section>
+
+      <Section id="cookies" title="Cookies and your basket">
+        <p>
+          This site stores your basket and a couple of small preferences, such as whether you have
+          already seen the discount pop-up, in your own browser on your own device. It does not
+          track you across other websites, and there are no advertising or analytics trackers.
+        </p>
+        <p>
+          Stripe may set its own cookies on its payment page to prevent fraud. That is covered by
+          Stripe's own privacy policy.
+        </p>
+      </Section>
+
+      <Section id="mini-sanji" title="Mini Sanji, the AI advisor">
+        <p>
+          Mini Sanji is an AI lash advisor, not me personally, and it will tell you so if you ask.
+          When you send it a message, that message is sent to Anthropic to generate a reply. Please
+          do not type anything sensitive into it. Your chat is not linked to your account or used to
+          market to you.
+        </p>
+      </Section>
+
+      <Section id="security" title="Keeping it safe">
+        <p>
+          The site is served over an encrypted connection, passwords are stored hashed so nobody
+          including me can read them, and access to order records is restricted so one customer can
+          never see another customer's details. If anything ever did go wrong in a way that put your
+          rights at risk, I am required to tell both you and the ICO.
+        </p>
+      </Section>
+
+      <Section id="your-rights" title="Your rights">
+        <p>Under UK data protection law you have the right to:</p>
+        <ul className="list-disc space-y-1.5 pl-5">
+          <li>Ask for a copy of the personal information I hold about you</li>
+          <li>Have anything inaccurate corrected</li>
+          <li>Ask me to delete your information, where I am not legally required to keep it</li>
+          <li>Ask me to restrict what I do with it, or object to a particular use</li>
+          <li>Ask for your information in a portable, machine-readable format</li>
+          <li>Withdraw your consent to marketing at any time</li>
+        </ul>
+        <p>
+          Email <EmailLink /> and I will respond within one month. It is free, and I will not ask you
+          why.
+        </p>
+      </Section>
+
+      <Section id="complaints" title="Complaints">
+        <p>
+          If you are unhappy with how I have handled your information, please tell me first and I
+          will do my best to put it right. You also have the right to complain to the Information
+          Commissioner's Office, the UK's data protection regulator, at{' '}
+          <a
+            href="https://ico.org.uk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-blush-700"
+          >
+            ico.org.uk
+          </a>{' '}
+          or on 0303 123 1113.
+        </p>
+      </Section>
+
+      <Section id="children" title="Children">
+        <p>
+          This shop is intended for adults. I do not knowingly collect information from anyone under
+          16. If you believe a child has given me their details, email me and I will delete them.
+        </p>
+      </Section>
+
+      <Section id="changes" title="Changes to this policy">
+        <p>
+          If this policy changes I will update this page and the date at the top. The version shown
+          here is always the current one.
+        </p>
+      </Section>
+    </PolicyLayout>
   )
 }
