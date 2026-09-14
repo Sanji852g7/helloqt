@@ -211,6 +211,8 @@ server/
 - [ ] Add the Anthropic key to enable Mini Sanji in production
 - [ ] Point the Supabase shipping webhook at the deployed URL
 - [ ] Reset the order sequence and clear test data before launch
+- [ ] Once live: update the **Status** line at the top, add the live URL, and
+      delete this checklist. Nothing else in this README goes out of date.
 
 ---
 
