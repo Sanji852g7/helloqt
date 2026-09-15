@@ -1,5 +1,8 @@
 import 'dotenv/config'
 import crypto from 'node:crypto'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import fs from 'node:fs'
 import express from 'express'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
@@ -10,6 +13,7 @@ import Stripe from 'stripe'
 import { products, collections } from '../src/data/products.js'
 import { DISCOUNT_RATE, priceOrder } from '../src/data/pricing.js'
 import {
+  BACKEND_BASE_URL,
   SITE_BASE_URL,
   WELCOME_CODE,
   mediaUrl,
@@ -23,15 +27,27 @@ const app = express()
 
 const PORT = process.env.PORT || 8787
 
-// Only the real shop may call this API from a browser, so a copycat site
-// cannot quietly use our backend to place orders or send emails
+// Only the real shop may call the API from a browser, so a copycat site
+// cannot quietly use it to place orders or send emails. This only needs to
+// guard /api/* — the shop's own JS, CSS and images are public files with
+// nothing to protect, and gating them by origin used to break the site
+// whenever it was served from anywhere other than the Vite dev port.
+// BACKEND_BASE_URL is included because this server now serves the shop
+// itself, so legitimate calls arrive from its own address.
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
-  .concat([SITE_BASE_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'])
+  .concat([
+    SITE_BASE_URL,
+    BACKEND_BASE_URL,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    `http://localhost:${PORT}`,
+  ])
 
 app.use(
+  '/api',
   cors({
     // No origin means a server-to-server call (webhooks, curl), which CORS does not guard anyway
     origin: (origin, callback) =>
@@ -641,7 +657,28 @@ app.post('/api/order-webhook', async (req, res) => {
   res.json({ sent: true })
 })
 
-// Starts the Express server for the AI chat backend
+/**
+ * Serves the built shop itself, so one Render service is the whole site —
+ * no separate frontend host, no cross-origin calls between them. Only kicks
+ * in once `npm run build` has produced a dist/ folder (it hasn't in local
+ * dev, where Vite's own dev server handles the frontend instead).
+ */
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const distDir = path.join(__dirname, '..', 'dist')
+
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir))
+
+  // Any route that isn't an API call is a page in the React app, so let
+  // React Router handle it client-side instead of a 404
+  app.get(/^(?!\/api\/).*/, (req, res) => {
+    res.sendFile(path.join(distDir, 'index.html'))
+  })
+} else {
+  console.log('[helloqt-server] No dist/ folder found — run `npm run build` to serve the shop from here.')
+}
+
+// Starts the Express server: the API, and the shop itself once built
 app.listen(PORT, () => {
-  console.log(`[helloqt-server] AI chat backend running on http://localhost:${PORT}`)
+  console.log(`[helloqt-server] running on http://localhost:${PORT}`)
 })
