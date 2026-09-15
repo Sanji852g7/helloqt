@@ -130,9 +130,9 @@ if (!process.env.RESEND_API_KEY) {
 }
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
-// Resend's shared test address; only delivers to your own Resend account
-// email until a real domain is verified with Resend.
-const FROM_EMAIL = 'HelloQT <onboarding@resend.dev>'
+// helloqt.co.uk is verified with Resend, so real customer inboxes accept
+// this now — no longer the shared onboarding@resend.dev test address
+const FROM_EMAIL = 'HelloQT <orders@helloqt.co.uk>'
 
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.warn(
