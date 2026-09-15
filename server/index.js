@@ -470,8 +470,9 @@ async function savePaidOrder(session) {
     from: FROM_EMAIL,
     to: email,
     // If the customer just hits reply asking about their order, it lands
-    // in a real inbox someone actually checks, not the sending address
-    reply_to: SUPPORT_EMAIL,
+    // in a real inbox someone actually checks, not the sending address.
+    // Resend's SDK wants camelCase here, not the API's reply_to.
+    replyTo: SUPPORT_EMAIL,
     subject: `Your HelloQT order ${orderRef} is confirmed`,
     html: orderEmailHtml({ orderRef, fullName, items: priced.items, total: priced.total }),
   })
@@ -546,7 +547,7 @@ app.post('/api/contact', emailLimit, async (req, res) => {
   const sent = await sendEmail(`Contact form enquiry from ${email}`, {
     from: FROM_EMAIL,
     to: SUPPORT_EMAIL,
-    reply_to: email,
+    replyTo: email,
     subject: `New enquiry from ${name}`,
     html: contactEnquiryEmailHtml({ name, email, message }),
   })
@@ -597,7 +598,7 @@ app.post('/api/subscribe', emailLimit, async (req, res) => {
       await sendEmail(`Welcome code for ${email}`, {
         from: FROM_EMAIL,
         to: email,
-        reply_to: SUPPORT_EMAIL,
+        replyTo: SUPPORT_EMAIL,
         subject: 'Your 10% off HelloQT code',
         html: welcomeEmailHtml({ email }),
       })
@@ -707,7 +708,7 @@ app.post('/api/order-webhook', async (req, res) => {
   const sent = await sendEmail(`Shipping notice for ${record.order_ref}`, {
     from: FROM_EMAIL,
     to: record.email,
-    reply_to: SUPPORT_EMAIL,
+    replyTo: SUPPORT_EMAIL,
     subject: `Your HelloQT order ${record.order_ref} has shipped!`,
     html: shippingEmailHtml({
       orderRef: record.order_ref,
