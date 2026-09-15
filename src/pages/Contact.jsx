@@ -39,6 +39,8 @@ export default function Contact() {
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
   const [sent, setSent] = useState(false)
+  const [sendError, setSendError] = useState(null)
+  const [sending, setSending] = useState(false)
   const [openFaq, setOpenFaq] = useState(null)
   const summaryRef = useRef(null)
 
@@ -48,10 +50,8 @@ export default function Contact() {
     if (touched[id]) setErrors(validate({ ...values, [id]: value }))
   }
 
-  // Demo only: no email is actually sent. Wire this to a real email service
-  // (e.g. via the server/ backend) before launch, alongside the AI chat API key.
-  // Validates the message, then fakes sending it (demo only)
-  const handleSubmit = (event) => {
+  // Validates the message, then actually emails it to HelloQT via the server
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const found = validate(values)
     setErrors(found)
@@ -61,9 +61,28 @@ export default function Contact() {
       window.requestAnimationFrame(() => summaryRef.current?.focus())
       return
     }
-    setSent(true)
-    setValues({})
-    setTouched({})
+
+    setSending(true)
+    setSendError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong sending your message.')
+
+      setSent(true)
+      setValues({})
+      setTouched({})
+    } catch (err) {
+      console.error('[helloqt] failed to send contact message:', err)
+      setSendError(err.message)
+      window.requestAnimationFrame(() => summaryRef.current?.focus())
+    } finally {
+      setSending(false)
+    }
   }
 
   const errorEntries = Object.entries(errors).filter(([id]) => touched[id])
@@ -94,7 +113,7 @@ export default function Contact() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate>
-              {errorEntries.length > 0 && (
+              {(errorEntries.length > 0 || sendError) && (
                 <div
                   ref={summaryRef}
                   tabIndex={-1}
@@ -102,24 +121,26 @@ export default function Contact() {
                   className="mb-7 rounded-2xl border-2 border-red-300 bg-red-50 p-5"
                 >
                   <h2 className="font-display text-lg font-bold text-red-800">
-                    There{' '}
-                    {errorEntries.length === 1
-                      ? 'is 1 problem'
-                      : `are ${errorEntries.length} problems`}{' '}
-                    with your message
+                    {sendError
+                      ? 'We could not send your message'
+                      : `There ${errorEntries.length === 1 ? 'is 1 problem' : `are ${errorEntries.length} problems`} with your message`}
                   </h2>
-                  <ul className="mt-3 space-y-1.5 text-sm">
-                    {errorEntries.map(([id, message]) => (
-                      <li key={id}>
-                        <a
-                          href={`#${id}`}
-                          className="font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
-                        >
-                          {message}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                  {sendError ? (
+                    <p className="mt-3 text-sm font-medium text-red-700">{sendError}</p>
+                  ) : (
+                    <ul className="mt-3 space-y-1.5 text-sm">
+                      {errorEntries.map(([id, message]) => (
+                        <li key={id}>
+                          <a
+                            href={`#${id}`}
+                            className="font-semibold text-red-700 underline underline-offset-2 hover:text-red-900"
+                          >
+                            {message}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               )}
 
@@ -196,8 +217,8 @@ export default function Contact() {
                   )}
                 </div>
 
-                <button type="submit" className="btn-primary w-full sm:w-auto">
-                  Send message
+                <button type="submit" disabled={sending} className="btn-primary w-full sm:w-auto">
+                  {sending ? 'Sending…' : 'Send message'}
                 </button>
               </div>
             </form>

@@ -16,6 +16,7 @@ import {
   BACKEND_BASE_URL,
   SITE_BASE_URL,
   WELCOME_CODE,
+  contactEnquiryEmailHtml,
   mediaUrl,
   orderEmailHtml,
   shippingEmailHtml,
@@ -133,6 +134,10 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // helloqt.co.uk is verified with Resend, so real customer inboxes accept
 // this now — no longer the shared onboarding@resend.dev test address
 const FROM_EMAIL = 'HelloQT <orders@helloqt.co.uk>'
+// The real inbox a human actually reads. Sending addresses like FROM_EMAIL
+// aren't checkable inboxes, so every outgoing email points replies here
+// instead, and the contact form delivers straight to it.
+const SUPPORT_EMAIL = 'helloqts@hotmail.com'
 
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.warn(
@@ -464,6 +469,9 @@ async function savePaidOrder(session) {
   await sendEmail(`Order confirmation for ${orderRef}`, {
     from: FROM_EMAIL,
     to: email,
+    // If the customer just hits reply asking about their order, it lands
+    // in a real inbox someone actually checks, not the sending address
+    reply_to: SUPPORT_EMAIL,
     subject: `Your HelloQT order ${orderRef} is confirmed`,
     html: orderEmailHtml({ orderRef, fullName, items: priced.items, total: priced.total }),
   })
@@ -521,6 +529,37 @@ app.get('/api/order-by-session', async (req, res) => {
 })
 
 /* ------------------------------------------------------------------ */
+/* Contact form                                                        */
+/* ------------------------------------------------------------------ */
+
+// Delivers a contact form message to Sanji's real inbox, with reply-to set
+// to the customer so replying to it goes straight back to them
+app.post('/api/contact', emailLimit, async (req, res) => {
+  const name = cleanText(req.body.name, 100)
+  const email = cleanText(req.body.email, 254)
+  const message = cleanText(req.body.message, 2000)
+
+  if (!name) return res.status(400).json({ error: 'Enter your name.' })
+  if (!isValidEmail(email)) return res.status(400).json({ error: 'Enter a valid email address.' })
+  if (!message) return res.status(400).json({ error: 'Enter a message.' })
+
+  const sent = await sendEmail(`Contact form enquiry from ${email}`, {
+    from: FROM_EMAIL,
+    to: SUPPORT_EMAIL,
+    reply_to: email,
+    subject: `New enquiry from ${name}`,
+    html: contactEnquiryEmailHtml({ name, email, message }),
+  })
+
+  if (!sent) {
+    return res
+      .status(502)
+      .json({ error: 'Something went wrong sending your message. Please email us directly instead.' })
+  }
+  res.json({ sent: true })
+})
+
+/* ------------------------------------------------------------------ */
 /* Email capture and discount codes                                    */
 /* ------------------------------------------------------------------ */
 
@@ -558,6 +597,7 @@ app.post('/api/subscribe', emailLimit, async (req, res) => {
       await sendEmail(`Welcome code for ${email}`, {
         from: FROM_EMAIL,
         to: email,
+        reply_to: SUPPORT_EMAIL,
         subject: 'Your 10% off HelloQT code',
         html: welcomeEmailHtml({ email }),
       })
@@ -667,6 +707,7 @@ app.post('/api/order-webhook', async (req, res) => {
   const sent = await sendEmail(`Shipping notice for ${record.order_ref}`, {
     from: FROM_EMAIL,
     to: record.email,
+    reply_to: SUPPORT_EMAIL,
     subject: `Your HelloQT order ${record.order_ref} has shipped!`,
     html: shippingEmailHtml({
       orderRef: record.order_ref,

@@ -205,3 +205,22 @@ export function shippingEmailHtml({ orderRef, fullName, trackingNumber }) {
     ${emailFooter()}
   `)
 }
+
+// Builds the email that lands in Sanji's own inbox when someone uses the
+// contact form. Not a marketing email, so no unsubscribe footer — this one
+// goes to her, not a customer.
+export function contactEnquiryEmailHtml({ name, email, message }) {
+  // Preserve the customer's paragraph breaks without ever trusting their
+  // text as HTML — escape first, then turn plain newlines into <br>s
+  const safeMessage = escapeHtml(message).replace(/\n/g, '<br>')
+  return emailLayout(`
+    <h1 style="color:#ec5c8d; font-size:22px; margin:0 0 12px;">New enquiry from your site 💌</h1>
+    <p style="margin:0 0 4px;"><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">
+      <tr>
+        <td style="background:#fdf0f4; border-radius:12px; padding:16px; line-height:1.6;">${safeMessage}</td>
+      </tr>
+    </table>
+    <p style="margin-top:18px; font-size:13px; color:#8a5a68;">Just hit reply, it'll go straight to ${escapeHtml(name)}.</p>
+  `)
+}
