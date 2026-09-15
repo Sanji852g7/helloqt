@@ -22,10 +22,32 @@ import {
   unsubscribeToken,
   welcomeEmailHtml,
 } from './emails.js'
+import { MAINTENANCE_EXEMPT_PATHS, isMaintenanceMode, maintenancePageHtml } from './maintenance.js'
 
 const app = express()
 
 const PORT = process.env.PORT || 8787
+
+/**
+ * Pauses the whole shop for a bigger change, without touching any code —
+ * just the MAINTENANCE_MODE environment variable in Render, flipped on and
+ * off as needed. Checked first, before CORS, parsing or rate limiting, so a
+ * paused shop does as little work as possible.
+ *
+ * Stripe's and Supabase's webhooks are exempt on purpose: they are reporting
+ * something that has ALREADY happened (a payment went through, an order
+ * shipped), so dropping those during maintenance would lose a real
+ * customer's order or tracking email, not just show them a "back soon" page.
+ */
+app.use((req, res, next) => {
+  if (!isMaintenanceMode() || MAINTENANCE_EXEMPT_PATHS.includes(req.path)) return next()
+
+  res.status(503)
+  if (req.path.startsWith('/api/')) {
+    return res.json({ error: 'HelloQT is closed for a quick update, back very soon.' })
+  }
+  res.send(maintenancePageHtml())
+})
 
 // Only the real shop may call the API from a browser, so a copycat site
 // cannot quietly use it to place orders or send emails. This only needs to
