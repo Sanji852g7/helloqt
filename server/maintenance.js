@@ -91,7 +91,7 @@ export function maintenancePageHtml() {
     <div class="heart">💕</div>
     <h1>Back very soon</h1>
     <p>HelloQT is having a little makeover behind the scenes.</p>
-    <p>Thanks so much for your patience, normal service (and lashes) will be back shortly.</p>
+    <p>Thank you so much for your patience. We will be back shortly.</p>
     ${message ? `<div class="note">${escapeForMaintenancePage(message)}</div>` : ''}
     <p style="margin-top:18px;">Something urgent? Email
       <a href="mailto:helloqts@hotmail.com">helloqts@hotmail.com</a>
