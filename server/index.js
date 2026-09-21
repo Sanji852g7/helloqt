@@ -689,8 +689,11 @@ app.post('/api/order-webhook', async (req, res) => {
     return res.json({ skipped: true })
   }
 
-  const justShipped =
-    record?.status === 'shipped' && old_record?.status !== 'shipped' && record?.tracking_number
+  // Fires the moment an order is both "shipped" and has a tracking number,
+  // however that state was reached — status and tracking number are often
+  // set as two separate edits in Table Editor, not one combined update
+  const isShippedWithTracking = (row) => row?.status === 'shipped' && row?.tracking_number
+  const justShipped = isShippedWithTracking(record) && !isShippedWithTracking(old_record)
 
   if (!justShipped) {
     return res.json({ skipped: true })
