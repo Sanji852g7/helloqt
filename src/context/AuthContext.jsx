@@ -25,8 +25,14 @@ export function AuthProvider({ children }) {
     () => ({
       user: session?.user ?? null,
       loading,
-      // Creates a new account with email and password
-      signUp: (email, password) => supabase.auth.signUp({ email, password }),
+      // Creates a new account with email and password, plus a real name so
+      // reviews and order records show more than just an email address
+      signUp: (email, password, { firstName, surname } = {}) =>
+        supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { first_name: firstName, surname } },
+        }),
       // Logs an existing user in with email and password
       signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
       // Logs the current user out

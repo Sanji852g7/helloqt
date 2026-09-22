@@ -10,6 +10,8 @@ export default function Login() {
   const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [surname, setSurname] = useState('')
   const [error, setError] = useState(null)
   const [info, setInfo] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -25,7 +27,9 @@ export default function Login() {
     setSubmitting(true)
 
     const { data, error: authError } =
-      mode === 'signin' ? await signIn(email, password) : await signUp(email, password)
+      mode === 'signin'
+        ? await signIn(email, password)
+        : await signUp(email, password, { firstName, surname })
 
     setSubmitting(false)
 
@@ -81,6 +85,44 @@ export default function Login() {
             )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4 text-left">
+              {mode === 'signup' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      htmlFor="firstName"
+                      className="mb-1.5 block text-sm font-semibold text-plum-700"
+                    >
+                      First name
+                    </label>
+                    <input
+                      id="firstName"
+                      type="text"
+                      autoComplete="given-name"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="field"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="surname"
+                      className="mb-1.5 block text-sm font-semibold text-plum-700"
+                    >
+                      Surname
+                    </label>
+                    <input
+                      id="surname"
+                      type="text"
+                      autoComplete="family-name"
+                      required
+                      value={surname}
+                      onChange={(e) => setSurname(e.target.value)}
+                      className="field"
+                    />
+                  </div>
+                </div>
+              )}
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-plum-700">
                   Email address

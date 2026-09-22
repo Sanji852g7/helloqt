@@ -19,6 +19,8 @@ import {
   contactEnquiryEmailHtml,
   mediaUrl,
   orderEmailHtml,
+  reviewRequestEmailHtml,
+  reviewToken,
   shippingEmailHtml,
   unsubscribeToken,
   welcomeEmailHtml,
@@ -672,12 +674,13 @@ app.get('/api/unsubscribe', emailLimit, async (req, res) => {
 })
 
 /* ------------------------------------------------------------------ */
-/* Shipping webhook                                                    */
+/* Shipping + review webhook                                          */
 /* ------------------------------------------------------------------ */
 
-// Called by a Supabase Database Webhook whenever an order row changes;
-// sends a shipping email the moment status first flips to "shipped".
-// The shared secret header stops anyone else sending fake tracking emails.
+// Called by a Supabase Database Webhook whenever an order row changes; sends
+// a shipping email the moment status first flips to "shipped", and a review
+// request the moment it first flips to "delivered". The shared secret header
+// stops anyone else sending fake emails through this endpoint.
 app.post('/api/order-webhook', async (req, res) => {
   if (!ORDER_WEBHOOK_SECRET || !secretsMatch(req.headers['x-webhook-secret'] ?? '', ORDER_WEBHOOK_SECRET)) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -694,8 +697,9 @@ app.post('/api/order-webhook', async (req, res) => {
   // set as two separate edits in Table Editor, not one combined update
   const isShippedWithTracking = (row) => row?.status === 'shipped' && row?.tracking_number
   const justShipped = isShippedWithTracking(record) && !isShippedWithTracking(old_record)
+  const justDelivered = record?.status === 'delivered' && old_record?.status !== 'delivered'
 
-  if (!justShipped) {
+  if (!justShipped && !justDelivered) {
     return res.json({ skipped: true })
   }
 
@@ -704,24 +708,120 @@ app.post('/api/order-webhook', async (req, res) => {
   }
 
   if (!record.email) {
-    console.warn(`[helloqt-server] Order ${record.order_ref} shipped but has no email on file`)
+    console.warn(`[helloqt-server] Order ${record.order_ref} updated but has no email on file`)
     return res.json({ skipped: true, reason: 'no email on order' })
   }
 
-  const sent = await sendEmail(`Shipping notice for ${record.order_ref}`, {
-    from: FROM_EMAIL,
-    to: record.email,
-    replyTo: SUPPORT_EMAIL,
-    subject: `Your HelloQT order ${record.order_ref} has shipped!`,
-    html: shippingEmailHtml({
-      orderRef: record.order_ref,
-      fullName: record.full_name,
-      trackingNumber: record.tracking_number,
-    }),
+  const sent = justShipped
+    ? await sendEmail(`Shipping notice for ${record.order_ref}`, {
+        from: FROM_EMAIL,
+        to: record.email,
+        replyTo: SUPPORT_EMAIL,
+        subject: `Your HelloQT order ${record.order_ref} has shipped!`,
+        html: shippingEmailHtml({
+          orderRef: record.order_ref,
+          fullName: record.full_name,
+          trackingNumber: record.tracking_number,
+        }),
+      })
+    : await sendEmail(`Review request for ${record.order_ref}`, {
+        from: FROM_EMAIL,
+        to: record.email,
+        replyTo: SUPPORT_EMAIL,
+        subject: `How was your HelloQT order?`,
+        html: reviewRequestEmailHtml({
+          orderRef: record.order_ref,
+          fullName: record.full_name,
+          reviewUrl: `${SITE_BASE_URL}/review/${encodeURIComponent(record.order_ref)}?t=${reviewToken(record.order_ref)}`,
+        }),
+      })
+
+  if (!sent) return res.status(502).json({ error: 'Something went wrong sending the email.' })
+  res.json({ sent: true })
+})
+
+/* ------------------------------------------------------------------ */
+/* Reviews                                                             */
+/* ------------------------------------------------------------------ */
+
+// Looks up an order by its ref and checks the review link's signature is
+// genuine, returning both — every review route needs this same check
+async function orderFromReviewLink(orderRef, token) {
+  if (!orderRef || !token || !secretsMatch(token, reviewToken(orderRef) ?? '')) return null
+  const { data } = await supabaseAdmin
+    .from('orders')
+    .select('order_ref, full_name, items')
+    .eq('order_ref', orderRef)
+    .maybeSingle()
+  return data ?? null
+}
+
+// Tells the review page what was actually bought on this order, so it can
+// only ever offer real products from a real purchase to review
+app.get('/api/review-context/:orderRef', async (req, res) => {
+  const order = await orderFromReviewLink(req.params.orderRef, req.query.t)
+  if (!order) return res.status(404).json({ error: 'That review link is invalid or has expired.' })
+
+  const { data: existing } = await supabaseAdmin
+    .from('reviews')
+    .select('product_slug')
+    .eq('order_ref', order.order_ref)
+  const reviewed = new Set((existing ?? []).map((r) => r.product_slug))
+
+  res.json({
+    orderRef: order.order_ref,
+    items: (order.items ?? []).map((item) => ({
+      slug: item.slug,
+      name: item.name,
+      image: item.image,
+      alreadyReviewed: reviewed.has(item.slug),
+    })),
+  })
+})
+
+// Saves a new review as "pending" — never shown on the site until Sanji
+// approves it in Table Editor. The review link's signature is the proof of
+// purchase, so no account or login is required to leave one.
+app.post('/api/reviews', emailLimit, async (req, res) => {
+  const orderRef = cleanText(req.body.orderRef, 40)
+  const token = cleanText(req.body.t, 64)
+  const order = await orderFromReviewLink(orderRef, token)
+  if (!order) return res.status(404).json({ error: 'That review link is invalid or has expired.' })
+
+  const slug = cleanText(req.body.slug, 60)
+  const boughtItem = (order.items ?? []).find((item) => item.slug === slug)
+  if (!boughtItem) return res.status(400).json({ error: 'That was not part of this order.' })
+
+  const rating = Number(req.body.rating)
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return res.status(400).json({ error: 'Choose a rating from 1 to 5 stars.' })
+  }
+
+  const body = cleanText(req.body.body, 1000)
+  if (!body) return res.status(400).json({ error: 'Write a few words about it.' })
+
+  // "First L." — a real first name reads as trustworthy without publishing a
+  // customer's full surname
+  const [firstName, ...rest] = (order.full_name || 'A HelloQT customer').trim().split(/\s+/)
+  const lastInitial = rest.length ? ` ${rest[rest.length - 1][0].toUpperCase()}.` : ''
+
+  const { error } = await supabaseAdmin.from('reviews').insert({
+    order_ref: order.order_ref,
+    product_slug: slug,
+    reviewer_name: `${firstName}${lastInitial}`,
+    rating,
+    body,
   })
 
-  if (!sent) return res.status(502).json({ error: 'Something went wrong sending the shipping email.' })
-  res.json({ sent: true })
+  if (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({ error: 'You have already reviewed this product.' })
+    }
+    console.error('[helloqt-server] failed to save review:', error)
+    return res.status(500).json({ error: 'Something went wrong saving your review.' })
+  }
+
+  res.json({ saved: true })
 })
 
 /**

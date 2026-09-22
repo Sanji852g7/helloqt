@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getCollection, getProduct, products } from '../data/products'
 import { formatPrice, useCart } from '../context/CartContext'
+import { supabase } from '../lib/supabaseClient'
 import ProductCard from '../components/ProductCard'
 import {
   ArrowLeftIcon,
@@ -13,6 +14,20 @@ import {
   TruckIcon,
 } from '../components/Icons'
 
+// Star rating display, filled up to `rating` out of 5
+function Stars({ rating, className = 'h-4 w-4' }) {
+  return (
+    <div className="flex" role="img" aria-label={`Rated ${rating} out of 5 stars`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <StarIcon
+          key={i}
+          className={`${className} ${i < Math.round(rating) ? 'text-gold-400' : 'text-blush-200'}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 // Single product page with gallery, specs, and add-to-cart
 export default function ProductDetail() {
   const { slug } = useParams()
@@ -21,6 +36,27 @@ export default function ProductDetail() {
   const { addItem } = useCart()
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [reviewsLoading, setReviewsLoading] = useState(true)
+
+  useEffect(() => {
+    setReviewsLoading(true)
+    supabase
+      .from('reviews')
+      .select('reviewer_name, rating, body, created_at')
+      .eq('product_slug', slug)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (error) console.error('[helloqt] failed to load reviews:', error.message)
+        setReviews(data ?? [])
+        setReviewsLoading(false)
+      })
+  }, [slug])
+
+  const averageRating = reviews.length
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0
 
   if (!product) {
     return (
@@ -122,14 +158,14 @@ export default function ProductDetail() {
           </p>
           <h1 className="mt-2 font-display text-4xl font-bold sm:text-5xl">{product.name}</h1>
 
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex" role="img" aria-label="Rated 4.9 out of 5 stars">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <StarIcon key={i} className="h-4 w-4 text-gold-400" />
-              ))}
+          {!reviewsLoading && reviews.length > 0 && (
+            <div className="mt-3 flex items-center gap-2">
+              <Stars rating={averageRating} />
+              <span className="text-sm text-plum-500">
+                {averageRating.toFixed(1)} · {reviews.length} review{reviews.length === 1 ? '' : 's'}
+              </span>
             </div>
-            <span className="text-sm text-plum-500">4.9 · 38 reviews</span>
-          </div>
+          )}
 
           <p className="mt-5 font-display text-3xl font-bold text-plum-900">
             {formatPrice(product.price)}
@@ -200,6 +236,37 @@ export default function ProductDetail() {
           </dl>
         </div>
       </div>
+
+      <section className="mt-20">
+        <h2 className="font-display text-3xl font-bold">Reviews</h2>
+
+        {reviewsLoading ? null : reviews.length === 0 ? (
+          <p className="mt-4 text-plum-600">
+            No reviews yet, {product.name} is waiting for its first one.
+          </p>
+        ) : (
+          <div className="mt-6 space-y-5">
+            {reviews.map((review, i) => (
+              <div
+                key={i}
+                className="rounded-3xl border border-blush-200 bg-white p-6 shadow-soft"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Stars rating={review.rating} />
+                    <span className="font-semibold text-plum-800">{review.reviewer_name}</span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blush-50 px-2.5 py-1 text-xs font-semibold text-blush-700">
+                    <CheckIcon className="h-3.5 w-3.5" />
+                    Verified purchase
+                  </span>
+                </div>
+                <p className="mt-3 leading-relaxed text-plum-600">{review.body}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="mt-20">
         <h2 className="font-display text-3xl font-bold">You may also love</h2>

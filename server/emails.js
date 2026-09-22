@@ -52,6 +52,18 @@ export function unsubscribeToken(email) {
     .slice(0, 32)
 }
 
+// Creates the signature proving a review link came from a genuine delivered-
+// order email, not a guessed URL — the same secret as unsubscribe links,
+// since both just need to prove "this really came from us"
+export function reviewToken(orderRef) {
+  if (!UNSUBSCRIBE_SECRET) return null
+  return crypto
+    .createHmac('sha256', UNSUBSCRIBE_SECRET)
+    .update(`review:${orderRef}`)
+    .digest('hex')
+    .slice(0, 32)
+}
+
 // Wraps email content in a full, table-based HTML document so phone and
 // desktop mail apps render it the same way, instead of a bare styled div
 function emailLayout(bodyHtml) {
@@ -201,6 +213,27 @@ export function shippingEmailHtml({ orderRef, fullName, trackingNumber }) {
     <p style="margin-top:16px;">
       <a href="${royalMailTrackingUrl(trackingNumber)}" style="color:#ec5c8d; font-weight:bold;">Track your parcel with Royal Mail &rarr;</a>
     </p>
+    <p style="margin-top:24px; font-family:cursive, Georgia, serif; font-size:20px;">xo, Sanji</p>
+    ${emailFooter()}
+  `)
+}
+
+// Builds the "how was it?" review request email's HTML body, sent once an
+// order is marked delivered
+export function reviewRequestEmailHtml({ orderRef, fullName, reviewUrl }) {
+  return emailLayout(`
+    <img src="${LOGO_URL}" alt="HelloQT" width="56" height="56"
+      style="border-radius:50%; display:block; margin-bottom:12px;" />
+    <h1 style="color:#ec5c8d; font-size:22px; margin:0 0 12px;">How was it, ${escapeHtml(fullName) || 'lovely'}? 💕</h1>
+    <p style="margin:0 0 12px;">Your order <strong>${escapeHtml(orderRef)}</strong> should have landed with you by now. I'd love to know what you thought!</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;">
+      <tr>
+        <td style="border-radius:14px; background:#ec5c8d;">
+          <a href="${reviewUrl}" style="display:inline-block; padding:14px 24px; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none;">Leave a review &rarr;</a>
+        </td>
+      </tr>
+    </table>
+    <p style="margin-top:20px; font-size:13px; color:#8a5a68;">Takes less than a minute, and it means the world to a small business like mine.</p>
     <p style="margin-top:24px; font-family:cursive, Georgia, serif; font-size:20px;">xo, Sanji</p>
     ${emailFooter()}
   `)
