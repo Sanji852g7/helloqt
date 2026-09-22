@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import LoginHeartAnimation from '../components/LoginHeartAnimation'
 import { EyeIcon, EyeOffIcon } from '../components/Icons'
@@ -11,13 +11,16 @@ export default function Login() {
   const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [firstName, setFirstName] = useState('')
   const [surname, setSurname] = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [error, setError] = useState(null)
   const [info, setInfo] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   if (user && !success) return <Navigate to="/account" replace />
 
@@ -26,6 +29,18 @@ export default function Login() {
     event.preventDefault()
     setError(null)
     setInfo(null)
+
+    if (mode === 'signup') {
+      if (password !== confirmPassword) {
+        setError('Those passwords do not match.')
+        return
+      }
+      if (!agreedToTerms) {
+        setError('Please agree to the Terms and Privacy Policy to continue.')
+        return
+      }
+    }
+
     setSubmitting(true)
 
     const { data, error: authError } =
@@ -169,6 +184,65 @@ export default function Login() {
                   </button>
                 </div>
               </div>
+
+              {mode === 'signup' && (
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="mb-1.5 block text-sm font-semibold text-plum-700"
+                  >
+                    Confirm password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      minLength={6}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="field pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showConfirmPassword}
+                      className="absolute inset-y-0 right-0 flex w-12 cursor-pointer items-center justify-center text-plum-400 transition hover:text-plum-600"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOffIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {mode === 'signup' && (
+                <label htmlFor="agreedToTerms" className="flex items-start gap-2.5 text-sm text-plum-600">
+                  <input
+                    id="agreedToTerms"
+                    type="checkbox"
+                    required
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-blush-300 accent-blush-600 focus:ring-blush-300"
+                  />
+                  <span>
+                    I agree to the{' '}
+                    <Link to="/terms" target="_blank" className="font-semibold text-blush-700 underline">
+                      Terms
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/privacy" target="_blank" className="font-semibold text-blush-700 underline">
+                      Privacy Policy
+                    </Link>
+                  </span>
+                </label>
+              )}
 
               <button type="submit" disabled={submitting} className="btn-primary w-full">
                 {submitting ? 'Please wait…' : mode === 'signin' ? 'Log in' : 'Sign up'}
