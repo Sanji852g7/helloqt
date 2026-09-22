@@ -176,3 +176,20 @@ export const UserIcon = (props) => (
     <path d="M5 20c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5" />
   </svg>
 )
+
+// Open eye icon, for "show password" toggles
+export const EyeIcon = (props) => (
+  <svg {...base} {...props}>
+    <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+)
+
+// Eye with a line through it, for "hide password" toggles
+export const EyeOffIcon = (props) => (
+  <svg {...base} {...props}>
+    <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+    <circle cx="12" cy="12" r="3" />
+    <path d="M3.5 3.5 20.5 20.5" />
+  </svg>
+)
