@@ -105,10 +105,16 @@ export default function Account() {
   if (loading) return null
   if (!user) return <Navigate to="/login" replace />
 
+  // Older accounts made before sign-up asked for a name won't have one set
+  const fullName = [user.user_metadata?.first_name, user.user_metadata?.surname]
+    .filter(Boolean)
+    .join(' ')
+
   return (
     <div className="section py-12 sm:py-16">
       <h1 className="font-display text-4xl font-bold sm:text-5xl">Your account</h1>
-      <p className="mt-2 text-plum-600">{user.email}</p>
+      {fullName && <p className="mt-2 text-lg font-semibold text-plum-800">{fullName}</p>}
+      <p className={`text-plum-600 ${fullName ? 'mt-1' : 'mt-2'}`}>{user.email}</p>
 
       <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
         <h2 className="font-display text-xl font-bold">Your orders</h2>
