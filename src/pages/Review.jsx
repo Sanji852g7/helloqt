@@ -96,7 +96,8 @@ export default function Review() {
             </span>
             <h1 className="mt-5 font-display text-xl font-bold">Thank you! 💕</h1>
             <p className="mt-2 text-plum-600">
-              Your review has been sent for a quick look before it goes live.
+              Your review has been sent. It helps a small business like mine improve, so thank you
+              so much for your time.
             </p>
           </>
         ) : (
