@@ -54,14 +54,18 @@ export default function AiLashChat() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-blush-600 text-white shadow-lift transition hover:bg-blush-700 active:scale-95"
+        className="fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-blush-600 text-white shadow-lift transition hover:bg-blush-700 active:scale-95 sm:bottom-5 sm:right-5 sm:h-14 sm:w-14"
         aria-label={open ? 'Close Mini Sanji chat' : 'Chat with Mini Sanji'}
       >
-        {open ? <CloseIcon className="h-6 w-6" /> : <ChatIcon className="h-6 w-6" />}
+        {open ? (
+          <CloseIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+        ) : (
+          <ChatIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+        )}
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-5 z-40 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-[1.5rem] border border-blush-200 bg-cream shadow-lift">
+        <div className="fixed bottom-20 right-4 z-40 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[1.5rem] border border-blush-200 bg-cream shadow-lift sm:bottom-24 sm:right-5 sm:max-w-[calc(100vw-2.5rem)]">
           <div className="flex items-center gap-2 border-b border-blush-100 bg-blush-50 px-4 py-3">
             <ChatIcon className="h-4 w-4 text-blush-600" />
             <p className="font-display text-sm font-bold text-plum-800">Mini Sanji</p>

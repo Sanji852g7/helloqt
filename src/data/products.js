@@ -2,9 +2,9 @@ export const collections = {
   suitcase: {
     id: 'suitcase',
     volume: 'Vol. 01',
-    name: 'Suitcase Set',
+    name: 'The QT Luggage Set 🧳',
     length: '25mm',
-    tagline: 'Big, dramatic and ready to travel.',
+    tagline: 'Bold, dramatic and ready to travel.',
     description:
       'Our longest, boldest lashes, 25mm of full-blown drama, tucked inside a little pink travel suitcase so they are just as fun to unbox as they are to wear.',
     cover: '/media/king.JPG',
@@ -14,9 +14,9 @@ export const collections = {
   compact: {
     id: 'compact',
     volume: 'Vol. 02',
-    name: 'Compact Set',
+    name: 'The QT Vanity Set 🪞',
     length: '15mm',
-    tagline: 'Our everyday 15mm, with a mirror built right in.',
+    tagline: 'Cute, compact & ready to glam.',
     description:
       'The size we reach for most. 15mm of soft, wearable definition, finished in a rose gold compact with a built-in mirror for touch-ups wherever you are.',
     cover: '/media/royalty.JPG',
@@ -40,7 +40,7 @@ export const products = [
     badge: 'Bestseller',
     tagline: 'Full length, feather-light finish.',
     description:
-      'Angel proves long does not have to mean heavy. Feathered, criss-crossed layers build all the way out to 25mm without ever tugging at your lash line. Packed in her own little pink suitcase, ready for her close-up.',
+      'Angel proves long does not have to mean heavy. Feathered, criss-crossed layers build all the way out to 25mm without ever tugging at your lash line. Packed in her own case from The QT Luggage Set, ready for her close-up.',
   },
   {
     slug: 'cherish',
@@ -56,7 +56,7 @@ export const products = [
     badge: null,
     tagline: 'The one you will reach for on a big night.',
     description:
-      'Cherish takes our 25mm length and softens it with texture through the centre, so the drama still feels like you. Comes home in the signature HelloQT suitcase case.',
+      'Cherish takes our 25mm length and softens it with texture through the centre, so the drama still feels like you. Comes home in the signature QT Luggage Set case.',
   },
   {
     slug: 'king',
@@ -72,7 +72,7 @@ export const products = [
     badge: null,
     tagline: 'Our boldest spike, full 25mm.',
     description:
-      'Sharp, fanned-out spikes with plenty of gaps for a wet, textured finish. King is the statement lash for anyone who does not do subtle, housed in our mini travel suitcase.',
+      'Sharp, fanned-out spikes with plenty of gaps for a wet, textured finish. King is the statement lash for anyone who does not do subtle, housed in the mini travel case from The QT Luggage Set.',
   },
   {
     slug: 'luck',
@@ -88,7 +88,7 @@ export const products = [
     badge: null,
     tagline: 'Feathery drama that still feels light.',
     description:
-      'Luck fans out into soft, feathery spikes so the full 25mm length reads as glamorous rather than heavy. Comes packed in her own pink suitcase, buckle and all.',
+      'Luck fans out into soft, feathery spikes so the full 25mm length reads as glamorous rather than heavy. Comes packed in her own QT Luggage Set case, buckle and all.',
   },
 
   // Vol. 02 — Compact (15mm, everyday)
@@ -106,7 +106,7 @@ export const products = [
     badge: null,
     tagline: 'A lifted flutter that does all the work.',
     description:
-      'Graduated lengths build gently towards the outer corner for a soft lift. Classy is our everyday 15mm, tucked into a rose gold mirror compact for touch-ups on the go.',
+      'Graduated lengths build gently towards the outer corner for a soft lift. Classy is our everyday 15mm, tucked into the rose gold mirror compact from The QT Vanity Set for touch-ups on the go.',
   },
   {
     slug: 'dolledup',
@@ -122,7 +122,7 @@ export const products = [
     badge: null,
     tagline: 'All the glam, none of the length.',
     description:
-      'Dense and dark through the centre for a proper glam finish, without going past our everyday 15mm. Comes home in its own mirrored compact.',
+      'Dense and dark through the centre for a proper glam finish, without going past our everyday 15mm. Comes home in its own mirrored case from The QT Vanity Set.',
   },
   {
     slug: 'goddess',
@@ -138,7 +138,7 @@ export const products = [
     badge: null,
     tagline: 'Big, fluffy, impossible to ignore.',
     description:
-      'Our fluffiest volume style. Feather-light spikes stacked over a full base give you that editorial, freshly-lifted look at our everyday 15mm length, mirror compact included.',
+      'Our fluffiest volume style. Feather-light spikes stacked over a full base give you that editorial, freshly-lifted look at our everyday 15mm length, with a QT Vanity Set mirror compact included.',
   },
   {
     slug: 'halo',
@@ -154,7 +154,7 @@ export const products = [
     badge: null,
     tagline: 'Rounded, doe-eyed and dreamy.',
     description:
-      'Fullest through the centre for a soft, rounded doe-eye. A gorgeous everyday pick for almond and hooded eye shapes, in our signature mirror compact.',
+      'Fullest through the centre for a soft, rounded doe-eye. A gorgeous everyday pick for almond and hooded eye shapes, in our signature QT Vanity Set mirror compact.',
   },
   {
     slug: 'lust',
@@ -170,7 +170,7 @@ export const products = [
     badge: null,
     tagline: 'Housed in our sparkliest mirror compact.',
     description:
-      'Lust arrives in a shimmering rose gold compact with a built-in mirror, so touch-ups on a night out are effortless. A sultry, tapered everyday-length style.',
+      'Lust arrives in a shimmering rose gold compact from The QT Vanity Set, built-in mirror included, so touch-ups on a night out are effortless. A sultry, tapered everyday-length style.',
   },
   {
     slug: 'royalty',
@@ -186,7 +186,7 @@ export const products = [
     badge: 'My Pick',
     tagline: 'The full HelloQT experience.',
     description:
-      'Layered, glossy and richly full, our most luxurious everyday style, finished in premium mirror-compact packaging. Royalty is the one you save for the moments that matter.',
+      'Layered, glossy and richly full, our most luxurious everyday style, finished in premium QT Vanity Set mirror-compact packaging. Royalty is the one you save for the moments that matter.',
   },
 ]
 

@@ -4,37 +4,37 @@ import { InstagramIcon, MailIcon, PinIcon } from './Icons'
 // Site footer with brand blurb, nav links, and contact info
 export default function Footer() {
   return (
-    <footer className="mt-24 border-t border-blush-200 bg-gradient-to-b from-blush-50 to-blush-100">
-      <div className="section grid grid-cols-2 gap-10 py-14 lg:grid-cols-4">
+    <footer className="mt-16 border-t border-blush-200 bg-gradient-to-b from-blush-50 to-blush-100">
+      <div className="section grid grid-cols-2 gap-8 py-10 lg:grid-cols-4">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <img
               src="/media/helloqtlogo.JPG"
               alt=""
-              width="48"
-              height="48"
-              className="h-12 w-12 rounded-full object-cover ring-2 ring-gold-300"
+              width="40"
+              height="40"
+              className="h-10 w-10 rounded-full object-cover ring-2 ring-gold-300"
             />
-            <span className="font-display text-xl font-bold text-plum-900">HelloQT</span>
+            <span className="font-display text-lg font-bold text-plum-900">HelloQT</span>
           </div>
-          <p className="mt-4 font-script text-2xl text-blush-600">
-            Enhance your beauty with HelloQT
-          </p>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-plum-600">
             Handcrafted, reusable and cruelty-free lashes, packed with love by me.
           </p>
-          <p className="mt-4 font-script text-xl text-plum-500">xo, Sanji</p>
+          <p className="mt-2 font-script text-lg text-plum-500">xo, Sanji</p>
         </div>
 
         <nav aria-labelledby="footer-shop">
           <h2 id="footer-shop" className="font-display text-base font-bold text-plum-900">
             Shop
           </h2>
-          <ul className="mt-4 space-y-2 text-sm">
+          <ul className="mt-3 space-y-1.5 text-sm">
             {[
               { to: '/shop', label: 'All lashes' },
-              { to: '/shop?collection=suitcase#suitcase', label: 'Vol. 01, Suitcase Set' },
-              { to: '/shop?collection=compact#compact', label: 'Vol. 02, Compact Set' },
+              {
+                to: '/shop?collection=suitcase#suitcase',
+                label: 'Vol. 01, The QT Luggage Set',
+              },
+              { to: '/shop?collection=compact#compact', label: 'Vol. 02, The QT Vanity Set' },
               { to: '/cart', label: 'Your basket' },
             ].map((item) => (
               <li key={item.label}>
@@ -53,7 +53,7 @@ export default function Footer() {
           <h2 id="footer-help" className="font-display text-base font-bold text-plum-900">
             Help
           </h2>
-          <ul className="mt-4 space-y-2 text-sm">
+          <ul className="mt-3 space-y-1.5 text-sm">
             {[
               { to: '/about', label: 'My story' },
               { to: '/contact', label: 'Contact us' },
@@ -74,7 +74,7 @@ export default function Footer() {
 
         <div>
           <h2 className="font-display text-base font-bold text-plum-900">Find us</h2>
-          <ul className="mt-4 space-y-3 text-sm text-plum-600">
+          <ul className="mt-3 space-y-2 text-sm text-plum-600">
             <li className="flex items-start gap-2.5">
               <PinIcon className="mt-0.5 h-4 w-4 shrink-0 text-blush-500" />
               <span>London, UK</span>
@@ -104,7 +104,7 @@ export default function Footer() {
       </div>
 
       <div className="h-px gold-rule" />
-      <div className="section flex flex-col gap-3 py-6 text-center text-xs text-plum-500 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+      <div className="section flex flex-col gap-2 py-4 text-center text-xs text-plum-500 sm:flex-row sm:items-center sm:justify-between sm:text-left">
         <p>© {new Date().getFullYear()} HelloQT. All rights reserved.</p>
         <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:justify-end">
           <Link to="/privacy" className="transition hover:text-blush-700">

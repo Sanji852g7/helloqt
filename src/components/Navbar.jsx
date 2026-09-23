@@ -37,16 +37,16 @@ export default function Navbar() {
         Skip to content
       </a>
 
-      <div className="section flex h-[76px] items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-3" aria-label="HelloQT home">
+      <div className="section flex h-16 items-center justify-between gap-4">
+        <Link to="/" className="flex items-center gap-2.5" aria-label="HelloQT home">
           <img
             src="/media/helloqtlogo.JPG"
             alt=""
-            width="48"
-            height="48"
-            className="h-12 w-12 rounded-full object-cover ring-2 ring-gold-300"
+            width="40"
+            height="40"
+            className="h-10 w-10 rounded-full object-cover ring-2 ring-gold-300"
           />
-          <span className="font-display text-xl font-bold text-plum-900">HelloQT</span>
+          <span className="font-display text-lg font-bold text-plum-900">HelloQT</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
@@ -57,23 +57,23 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Link
             to={user ? '/account' : '/login'}
-            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 hover:text-blush-700"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 hover:text-blush-700"
             aria-label={user ? 'Your account' : 'Log in'}
           >
-            <UserIcon className="h-6 w-6" />
+            <UserIcon className="h-5 w-5" />
           </Link>
 
           <Link
             to="/cart"
-            className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 hover:text-blush-700"
+            className="relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 hover:text-blush-700"
             aria-label={count > 0 ? `Basket, ${count} items` : 'Basket, empty'}
           >
-            <BagIcon className="h-6 w-6" />
+            <BagIcon className="h-5 w-5" />
             {count > 0 && (
-              <span className="absolute right-1.5 top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-blush-600 px-1 text-[11px] font-bold text-white">
+              <span className="absolute right-1 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blush-600 px-1 text-[10px] font-bold text-white">
                 {count}
               </span>
             )}
@@ -82,12 +82,12 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 md:hidden"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 md:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? 'Close menu' : 'Open menu'}
           >
-            {open ? <CloseIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+            {open ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </button>
         </div>
       </div>

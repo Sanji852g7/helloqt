@@ -8,36 +8,10 @@ import { Squiggle } from '../components/Doodles'
 import { ArrowRightIcon, SparkleIcon } from '../components/Icons'
 
 const promises = [
-  {
-    emoji: '🐇',
-    title: 'Cruelty-free, always',
-    body: 'Never tested on animals, every lash is 100% cruelty-free, no exceptions.',
-  },
-  {
-    emoji: '📦',
-    title: 'Never lose a lash again',
-    body: "Every pair comes home in its own little box, so it's never rattling around your bag or bin.",
-  },
-  {
-    emoji: '☁️',
-    title: 'Comfort you forget about',
-    body: 'Lightweight with a flexible band, so it moves with you, not against you.',
-  },
-  {
-    emoji: '✦',
-    title: 'Handmade with care',
-    body: 'Each lash is handcrafted, not mass-produced, so the fibres stay soft and full.',
-  },
-  {
-    emoji: '↻',
-    title: 'Built to last',
-    body: 'Reusable 15 to 25 times with proper care, so your favourite style stays in rotation.',
-  },
-  {
-    emoji: '🚚',
-    title: 'Free UK delivery',
-    body: 'Free on every order over £40, UK-wide.',
-  },
+  { emoji: '🐇', title: 'Cruelty-free', body: 'Never tested on animals.' },
+  { emoji: '💕', title: 'Handmade', body: 'Made with care.' },
+  { emoji: '♻️', title: 'Reusable', body: 'Wear up to 25 times.' },
+  { emoji: '🧳', title: 'Travel-ready', body: 'Every lash has its own home.' },
 ]
 
 const steps = [
@@ -60,13 +34,9 @@ export default function Home() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-cream">
-        <div className="section relative grid items-center gap-12 pb-16 pt-8 lg:grid-cols-2 lg:pb-24 lg:pt-10">
+        <div className="section relative grid items-center gap-6 pb-6 pt-8 lg:grid-cols-2 lg:gap-12 lg:pb-10 lg:pt-10">
           <div className="animate-fade-up">
-            <p className="inline-flex items-center gap-2 rounded-full border border-gold-300 bg-white/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-gold-700">
-              hey QT 💕
-            </p>
-
-            <h1 className="mt-6 text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
+            <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
               Pack a lash for every{' '}
               <span className="relative inline-block">
                 <span className="relative z-10">occasion</span>
@@ -78,23 +48,25 @@ export default function Home() {
               .
             </h1>
 
-            <p className="mt-4 font-script text-3xl text-blush-600 sm:text-4xl">
-              Enhance your beauty with HelloQT
+            <p className="mt-3 font-script text-2xl text-blush-600 sm:text-3xl">
+              Made to make you feel QT 💕
             </p>
 
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg">
-              Never lose a lash again, every pair comes home in its own little box. Handmade,
-              cruelty-free, in two collections: the Suitcase Set for full-drama nights, and the
-              Compact Set for everyday glam.
+            <p className="mt-4 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg">
+              Handcrafted, reusable and cruelty-free lashes, each with its own little home.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/shop?collection=suitcase#suitcase" className="btn-primary">
-                Shop the Suitcase Set
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Link to="/shop" className="btn-primary">
+                Shop lashes
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
-              <button type="button" onClick={() => setQuizOpen(true)} className="btn-secondary">
-                Match me to a lash
+              <button
+                type="button"
+                onClick={() => setQuizOpen(true)}
+                className="inline-flex min-h-[40px] cursor-pointer items-center justify-center gap-2 rounded-full border border-plum-300 px-5 py-2 text-sm font-semibold text-plum-600 transition duration-200 hover:border-plum-400 hover:text-plum-800 active:scale-[0.98]"
+              >
+                Find my perfect lash
               </button>
             </div>
           </div>
@@ -110,59 +82,89 @@ export default function Home() {
                 </defs>
               </svg>
 
-              <div className="relative w-1/2 animate-float" style={{ aspectRatio: '100 / 90' }}>
-                <img
-                  src="/media/king.JPG"
-                  alt="King lashes in the Suitcase Set travel case"
-                  width="1080"
-                  height="1080"
-                  style={{
-                    clipPath: 'url(#hero-heart-clip)',
-                    objectPosition: 'center',
-                  }}
-                  className="h-full w-full bg-white object-contain"
-                />
-                <svg
-                  viewBox="0 0 100 90"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
+              <Link to="/shop?collection=suitcase#suitcase" className="group w-1/2">
+                <div
+                  className="relative animate-float transition duration-300 group-hover:scale-[1.03]"
+                  style={{ aspectRatio: '100 / 90' }}
                 >
-                  <path
-                    d="M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
+                  <img
+                    src="/media/king.JPG"
+                    alt="King lashes in the QT Luggage Set travel case"
+                    width="1080"
+                    height="1080"
+                    style={{
+                      clipPath: 'url(#hero-heart-clip)',
+                      objectPosition: 'center',
+                    }}
+                    className="h-full w-full bg-white object-contain"
                   />
-                </svg>
-              </div>
+                  <svg
+                    viewBox="0 0 100 90"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
+                  >
+                    <path
+                      d="M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                </div>
+                <p className="mt-1.5 text-center">
+                  <span className="block font-display text-sm font-bold text-plum-800">
+                    The QT Luggage Set 🧳
+                  </span>
+                  <span className="text-xs text-plum-500">
+                    Bold, dramatic and ready to travel
+                  </span>
+                  <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
+                    Shop &rarr;
+                  </span>
+                </p>
+              </Link>
 
-              <div className="relative w-1/2 animate-float-reverse" style={{ aspectRatio: '100 / 90' }}>
-                <img
-                  src="/media/royalty.JPG"
-                  alt="Royalty lashes in the Compact Set mirror case"
-                  width="1080"
-                  height="1080"
-                  style={{
-                    clipPath: 'url(#hero-heart-clip)',
-                    objectPosition: 'center',
-                  }}
-                  className="h-full w-full bg-white object-contain"
-                />
-                <svg
-                  viewBox="0 0 100 90"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
+              <Link to="/shop?collection=compact#compact" className="group w-1/2">
+                <div
+                  className="relative animate-float-reverse transition duration-300 group-hover:scale-[1.03]"
+                  style={{ aspectRatio: '100 / 90' }}
                 >
-                  <path
-                    d="M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
+                  <img
+                    src="/media/royalty.JPG"
+                    alt="Royalty lashes in the QT Vanity Set mirror case"
+                    width="1080"
+                    height="1080"
+                    style={{
+                      clipPath: 'url(#hero-heart-clip)',
+                      objectPosition: 'center',
+                    }}
+                    className="h-full w-full bg-white object-contain"
                   />
-                </svg>
-              </div>
+                  <svg
+                    viewBox="0 0 100 90"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
+                  >
+                    <path
+                      d="M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                </div>
+                <p className="mt-1.5 text-center">
+                  <span className="block font-display text-sm font-bold text-plum-800">
+                    The QT Vanity Set 🪞
+                  </span>
+                  <span className="text-xs text-plum-500">Cute, compact &amp; ready to glam</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
+                    Shop &rarr;
+                  </span>
+                </p>
+              </Link>
             </div>
           </div>
         </div>
@@ -179,14 +181,21 @@ export default function Home() {
           </h2>
         </div>
 
-        <div className="section mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="section mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {promises.map(({ emoji, title, body }) => (
-            <div key={title} className="rounded-3xl bg-white p-7 shadow-soft">
-              <span className="text-3xl text-blush-500" role="img" aria-hidden="true">
+            <div
+              key={title}
+              className="rounded-3xl bg-white p-6 text-center shadow-soft transition duration-200 hover:-translate-y-1 hover:shadow-lift"
+            >
+              <span
+                className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blush-50 text-2xl"
+                role="img"
+                aria-hidden="true"
+              >
                 {emoji}
               </span>
-              <h3 className="mt-4 font-display text-xl font-bold">{title}</h3>
-              <p className="mt-2 leading-relaxed text-plum-600">{body}</p>
+              <h3 className="mt-3 font-display text-base font-bold">{title}</h3>
+              <p className="mt-1 text-sm leading-snug text-plum-600">{body}</p>
             </div>
           ))}
         </div>
@@ -312,7 +321,7 @@ export default function Home() {
 
       {/* CTA */}
       <section className="section pt-16 sm:pt-20">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush-200 via-blush-300 to-gold-200 px-8 py-14 text-center sm:px-14">
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush-200 via-blush-300 to-gold-200 px-8 py-12 text-center sm:px-14">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/30 blur-2xl"

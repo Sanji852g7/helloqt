@@ -73,12 +73,10 @@ export default function Shop() {
     <div className="section pb-12 pt-6 sm:pb-16 sm:pt-8">
       <header className="max-w-2xl">
         <h1 className="font-display text-4xl font-bold sm:text-5xl">The lash collection</h1>
-        <p className="mt-3 font-script text-2xl text-blush-600">
-          Enhance your beauty with HelloQT
-        </p>
+        <p className="mt-3 font-script text-2xl text-blush-600">Made to make you feel QT</p>
         <p className="mt-4 leading-relaxed text-plum-600">
-          Two little collections, ten hand-finished styles. Suitcase for the nights you want to be
-          seen, Compact for the days you just want to feel put together.
+          Two little collections, ten hand-finished styles. The QT Luggage Set for the nights you
+          want to be seen, The QT Vanity Set for the days you just want to feel put together.
         </p>
       </header>
 

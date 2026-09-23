@@ -37,11 +37,8 @@ export default function ProductCard({ product }) {
         {collection?.volume} · {product.length}
       </span>
 
-      <div className="flex flex-1 flex-col p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blush-600">
-          {product.style}
-        </p>
-        <h3 className="mt-1.5 font-display text-xl font-bold">
+      <div className="flex flex-1 flex-col p-4">
+        <h3 className="font-display text-xl font-bold">
           <Link
             to={`/product/${product.slug}`}
             className="transition hover:text-blush-700 focus-visible:text-blush-700"
@@ -49,10 +46,9 @@ export default function ProductCard({ product }) {
             {product.name}
           </Link>
         </h3>
-        <p className="mt-1.5 flex-1 text-sm leading-relaxed text-plum-600">{product.tagline}</p>
-        <p className="mt-1.5 text-xs text-plum-400">Lash glue not included</p>
+        <p className="mt-1 flex-1 text-sm font-semibold text-blush-600">{product.style}</p>
 
-        <div className="mt-4 flex items-center justify-between gap-3">
+        <div className="mt-3 flex items-center justify-between gap-3">
           <p className="font-display text-lg font-bold text-plum-900">
             {formatPrice(product.price)}
           </p>
@@ -63,9 +59,10 @@ export default function ProductCard({ product }) {
             aria-label={`Add ${product.name} to basket`}
           >
             <BagIcon className="h-4 w-4" />
-            Add
+            Add to basket
           </button>
         </div>
+        <p className="mt-2 text-xs text-plum-400">Lash glue not included</p>
       </div>
     </article>
   )

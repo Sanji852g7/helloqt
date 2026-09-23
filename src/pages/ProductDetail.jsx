@@ -80,7 +80,6 @@ export default function ProductDetail() {
   const specs = [
     { label: 'Style', value: product.style },
     { label: 'Length', value: product.length },
-    { label: 'Curl', value: product.curl },
     { label: 'Material', value: product.material },
     { label: 'Reusable', value: product.wears },
     { label: 'Band', value: 'Soft cotton, flexible' },
