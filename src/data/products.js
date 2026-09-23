@@ -68,7 +68,7 @@ export const products = [
     length: '25mm',
     curl: 'D Curl',
     material: 'Premium Silky Vegan Fibres',
-    wears: '25+ wears',
+    wears: '20+ wears',
     badge: null,
     tagline: 'Our boldest spike, full 25mm.',
     description:
@@ -102,7 +102,7 @@ export const products = [
     length: '15mm',
     curl: 'C Curl',
     material: 'Silky Vegan Fibres',
-    wears: '15+ wears',
+    wears: '20+ wears',
     badge: null,
     tagline: 'A lifted flutter that does all the work.',
     description:
@@ -118,7 +118,7 @@ export const products = [
     length: '15mm',
     curl: 'D Curl',
     material: 'Silky Vegan Fibres',
-    wears: '15+ wears',
+    wears: '20+ wears',
     badge: null,
     tagline: 'All the glam, none of the length.',
     description:
@@ -150,7 +150,7 @@ export const products = [
     length: '15mm',
     curl: 'C Curl',
     material: 'Silky Vegan Fibres',
-    wears: '15+ wears',
+    wears: '20+ wears',
     badge: null,
     tagline: 'Rounded, doe-eyed and dreamy.',
     description:

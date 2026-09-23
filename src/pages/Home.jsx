@@ -35,7 +35,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-cream">
         <div className="section relative grid items-center gap-6 pb-6 pt-8 lg:grid-cols-2 lg:gap-12 lg:pb-10 lg:pt-10">
-          <div className="animate-fade-up">
+          <div className="animate-fade-up text-center lg:text-left">
             <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
               Pack a lash for every{' '}
               <span className="relative inline-block">
@@ -52,11 +52,11 @@ export default function Home() {
               Made to make you feel QT 💕
             </p>
 
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg">
+            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg lg:mx-0">
               Handcrafted, reusable and cruelty-free lashes, each with its own little home.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
               <Link to="/shop" className="btn-primary">
                 Shop lashes
                 <ArrowRightIcon className="h-4 w-4" />
@@ -64,7 +64,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setQuizOpen(true)}
-                className="inline-flex min-h-[40px] cursor-pointer items-center justify-center gap-2 rounded-full border border-plum-300 px-5 py-2 text-sm font-semibold text-plum-600 transition duration-200 hover:border-plum-400 hover:text-plum-800 active:scale-[0.98]"
+                className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-full border border-plum-300 px-7 py-3 font-semibold text-plum-600 transition duration-200 hover:border-plum-400 hover:text-plum-800 active:scale-[0.98]"
               >
                 Find my perfect lash
               </button>
