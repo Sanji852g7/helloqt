@@ -76,6 +76,90 @@
   .sparkle-scatter {
     animation: sparkle-scatter 0.9s ease-out forwards;
   }
+
+  .custom-cursor-hearts {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.15s ease;
+    will-change: transform;
+  }
+
+  .custom-cursor-heart {
+    position: absolute;
+    animation: custom-cursor-blink 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.15));
+  }
+
+  .custom-cursor-arrow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 22px;
+    height: 22px;
+  }
+
+  .custom-cursor-arrow-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Sized smaller than the pointer/hearts, independently — its own tip
+     still lines up with the mouse position since it shares the same
+     top-left anchor */
+  .custom-cursor-hand-shape {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 17px;
+    height: 17px;
+    display: none;
+  }
+
+  .custom-cursor-text-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+  }
+
+  .custom-cursor-arrow.is-hand .custom-cursor-arrow-shape,
+  .custom-cursor-arrow.is-text .custom-cursor-arrow-shape {
+    display: none;
+  }
+
+  .custom-cursor-arrow.is-hand .custom-cursor-hand-shape {
+    display: block;
+  }
+
+  .custom-cursor-arrow.is-text .custom-cursor-text-shape {
+    display: block;
+  }
+
+  /* On a background too close to the cursor's own pink to show up well
+     (mainly pink buttons), the hand switches to white instead */
+  .custom-cursor-arrow.on-dark .custom-cursor-hand-shape {
+    fill: #FFFFFF;
+  }
+}
+
+/* Only on devices with a real mouse — touch devices never see this, and it
+   never eats a click since the whole cursor group has pointer-events: none */
+@media (pointer: fine) {
+  /* !important because buttons/links carry their own explicit cursor-pointer
+     utility class, which (being a direct rule on the element) would
+     otherwise always beat an inherited cursor:none from body */
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
 }
 
 @keyframes heart-draw {
@@ -141,6 +225,18 @@
   100% {
     transform: translate(-50%, -50%) translate(var(--sx), var(--sy-end)) scale(0.85) rotate(var(--srot));
     opacity: 0;
+  }
+}
+
+@keyframes custom-cursor-blink {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
   }
 }
 
