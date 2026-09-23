@@ -65,12 +65,17 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(10px)' },
         },
+        sway: {
+          '0%, 100%': { transform: 'translateX(-6px) rotate(-4deg)' },
+          '50%': { transform: 'translateX(6px) rotate(4deg)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
         shimmer: 'shimmer 3s linear infinite',
         float: 'float 6s ease-in-out infinite',
         'float-reverse': 'float-reverse 6s ease-in-out infinite',
+        sway: 'sway 1.8s ease-in-out infinite',
       },
     },
   },

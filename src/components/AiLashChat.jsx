@@ -2,7 +2,32 @@ import { useEffect, useRef, useState } from 'react'
 import { ChatIcon, CloseIcon, SendIcon } from './Icons'
 
 const GREETING =
-  "Hiya, I'm Mini Sanji 💕 Tell me a bit about what you're after (occasion, natural vs glam, everyday vs special) and I'll point you to the right style."
+  "Hello QT! I'm Mini Sanji 👋💕\nThink of me as the AI version of Sanji, the founder, and your lash bestie. Ask me about our lashes, QT sets, lash care, delivery, returns, or anything else you'd like to know! ✨"
+
+// Circular profile photo shown beside Mini Sanji's messages
+function SanjiAvatar() {
+  return (
+    <img
+      src="/media/me.JPG"
+      alt="Sanji"
+      width="28"
+      height="28"
+      className="h-7 w-7 shrink-0 rounded-full object-cover ring-2 ring-white"
+    />
+  )
+}
+
+// Circular "QT" initials shown beside the customer's own messages
+function CustomerAvatar() {
+  return (
+    <div
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-plum-700 text-[10px] font-bold text-white ring-2 ring-white"
+      aria-hidden="true"
+    >
+      QT
+    </div>
+  )
+}
 
 // Floating "Mini Sanji" AI chat widget for lash advice
 export default function AiLashChat() {
@@ -72,24 +97,45 @@ export default function AiLashChat() {
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
-            <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm text-plum-800">
-              {GREETING}
+            <div className="flex items-end gap-2">
+              <SanjiAvatar />
+              <img
+                src="/media/sanjiwave.png"
+                alt="Sanji waving hello"
+                width="112"
+                height="112"
+                className="h-24 w-24 animate-sway object-contain"
+              />
             </div>
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                  m.role === 'user'
-                    ? 'ml-auto rounded-br-sm bg-gold-600 text-white'
-                    : 'rounded-bl-sm bg-blush-100 text-plum-800'
-                }`}
-              >
-                {m.content}
+            <div className="flex items-end gap-2">
+              <SanjiAvatar />
+              <div className="max-w-[75%] whitespace-pre-line rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm text-plum-800">
+                {GREETING}
               </div>
-            ))}
+            </div>
+            {messages.map((m, i) =>
+              m.role === 'user' ? (
+                <div key={i} className="flex items-end justify-end gap-2">
+                  <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-gold-600 px-3 py-2 text-sm leading-relaxed text-white">
+                    {m.content}
+                  </div>
+                  <CustomerAvatar />
+                </div>
+              ) : (
+                <div key={i} className="flex items-end gap-2">
+                  <SanjiAvatar />
+                  <div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm leading-relaxed text-plum-800">
+                    {m.content}
+                  </div>
+                </div>
+              ),
+            )}
             {loading && (
-              <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm text-plum-500">
-                Thinking…
+              <div className="flex items-end gap-2">
+                <SanjiAvatar />
+                <div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm text-plum-500">
+                  Thinking…
+                </div>
               </div>
             )}
             {error && (
