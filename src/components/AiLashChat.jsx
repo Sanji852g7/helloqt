@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ChatIcon, MinimizeIcon, SendIcon, SparkleIcon } from './Icons'
 
 const GREETING =
-  "Hello QT! I'm Mini Sanji 👋💕\nThink of me as the AI version of Sanji, the founder, and your lash bestie. Ask me about our lashes, QT sets, lash care, delivery, returns, or anything else you'd like to know! ✨"
+  "heyyy it's Sanji 👋 well, the AI version of me! HelloQT is my brand so need help picking a lash, care tips, or just wanna ask about your order? I got you 💕"
 
 // Circular profile photo shown beside Mini Sanji's messages
 function SanjiAvatar() {
