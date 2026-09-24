@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabaseClient'
 import { CloseIcon } from './Icons'
 
 const DISMISSED_KEY = 'helloqt-discount-popup-dismissed'
 
 // Popup offering 10% off first order in exchange for an email
 export default function DiscountPopup() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle')
@@ -12,9 +15,37 @@ export default function DiscountPopup() {
 
   useEffect(() => {
     if (localStorage.getItem(DISMISSED_KEY)) return
-    const timer = window.setTimeout(() => setOpen(true), 4000)
-    return () => window.clearTimeout(timer)
-  }, [])
+
+    let cancelled = false
+
+    // A logged-in shopper who's already spent their code should never see
+    // this again, even on a browser that hasn't dismissed it before
+    const checkAndShow = async () => {
+      if (user) {
+        try {
+          const { data: session } = await supabase.auth.getSession()
+          const accessToken = session?.session?.access_token
+          const res = await fetch('/api/my-discount-status', {
+            headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          })
+          const data = await res.json()
+          if (data.usedOrNotEligible) {
+            localStorage.setItem(DISMISSED_KEY, 'true')
+            return
+          }
+        } catch {
+          // If the check fails, fall back to showing the popup as normal
+        }
+      }
+      if (!cancelled) setOpen(true)
+    }
+
+    const timer = window.setTimeout(checkAndShow, 4000)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [user])
 
   // Closes the popup and remembers not to show it again
   const dismiss = () => {

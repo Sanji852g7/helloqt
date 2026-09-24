@@ -1,9 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 import { ChatIcon, MinimizeIcon, SendIcon, SparkleIcon } from './Icons'
 import { playPop } from '../lib/sound'
 
+// "SG" for Sanji Gurung, falling back to the email's first letter, or "QT" for a guest
+function customerInitials(user) {
+  if (!user) return 'QT'
+  const fullName = [user.user_metadata?.first_name, user.user_metadata?.surname]
+    .filter(Boolean)
+    .join(' ')
+  if (fullName) {
+    return fullName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0].toUpperCase())
+      .join('')
+  }
+  return user.email ? user.email[0].toUpperCase() : 'QT'
+}
+
 const GREETING =
-  "heyyy it's Sanji 👋 well, the AI version of me! HelloQT is my brand so need help picking a lash, care tips, or just wanna ask about your order? I got you 💕"
+  "heyyy it's Sanji 👋 well, the AI version of me! HelloQT is my brand so need help picking a lash, care tips, or just wanna ask about your order? I got you 💕\n\nI'm still being set up behind the scenes, so bear with me for now!"
 
 // Circular profile photo shown beside Mini Sanji's messages
 function SanjiAvatar() {
@@ -18,14 +36,15 @@ function SanjiAvatar() {
   )
 }
 
-// Circular "QT" initials shown beside the customer's own messages
-function CustomerAvatar() {
+// Circular initials shown beside the customer's own messages — the logged-in
+// shopper's own initials if we know them, otherwise a generic "QT"
+function CustomerAvatar({ initials = 'QT' }) {
   return (
     <div
       className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blush-600 text-[10px] font-bold text-white ring-2 ring-white"
       aria-hidden="true"
     >
-      QT
+      {initials}
     </div>
   )
 }
@@ -68,6 +87,8 @@ function MessageTime({ date, align = 'left' }) {
 
 // Floating "Mini Sanji" AI chat widget for lash advice
 export default function AiLashChat() {
+  const { user } = useAuth()
+  const initials = customerInitials(user)
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -291,7 +312,7 @@ export default function AiLashChat() {
                     </div>
                     <MessageTime date={m.time} align="right" />
                   </div>
-                  <CustomerAvatar />
+                  <CustomerAvatar initials={initials} />
                 </div>
               ) : (
                 <div key={i} className="flex items-end gap-2">

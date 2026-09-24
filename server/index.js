@@ -691,6 +691,22 @@ app.post('/api/validate-discount', codeLimit, async (req, res) => {
   res.json({ valid: Boolean(!error && data && !data.used) })
 })
 
+// Tells the logged-in shopper's own browser whether to bother showing the
+// 10%-off popup — only ever checks the token's own email, never one the
+// browser claims, so it can't be used to probe anyone else's status
+app.get('/api/my-discount-status', emailLimit, async (req, res) => {
+  const user = await userFromRequest(req)
+  if (!user?.email || !supabaseAdmin) return res.json({ usedOrNotEligible: false })
+
+  const { data, error } = await supabaseAdmin
+    .from('subscribers')
+    .select('used')
+    .eq('email', user.email.toLowerCase())
+    .maybeSingle()
+
+  res.json({ usedOrNotEligible: Boolean(!error && data?.used) })
+})
+
 /* ------------------------------------------------------------------ */
 /* Unsubscribe                                                         */
 /* ------------------------------------------------------------------ */

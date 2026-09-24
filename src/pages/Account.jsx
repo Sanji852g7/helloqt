@@ -59,6 +59,24 @@ function OrderTracker({ status }) {
   )
 }
 
+// Circular initials avatar for the account header, matching the style used in chat and reviews
+function ProfileAvatar({ fullName, email }) {
+  const initials = fullName
+    ? fullName
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0].toUpperCase())
+        .join('')
+    : (email?.[0] ?? '?').toUpperCase()
+
+  return (
+    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blush-600 text-xl font-bold text-white ring-4 ring-blush-100">
+      {initials}
+    </span>
+  )
+}
+
 // Order item photo that falls back to a plain icon if the image is missing or fails to load
 function OrderItemThumbnail({ src, alt }) {
   const [failed, setFailed] = useState(false)
@@ -113,8 +131,13 @@ export default function Account() {
   return (
     <div className="section py-12 sm:py-16">
       <h1 className="font-display text-4xl font-bold sm:text-5xl">Your account</h1>
-      {fullName && <p className="mt-2 text-lg font-semibold text-plum-800">{fullName}</p>}
-      <p className={`text-plum-600 ${fullName ? 'mt-1' : 'mt-2'}`}>{user.email}</p>
+      <div className="mt-5 flex items-center gap-4">
+        <ProfileAvatar fullName={fullName} email={user.email} />
+        <div>
+          {fullName && <p className="text-lg font-semibold text-plum-800">{fullName}</p>}
+          <p className="text-plum-600">{user.email}</p>
+        </div>
+      </div>
 
       <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
         <h2 className="font-display text-xl font-bold">Your orders</h2>

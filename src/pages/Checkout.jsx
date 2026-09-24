@@ -322,7 +322,7 @@ export default function Checkout() {
               <input
                 id="discount"
                 type="text"
-                placeholder="WELCOME10"
+                placeholder="Enter code"
                 value={discountCode}
                 onChange={(e) => {
                   setDiscountCode(e.target.value)
