@@ -147,7 +147,7 @@ function emailFooter({ unsubscribeEmail } = {}) {
 }
 
 // Builds the order confirmation email's HTML body
-export function orderEmailHtml({ orderRef, fullName, items, total }) {
+export function orderEmailHtml({ orderRef, fullName, items, total, address1, address2, city, postcode }) {
   const itemRows = items
     .map((item) => {
       const imageUrl = mediaUrl(item.image)
@@ -163,6 +163,8 @@ export function orderEmailHtml({ orderRef, fullName, items, total }) {
     })
     .join('')
 
+  const addressLines = [address1, address2, city, postcode].filter(Boolean).map(escapeHtml)
+
   return emailLayout(`
     <img src="${LOGO_URL}" alt="HelloQT" width="56" height="56"
       style="border-radius:50%; display:block; margin-bottom:12px;" />
@@ -170,7 +172,55 @@ export function orderEmailHtml({ orderRef, fullName, items, total }) {
     <p style="margin:0 0 12px;">Your order <strong>${escapeHtml(orderRef)}</strong> is confirmed and will be on its way within 2-3 working days.</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${itemRows}</table>
     <p style="margin-top:16px; font-weight:bold;">Total: £${Number(total).toFixed(2)}</p>
+    ${
+      addressLines.length
+        ? `<p style="margin-top:16px; font-size:14px;">Posting to:<br />${addressLines.join('<br />')}</p>`
+        : ''
+    }
     <p style="margin-top:24px; font-family:cursive, Georgia, serif; font-size:20px;">xo, Sanji</p>
+    ${emailFooter()}
+  `)
+}
+
+// Builds Sanji's own new-order notification, with the delivery address front
+// and centre — this is how she actually knows where to post the parcel
+export function ownerOrderNotificationHtml({
+  orderRef,
+  fullName,
+  email,
+  phone,
+  address1,
+  address2,
+  city,
+  postcode,
+  items,
+  total,
+}) {
+  const itemRows = items
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:6px 0; font-size:14px;">${escapeHtml(item.name)} × ${Number(item.quantity)}</td>
+          <td style="padding:6px 0; font-size:14px; text-align:right;">£${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>`,
+    )
+    .join('')
+
+  const addressLines = [address1, address2, city, postcode].filter(Boolean).map(escapeHtml)
+
+  return emailLayout(`
+    <h1 style="color:#ec5c8d; font-size:22px; margin:0 0 12px;">New order ${escapeHtml(orderRef)} 📦</h1>
+    <p style="margin:0 0 4px; font-weight:bold;">Post to:</p>
+    <p style="margin:0 0 16px; font-size:15px; line-height:1.5;">
+      ${escapeHtml(fullName) || 'A HelloQT customer'}<br />
+      ${addressLines.length ? addressLines.join('<br />') : '<em>No address on file — check Supabase</em>'}
+      ${phone ? `<br />${escapeHtml(phone)}` : ''}
+    </p>
+    <p style="margin:0 0 16px; font-size:14px;">
+      Email: ${escapeHtml(email)}
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; border-top:1px solid #f0d6dd; padding-top:8px;">${itemRows}</table>
+    <p style="margin-top:12px; font-weight:bold;">Total: £${Number(total).toFixed(2)}</p>
     ${emailFooter()}
   `)
 }

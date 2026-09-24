@@ -19,6 +19,7 @@ import {
   contactEnquiryEmailHtml,
   mediaUrl,
   orderEmailHtml,
+  ownerOrderNotificationHtml,
   reviewRequestEmailHtml,
   reviewToken,
   shippingEmailHtml,
@@ -338,9 +339,19 @@ app.post('/api/create-checkout-session', orderLimit, async (req, res) => {
   const { items: requestedItems, discountCode } = req.body
   const email = cleanText(req.body.email, 254).toLowerCase()
   const fullName = cleanText(req.body.fullName, 100)
+  const phone = cleanText(req.body.phone, 30)
+  const address1 = cleanText(req.body.address1, 200)
+  const address2 = cleanText(req.body.address2, 200)
+  const city = cleanText(req.body.city, 100)
+  const postcode = cleanText(req.body.postcode, 12).toUpperCase()
 
   if (!isValidEmail(email)) return res.status(400).json({ error: 'Enter a valid email address.' })
   if (!fullName) return res.status(400).json({ error: 'Enter your full name.' })
+  if (!address1) return res.status(400).json({ error: 'Enter the first line of your address.' })
+  if (!city) return res.status(400).json({ error: 'Enter your town or city.' })
+  if (!/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(postcode)) {
+    return res.status(400).json({ error: 'Enter a valid UK postcode.' })
+  }
   if (!stripe) return res.status(503).json({ error: 'Card payments are not set up yet.' })
 
   // Logged-in shoppers send their Supabase token; the order is filed against
@@ -404,6 +415,11 @@ app.post('/api/create-checkout-session', orderLimit, async (req, res) => {
         cart,
         userId: user?.id ?? '',
         discountApplied: discountApplied ? '1' : '0',
+        phone,
+        address1,
+        address2,
+        city,
+        postcode,
       },
       success_url: `${SITE_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_BASE_URL}/checkout?cancelled=1`,
@@ -419,7 +435,8 @@ app.post('/api/create-checkout-session', orderLimit, async (req, res) => {
 // Saves a paid order and emails the confirmation. Only ever called after
 // Stripe has confirmed the money arrived.
 async function savePaidOrder(session) {
-  const { email, fullName, cart, userId, discountApplied } = session.metadata ?? {}
+  const { email, fullName, cart, userId, discountApplied, phone, address1, address2, city, postcode } =
+    session.metadata ?? {}
   if (!email || !cart) throw new Error('payment is missing its order details')
 
   // Already handled? Stripe retries webhooks, and a customer refreshing the
@@ -450,6 +467,11 @@ async function savePaidOrder(session) {
       shipping: priced.shipping,
       total: priced.total,
       stripe_session_id: session.id,
+      phone: phone || null,
+      address1: address1 || null,
+      address2: address2 || null,
+      city: city || null,
+      postcode: postcode || null,
     })
     .select('order_ref')
     .single()
@@ -476,7 +498,37 @@ async function savePaidOrder(session) {
     // Resend's SDK wants camelCase here, not the API's reply_to.
     replyTo: SUPPORT_EMAIL,
     subject: `Your HelloQT order ${orderRef} is confirmed`,
-    html: orderEmailHtml({ orderRef, fullName, items: priced.items, total: priced.total }),
+    html: orderEmailHtml({
+      orderRef,
+      fullName,
+      items: priced.items,
+      total: priced.total,
+      address1,
+      address2,
+      city,
+      postcode,
+    }),
+  })
+
+  // Sanji's own copy, with the delivery address front and centre — this is
+  // how she actually knows where to post the parcel
+  await sendEmail(`New order ${orderRef} — pack & post`, {
+    from: FROM_EMAIL,
+    to: SUPPORT_EMAIL,
+    replyTo: email,
+    subject: `New order ${orderRef} — pack & post`,
+    html: ownerOrderNotificationHtml({
+      orderRef,
+      fullName,
+      email,
+      phone,
+      address1,
+      address2,
+      city,
+      postcode,
+      items: priced.items,
+      total: priced.total,
+    }),
   })
 
   console.log(`[helloqt-server] Payment received, saved order ${orderRef}`)

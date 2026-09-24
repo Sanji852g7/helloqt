@@ -142,6 +142,11 @@ export default function Checkout() {
         body: JSON.stringify({
           email: values.email.trim(),
           fullName: values.fullName.trim(),
+          phone: values.phone?.trim() ?? '',
+          address1: values.address1.trim(),
+          address2: values.address2?.trim() ?? '',
+          city: values.city.trim(),
+          postcode: values.postcode.trim(),
           items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
           discountCode: appliedCode,
         }),
