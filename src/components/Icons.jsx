@@ -193,3 +193,10 @@ export const EyeOffIcon = (props) => (
     <path d="M3.5 3.5 20.5 20.5" />
   </svg>
 )
+
+// Single dash icon for minimising a panel without closing it
+export const MinimizeIcon = (props) => (
+  <svg {...base} {...props}>
+    <path d="M5 12h14" />
+  </svg>
+)

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChatIcon, CloseIcon, SendIcon } from './Icons'
+import { ChatIcon, MinimizeIcon, SendIcon, SparkleIcon } from './Icons'
 
 const GREETING =
   "Hello QT! I'm Mini Sanji 👋💕\nThink of me as the AI version of Sanji, the founder, and your lash bestie. Ask me about our lashes, QT sets, lash care, delivery, returns, or anything else you'd like to know! ✨"
@@ -21,7 +21,7 @@ function SanjiAvatar() {
 function CustomerAvatar() {
   return (
     <div
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-plum-700 text-[10px] font-bold text-white ring-2 ring-white"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blush-600 text-[10px] font-bold text-white ring-2 ring-white"
       aria-hidden="true"
     >
       QT
@@ -36,11 +36,43 @@ export default function AiLashChat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  // Starts at 2 for the sticker + greeting waiting the first time the widget is seen
+  const [unreadCount, setUnreadCount] = useState(2)
+  const [confirmReset, setConfirmReset] = useState(false)
   const scrollRef = useRef(null)
+  const openRef = useRef(open)
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, loading])
+
+  useEffect(() => {
+    openRef.current = open
+  }, [open])
+
+  // Opens the widget and clears the unread badge
+  const openChat = () => {
+    setOpen(true)
+    setUnreadCount(0)
+  }
+
+  // Shows a warning before wiping the conversation, skipping it if there's nothing to lose
+  const requestReset = () => {
+    if (messages.length === 0) {
+      resetChat()
+    } else {
+      setConfirmReset(true)
+    }
+  }
+
+  // Clears the conversation back to the sticker + greeting, as if freshly opened
+  const resetChat = () => {
+    setMessages([])
+    setError(null)
+    setInput('')
+    setUnreadCount(0)
+    setConfirmReset(false)
+  }
 
   // Sends the typed message to the AI backend and shows the reply
   const sendMessage = async (e) => {
@@ -63,6 +95,7 @@ export default function AiLashChat() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Request failed')
       setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
+      if (!openRef.current) setUnreadCount((n) => n + 1)
     } catch (err) {
       setError(
         err.message === 'Failed to fetch'
@@ -78,14 +111,27 @@ export default function AiLashChat() {
     <>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => (open ? setOpen(false) : openChat())}
         className="fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-blush-600 text-white shadow-lift transition hover:bg-blush-700 active:scale-95 sm:bottom-5 sm:right-5 sm:h-14 sm:w-14"
-        aria-label={open ? 'Close Mini Sanji chat' : 'Chat with Mini Sanji'}
+        aria-label={open ? 'Minimise Mini Sanji chat' : 'Chat with Mini Sanji'}
       >
         {open ? (
-          <CloseIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+          <MinimizeIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         ) : (
           <ChatIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+        )}
+        {!open && unreadCount > 0 && (
+          <>
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gold-600 px-1 text-[11px] font-bold text-white ring-2 ring-cream">
+              {unreadCount}
+            </span>
+            <SparkleIcon
+              aria-hidden="true"
+              fill="currentColor"
+              stroke="none"
+              className="absolute -left-1.5 -top-2 h-3.5 w-3.5 animate-twinkle text-gold-400"
+            />
+          </>
         )}
       </button>
 
@@ -93,8 +139,42 @@ export default function AiLashChat() {
         <div className="fixed bottom-20 right-4 z-40 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[1.5rem] border border-blush-200 bg-cream shadow-lift sm:bottom-24 sm:right-5 sm:max-w-[calc(100vw-2.5rem)]">
           <div className="flex items-center gap-2 border-b border-blush-100 bg-blush-50 px-4 py-3">
             <ChatIcon className="h-4 w-4 text-blush-600" />
-            <p className="font-display text-sm font-bold text-plum-800">Mini Sanji</p>
+            <p className="flex-1 font-display text-sm font-bold text-plum-800">Mini Sanji</p>
+            {messages.length > 0 && (
+              <button
+                type="button"
+                onClick={requestReset}
+                className="text-xs font-semibold text-plum-500 underline-offset-2 transition hover:text-blush-700 hover:underline"
+              >
+                Restart chat
+              </button>
+            )}
           </div>
+
+          {confirmReset && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-cream/95 p-6 text-center backdrop-blur-sm">
+              <p className="text-sm font-semibold leading-relaxed text-plum-800">
+                This will restart your chat with Mini Sanji and clear this conversation. Are you
+                sure?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setConfirmReset(false)}
+                  className="rounded-full border border-plum-300 px-4 py-2 text-sm font-semibold text-plum-600 transition hover:border-plum-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={resetChat}
+                  className="rounded-full bg-blush-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blush-700"
+                >
+                  Yes, restart
+                </button>
+              </div>
+            </div>
+          )}
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
             <div className="flex items-end gap-2">

@@ -69,6 +69,10 @@ export default {
           '0%, 100%': { transform: 'translateX(-6px) rotate(-4deg)' },
           '50%': { transform: 'translateX(6px) rotate(4deg)' },
         },
+        twinkle: {
+          '0%, 100%': { transform: 'scale(0.7) rotate(0deg)', opacity: '0.5' },
+          '50%': { transform: 'scale(1.15) rotate(15deg)', opacity: '1' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
@@ -76,6 +80,7 @@ export default {
         float: 'float 6s ease-in-out infinite',
         'float-reverse': 'float-reverse 6s ease-in-out infinite',
         sway: 'sway 1.8s ease-in-out infinite',
+        twinkle: 'twinkle 1.1s ease-in-out infinite',
       },
     },
   },
