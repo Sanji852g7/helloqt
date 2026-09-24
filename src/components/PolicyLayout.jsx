@@ -20,7 +20,7 @@ export const BUSINESS = {
   instagram: 'https://www.instagram.com/helloqtcos/',
 }
 
-export const LAST_UPDATED = '14 September 2026'
+export const LAST_UPDATED = '24 September 2026'
 
 // One numbered section of a policy, linkable from the contents list
 export function Section({ id, title, children }) {

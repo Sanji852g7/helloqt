@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { CheckIcon } from '../components/Icons'
+import ConfettiBurst from '../components/ConfettiBurst'
+import { playSuccessSound } from '../lib/sound'
 
 // How long to keep checking for the order before showing the gentler message
 const MAX_ATTEMPTS = 12
@@ -14,6 +16,7 @@ export default function CheckoutSuccess() {
   const { clearCart } = useCart()
   const [orderRef, setOrderRef] = useState(null)
   const [stillLooking, setStillLooking] = useState(true)
+  const [showConfetti, setShowConfetti] = useState(false)
   const cartCleared = useRef(false)
 
   useEffect(() => {
@@ -23,6 +26,9 @@ export default function CheckoutSuccess() {
     if (!cartCleared.current) {
       cartCleared.current = true
       clearCart()
+      playSuccessSound()
+      setShowConfetti(true)
+      window.setTimeout(() => setShowConfetti(false), 3500)
     }
 
     let cancelled = false
@@ -59,6 +65,7 @@ export default function CheckoutSuccess() {
 
   return (
     <div className="section py-20 text-center sm:py-28">
+      {showConfetti && <ConfettiBurst />}
       <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blush-100 text-blush-600">
         <CheckIcon className="h-10 w-10" />
       </span>
@@ -82,7 +89,7 @@ export default function CheckoutSuccess() {
         )}
       </p>
 
-      <p className="mt-6 font-script text-3xl text-blush-600">Enhance your beauty with HelloQT</p>
+      <p className="mt-6 font-script text-3xl text-blush-600">Made to make you feel QT</p>
 
       <Link to="/shop" className="btn-primary mt-8">
         Continue shopping

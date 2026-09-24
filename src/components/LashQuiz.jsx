@@ -79,14 +79,14 @@ export default function LashQuiz({ open, onClose }) {
                 onClick={() => setStep('suitcase-style')}
                 className="rounded-2xl border-2 border-plum-200 bg-white p-4 text-left font-semibold text-plum-800 transition hover:border-plum-400 hover:bg-plum-50"
               >
-                A big night, I want drama (25mm Suitcase)
+                A big night, I want drama (25mm, QT Luggage Set)
               </button>
               <button
                 type="button"
                 onClick={() => setStep('compact-style')}
                 className="rounded-2xl border-2 border-blush-200 bg-white p-4 text-left font-semibold text-plum-800 transition hover:border-blush-400 hover:bg-blush-50"
               >
-                Everyday wear, keep it natural (15mm Compact)
+                Everyday wear, keep it natural (15mm, QT Vanity Set)
               </button>
               <button
                 type="button"

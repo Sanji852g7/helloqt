@@ -77,6 +77,12 @@
     animation: sparkle-scatter 0.9s ease-out forwards;
   }
 
+  .confetti-piece {
+    position: absolute;
+    top: 0;
+    animation: confetti-fall linear forwards;
+  }
+
   .custom-cursor-hearts {
     position: fixed;
     top: 0;
@@ -201,6 +207,20 @@
   }
   to {
     stroke-dashoffset: 0;
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate(0, -10vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--drift, 0px), 110vh) rotate(var(--spin, 360deg));
+    opacity: 0;
   }
 }
 

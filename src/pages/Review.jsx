@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useParams } from 'react-router-dom'
 import { CheckIcon, StarIcon } from '../components/Icons'
+import ConfettiBurst from '../components/ConfettiBurst'
+import { playChime } from '../lib/sound'
 
 // Interactive 1-5 star picker
 function StarPicker({ value, onChange }) {
@@ -39,6 +41,7 @@ export default function Review() {
   const [sending, setSending] = useState(false)
   const [sendError, setSendError] = useState(null)
   const [sent, setSent] = useState(false)
+  const [showConfetti, setShowConfetti] = useState(false)
 
   useEffect(() => {
     fetch(`/api/review-context/${encodeURIComponent(orderRef)}?t=${encodeURIComponent(token)}`)
@@ -70,6 +73,9 @@ export default function Review() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong saving your review.')
       setSent(true)
+      playChime()
+      setShowConfetti(true)
+      window.setTimeout(() => setShowConfetti(false), 3500)
     } catch (err) {
       setSendError(err.message)
     } finally {
@@ -91,6 +97,7 @@ export default function Review() {
           </>
         ) : sent ? (
           <>
+            {showConfetti && <ConfettiBurst />}
             <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blush-600 text-white">
               <CheckIcon className="h-8 w-8" />
             </span>

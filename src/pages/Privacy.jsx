@@ -9,6 +9,7 @@ const sections = [
   { id: 'how-long', title: 'How long I keep it' },
   { id: 'marketing', title: 'Marketing emails' },
   { id: 'cookies', title: 'Cookies and your basket' },
+  { id: 'reviews', title: 'Leaving a review' },
   { id: 'mini-sanji', title: 'Mini Sanji, the AI advisor' },
   { id: 'security', title: 'Keeping it safe' },
   { id: 'your-rights', title: 'Your rights' },
@@ -45,6 +46,16 @@ const lawfulBases = [
     purpose: 'Replying to your message or Mini Sanji question',
     data: 'Name, email, what you wrote',
     basis: 'Legitimate interests (answering customers)',
+  },
+  {
+    purpose: 'Inviting you to review your order after it is delivered',
+    data: 'Email, order and product details',
+    basis: 'Legitimate interests (improving the shop for other customers)',
+  },
+  {
+    purpose: 'Publishing a review you choose to submit',
+    data: 'Your star rating and review text, shown under your first name and last initial only',
+    basis: 'Consent, given when you submit the review',
   },
   {
     purpose: 'Keeping the site secure and preventing fraud',
@@ -96,6 +107,10 @@ export default function Privacy() {
           <li>
             <strong className="text-plum-800">When you get in touch:</strong> your name, email and
             whatever you write to me, including messages to Mini Sanji
+          </li>
+          <li>
+            <strong className="text-plum-800">When you leave a review:</strong> your order details,
+            and the star rating and review text you write
           </li>
           <li>
             <strong className="text-plum-800">Automatically:</strong> your IP address and basic
@@ -224,6 +239,21 @@ export default function Privacy() {
         <p>
           Stripe may set its own cookies on its payment page to prevent fraud. That is covered by
           Stripe's own privacy policy.
+        </p>
+      </Section>
+
+      <Section id="reviews" title="Leaving a review">
+        <p>
+          After your order is marked delivered, I may email you a one-time link inviting you to
+          leave a review, no account or login needed. If you choose to leave one, I collect the
+          star rating and review text you write.
+        </p>
+        <p>
+          Every review is checked by me before it goes live, so submitting one does not publish it
+          immediately. Once approved, it is shown publicly on the product page under your first
+          name and last initial only (for example, "Sarah M.") — this is generated automatically
+          from your order, and your full surname is never published. You can leave one review per
+          product per order.
         </p>
       </Section>
 

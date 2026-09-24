@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getCollection, getProduct, products } from '../data/products'
 import { formatPrice, useCart } from '../context/CartContext'
 import { supabase } from '../lib/supabaseClient'
+import { playPop } from '../lib/sound'
 import ProductCard from '../components/ProductCard'
 import {
   ArrowLeftIcon,
@@ -73,6 +74,7 @@ export default function ProductDetail() {
   // Adds the chosen quantity to the cart and shows confirmation
   const handleAdd = () => {
     addItem(product, quantity)
+    playPop()
     setAdded(true)
     window.setTimeout(() => setAdded(false), 2200)
   }
@@ -202,7 +204,11 @@ export default function ProductDetail() {
               </button>
             </div>
 
-            <button type="button" onClick={handleAdd} className="btn-primary flex-1 sm:flex-none">
+            <button
+              type="button"
+              onClick={handleAdd}
+              className={`btn-primary flex-1 sm:flex-none ${added ? 'animate-add-pop' : ''}`}
+            >
               {added ? <CheckIcon className="h-5 w-5" /> : <BagIcon className="h-5 w-5" />}
               {added ? 'Added to basket' : 'Add to basket'}
             </button>

@@ -15,7 +15,7 @@ const promises = [
 ]
 
 const steps = [
-  { n: '01', title: 'Pick your style', body: 'Suitcase for drama, Compact for every day.' },
+  { n: '01', title: 'Pick your style', body: 'QT Luggage Set for drama, QT Vanity Set for every day.' },
   { n: '02', title: 'Measure & trim', body: 'Trim the band to fit your lash line before applying.' },
   { n: '03', title: 'Apply & go', body: 'A thin line of glue, wait 30 seconds, press into place.' },
 ]

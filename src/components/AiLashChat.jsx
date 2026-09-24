@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChatIcon, MinimizeIcon, SendIcon, SparkleIcon } from './Icons'
+import { playPop } from '../lib/sound'
 
 const GREETING =
   "heyyy it's Sanji 👋 well, the AI version of me! HelloQT is my brand so need help picking a lash, care tips, or just wanna ask about your order? I got you 💕"
@@ -29,6 +30,42 @@ function CustomerAvatar() {
   )
 }
 
+// Three bouncing dots shown while Mini Sanji is "typing"
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1 px-1 py-1" role="status" aria-label="Mini Sanji is typing">
+      <span
+        className="h-1.5 w-1.5 animate-bounce rounded-full bg-plum-400"
+        style={{ animationDelay: '0ms' }}
+      />
+      <span
+        className="h-1.5 w-1.5 animate-bounce rounded-full bg-plum-400"
+        style={{ animationDelay: '150ms' }}
+      />
+      <span
+        className="h-1.5 w-1.5 animate-bounce rounded-full bg-plum-400"
+        style={{ animationDelay: '300ms' }}
+      />
+    </div>
+  )
+}
+
+// Formats a Date as a short local time, e.g. "2:41 PM"
+function formatTime(date) {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
+
+// Small timestamp shown under a message bubble
+function MessageTime({ date, align = 'left' }) {
+  return (
+    <span
+      className={`mt-1 block text-[10px] text-plum-400 ${align === 'right' ? 'text-right' : 'text-left'}`}
+    >
+      {formatTime(date)}
+    </span>
+  )
+}
+
 // Floating "Mini Sanji" AI chat widget for lash advice
 export default function AiLashChat() {
   const [open, setOpen] = useState(false)
@@ -36,24 +73,44 @@ export default function AiLashChat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  // Starts at 2 for the sticker + greeting waiting the first time the widget is seen
-  const [unreadCount, setUnreadCount] = useState(2)
+  // Only counts real replies that arrive while minimised, not the first sticker + greeting
+  const [unreadCount, setUnreadCount] = useState(0)
   const [confirmReset, setConfirmReset] = useState(false)
+  // 0 = greeting not sent yet, 1 = typing, 2 = greeting sent (the sticker always shows instantly)
+  const [introStage, setIntroStage] = useState(0)
+  const [greetingTime, setGreetingTime] = useState(null)
   const scrollRef = useRef(null)
   const openRef = useRef(open)
+  const introTimers = useRef([])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
-  }, [messages, loading])
+  }, [messages, loading, introStage])
 
   useEffect(() => {
     openRef.current = open
   }, [open])
 
-  // Opens the widget and clears the unread badge
+  useEffect(() => () => introTimers.current.forEach(clearTimeout), [])
+
+  // Sends the sticker, simulates Sanji typing, then "sends" the greeting text
+  const playIntroSequence = () => {
+    introTimers.current.forEach(clearTimeout)
+    setIntroStage(1)
+    playPop()
+    const revealGreeting = setTimeout(() => {
+      setIntroStage(2)
+      setGreetingTime(new Date())
+      playPop()
+    }, 3000)
+    introTimers.current.push(revealGreeting)
+  }
+
+  // Opens the widget, clears the unread badge, and plays the intro the first time
   const openChat = () => {
     setOpen(true)
     setUnreadCount(0)
+    if (introStage === 0) playIntroSequence()
   }
 
   // Shows a warning before wiping the conversation, skipping it if there's nothing to lose
@@ -65,13 +122,16 @@ export default function AiLashChat() {
     }
   }
 
-  // Clears the conversation back to the sticker + greeting, as if freshly opened
+  // Clears the conversation and replays the intro, as if freshly opened
   const resetChat = () => {
     setMessages([])
     setError(null)
     setInput('')
     setUnreadCount(0)
     setConfirmReset(false)
+    setIntroStage(0)
+    setGreetingTime(null)
+    playIntroSequence()
   }
 
   // Sends the typed message to the AI backend and shows the reply
@@ -80,11 +140,17 @@ export default function AiLashChat() {
     const text = input.trim()
     if (!text || loading) return
 
-    const nextMessages = [...messages, { role: 'user', content: text }]
+    const nextMessages = [...messages, { role: 'user', content: text, time: new Date() }]
     setMessages(nextMessages)
+    playPop()
     setInput('')
     setLoading(true)
     setError(null)
+
+    // Keeps the typing dots up for at least this long so a fast reply doesn't
+    // flash by and feel robotic
+    const MIN_TYPING_MS = 1000
+    const startedAt = Date.now()
 
     try {
       const res = await fetch('/api/lash-chat', {
@@ -94,7 +160,14 @@ export default function AiLashChat() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Request failed')
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
+
+      const elapsed = Date.now() - startedAt
+      if (elapsed < MIN_TYPING_MS) {
+        await new Promise((resolve) => setTimeout(resolve, MIN_TYPING_MS - elapsed))
+      }
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply, time: new Date() }])
+      playPop()
       if (!openRef.current) setUnreadCount((n) => n + 1)
     } catch (err) {
       setError(
@@ -106,6 +179,9 @@ export default function AiLashChat() {
       setLoading(false)
     }
   }
+
+  // Shows "1" for the still-unopened greeting, then switches to real unread replies
+  const badgeCount = introStage === 0 ? 1 : unreadCount
 
   return (
     <>
@@ -120,10 +196,10 @@ export default function AiLashChat() {
         ) : (
           <ChatIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         )}
-        {!open && unreadCount > 0 && (
+        {!open && badgeCount > 0 && (
           <>
             <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gold-600 px-1 text-[11px] font-bold text-white ring-2 ring-cream">
-              {unreadCount}
+              {badgeCount}
             </span>
             <SparkleIcon
               aria-hidden="true"
@@ -187,25 +263,44 @@ export default function AiLashChat() {
                 className="h-24 w-24 animate-sway object-contain"
               />
             </div>
-            <div className="flex items-end gap-2">
-              <SanjiAvatar />
-              <div className="max-w-[75%] whitespace-pre-line rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm text-plum-800">
-                {GREETING}
+            {introStage === 1 && (
+              <div className="flex items-end gap-2">
+                <SanjiAvatar />
+                <div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2">
+                  <TypingDots />
+                </div>
               </div>
-            </div>
+            )}
+            {introStage >= 2 && (
+              <div className="flex items-end gap-2">
+                <SanjiAvatar />
+                <div className="max-w-[75%]">
+                  <div className="whitespace-pre-line rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm text-plum-800">
+                    {GREETING}
+                  </div>
+                  {greetingTime && <MessageTime date={greetingTime} />}
+                </div>
+              </div>
+            )}
             {messages.map((m, i) =>
               m.role === 'user' ? (
                 <div key={i} className="flex items-end justify-end gap-2">
-                  <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-gold-600 px-3 py-2 text-sm leading-relaxed text-white">
-                    {m.content}
+                  <div className="max-w-[75%]">
+                    <div className="rounded-2xl rounded-br-sm bg-gold-600 px-3 py-2 text-sm leading-relaxed text-white">
+                      {m.content}
+                    </div>
+                    <MessageTime date={m.time} align="right" />
                   </div>
                   <CustomerAvatar />
                 </div>
               ) : (
                 <div key={i} className="flex items-end gap-2">
                   <SanjiAvatar />
-                  <div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm leading-relaxed text-plum-800">
-                    {m.content}
+                  <div className="max-w-[75%]">
+                    <div className="rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm leading-relaxed text-plum-800">
+                      {m.content}
+                    </div>
+                    <MessageTime date={m.time} />
                   </div>
                 </div>
               ),
@@ -213,8 +308,8 @@ export default function AiLashChat() {
             {loading && (
               <div className="flex items-end gap-2">
                 <SanjiAvatar />
-                <div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2 text-sm text-plum-500">
-                  Thinking…
+                <div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-blush-100 px-3 py-2">
+                  <TypingDots />
                 </div>
               </div>
             )}

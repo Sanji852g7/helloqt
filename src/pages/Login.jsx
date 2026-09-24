@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import LoginHeartAnimation from '../components/LoginHeartAnimation'
+import ConfettiBurst from '../components/ConfettiBurst'
 import { EyeIcon, EyeOffIcon } from '../components/Icons'
+import { playSuccessSound } from '../lib/sound'
 
 // Login/signup page toggling between the two modes
 export default function Login() {
@@ -19,6 +21,7 @@ export default function Login() {
   const [info, setInfo] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showConfetti, setShowConfetti] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -65,6 +68,11 @@ export default function Login() {
 
     if (data?.session) {
       setSuccess(true)
+      if (mode === 'signup') {
+        playSuccessSound()
+        setShowConfetti(true)
+        window.setTimeout(() => setShowConfetti(false), 3500)
+      }
       window.setTimeout(() => navigate('/account'), 2000)
     } else {
       setInfo('Account created! You can now log in.')
@@ -77,6 +85,7 @@ export default function Login() {
       <div className="w-full max-w-sm rounded-3xl border border-blush-200 bg-white p-7 text-center shadow-soft sm:p-8">
         {success ? (
           <>
+            {showConfetti && <ConfettiBurst />}
             <LoginHeartAnimation />
             <h1 className="mt-1 font-display text-xl font-bold">Welcome back!</h1>
             <p className="mt-1 text-sm text-plum-600">Taking you to your account…</p>

@@ -1,12 +1,22 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatPrice, useCart } from '../context/CartContext'
 import { getCollection } from '../data/products'
-import { BagIcon } from './Icons'
+import { playPop } from '../lib/sound'
+import { BagIcon, CheckIcon } from './Icons'
 
 // Shows one product's image, price, and add-to-cart button
 export default function ProductCard({ product }) {
   const { addItem } = useCart()
   const collection = getCollection(product.collection)
+  const [added, setAdded] = useState(false)
+
+  const handleAdd = () => {
+    addItem(product)
+    playPop()
+    setAdded(true)
+    window.setTimeout(() => setAdded(false), 1200)
+  }
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-[1.75rem] border border-blush-200 bg-white shadow-soft transition duration-300 hover:-translate-y-1 hover:rotate-[-0.4deg] hover:border-blush-300 hover:shadow-lift">
@@ -54,12 +64,12 @@ export default function ProductCard({ product }) {
           </p>
           <button
             type="button"
-            onClick={() => addItem(product)}
-            className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full bg-blush-600 px-4 text-sm font-semibold text-white transition duration-200 hover:bg-blush-700 active:scale-[0.97]"
+            onClick={handleAdd}
+            className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full bg-blush-600 px-4 text-sm font-semibold text-white transition duration-200 hover:bg-blush-700 active:scale-[0.97] ${added ? 'animate-add-pop' : ''}`}
             aria-label={`Add ${product.name} to basket`}
           >
-            <BagIcon className="h-4 w-4" />
-            Add to basket
+            {added ? <CheckIcon className="h-4 w-4" /> : <BagIcon className="h-4 w-4" />}
+            {added ? 'Added!' : 'Add to basket'}
           </button>
         </div>
         <p className="mt-2 text-xs text-plum-400">Lash glue not included</p>
