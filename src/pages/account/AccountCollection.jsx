@@ -187,12 +187,14 @@ function CollectionCard({ item, onChange }) {
         >
           Care guide
         </Link>
-        <Link
-          to={`/product/${item.product_slug}`}
-          className="inline-flex items-center gap-1.5 rounded-full bg-blush-50 px-4 py-2.5 text-sm font-semibold text-blush-700 transition hover:bg-blush-100"
-        >
-          Buy again
-        </Link>
+        {item.archived && (
+          <Link
+            to={`/product/${item.product_slug}`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-blush-50 px-4 py-2.5 text-sm font-semibold text-blush-700 transition hover:bg-blush-100"
+          >
+            Buy again
+          </Link>
+        )}
       </div>
     </div>
   )
