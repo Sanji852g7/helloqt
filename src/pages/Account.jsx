@@ -9,6 +9,16 @@ import { BagIcon, CheckIcon, PinIcon, StarIcon, TruckIcon } from '../components/
 const royalMailTrackingUrl = (trackingNumber) =>
   `https://www.royalmail.com/track-your-item#/tracking-results/${encodeURIComponent(trackingNumber)}`
 
+// A friendly greeting that matches whatever time it actually is for the visitor
+function timeGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 5) return 'Good night'
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  if (hour < 21) return 'Good evening'
+  return 'Good night'
+}
+
 const TRACKING_STAGES = [
   { key: 'paid', label: 'Order placed' },
   { key: 'packed', label: 'Packed' },
@@ -179,7 +189,10 @@ export default function Account() {
       <div className="mt-5 flex items-center gap-4">
         <ProfileAvatar fullName={fullName} email={user.email} />
         <div>
-          {fullName && <p className="text-lg font-semibold text-plum-800">{fullName}</p>}
+          <p className="text-lg font-semibold text-plum-800">
+            {timeGreeting()}
+            {user.user_metadata?.first_name ? `, ${user.user_metadata.first_name}` : ''} 💕
+          </p>
           <p className="text-plum-600">{user.email}</p>
         </div>
       </div>
