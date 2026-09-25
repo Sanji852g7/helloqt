@@ -5,6 +5,7 @@ import LoginHeartAnimation from '../components/LoginHeartAnimation'
 import ConfettiBurst from '../components/ConfettiBurst'
 import { EyeIcon, EyeOffIcon } from '../components/Icons'
 import { playSuccessSound } from '../lib/sound'
+import { toTitleCase } from '../lib/text'
 
 // Login/signup page toggling between the two modes
 export default function Login() {
@@ -73,7 +74,10 @@ export default function Login() {
     const { data, error: authError } =
       mode === 'signin'
         ? await signIn(email, password)
-        : await signUp(email, password, { firstName, surname })
+        : await signUp(email, password, {
+            firstName: toTitleCase(firstName.trim()),
+            surname: toTitleCase(surname.trim()),
+          })
 
     setSubmitting(false)
 

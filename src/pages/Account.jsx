@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { formatPrice } from '../context/CartContext'
 import { supabase } from '../lib/supabaseClient'
+import { toTitleCase } from '../lib/text'
 import { BagIcon, CheckIcon, EditIcon, PinIcon, StarIcon, TruckIcon } from '../components/Icons'
 
 const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i
@@ -11,8 +12,8 @@ const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i
 // to the account's own name and the last order that had an address on file
 function addressDefaults(user, profile, fallbackOrder) {
   return {
-    firstName: user.user_metadata?.first_name ?? '',
-    surname: user.user_metadata?.surname ?? '',
+    firstName: user.user_metadata?.first_name ? toTitleCase(user.user_metadata.first_name) : '',
+    surname: user.user_metadata?.surname ? toTitleCase(user.user_metadata.surname) : '',
     nickname: user.user_metadata?.nickname ?? '',
     phone: profile?.phone ?? fallbackOrder?.phone ?? '',
     address1: profile?.address1 ?? fallbackOrder?.address1 ?? '',
@@ -191,8 +192,8 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
     e.preventDefault()
     setError(null)
 
-    const firstName = values.firstName.trim()
-    const surname = values.surname.trim()
+    const firstName = toTitleCase(values.firstName.trim())
+    const surname = toTitleCase(values.surname.trim())
     const address1 = values.address1.trim()
     const city = values.city.trim()
     const postcode = values.postcode.trim().toUpperCase()
@@ -245,6 +246,7 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
   const display = profile ?? fallbackOrder
   const displayName = [user.user_metadata?.first_name, user.user_metadata?.surname]
     .filter(Boolean)
+    .map(toTitleCase)
     .join(' ')
 
   const formFields = [
@@ -456,10 +458,13 @@ export default function Account() {
   // Older accounts made before sign-up asked for a name won't have one set
   const fullName = [user.user_metadata?.first_name, user.user_metadata?.surname]
     .filter(Boolean)
+    .map(toTitleCase)
     .join(' ')
 
   // The greeting prefers a nickname, but falls back to their first name
-  const greetingName = user.user_metadata?.nickname || user.user_metadata?.first_name
+  const greetingName =
+    user.user_metadata?.nickname ||
+    (user.user_metadata?.first_name ? toTitleCase(user.user_metadata.first_name) : '')
 
   // The newest order that actually has an address on file, used as the
   // "saved" one — orders are already sorted newest first

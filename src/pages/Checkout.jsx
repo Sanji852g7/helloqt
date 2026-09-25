@@ -5,6 +5,7 @@ import { DISCOUNT_RATE } from '../data/pricing'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import { LockIcon } from '../components/Icons'
+import { toTitleCase } from '../lib/text'
 
 const fields = [
   { id: 'fullName', label: 'Full name', type: 'text', autoComplete: 'name' },
@@ -90,6 +91,7 @@ export default function Checkout() {
         if (profile) {
           const fullName = [user.user_metadata?.first_name, user.user_metadata?.surname]
             .filter(Boolean)
+            .map(toTitleCase)
             .join(' ')
           applyPrefill({ ...profile, full_name: fullName })
           return
