@@ -11,6 +11,8 @@ const formatDate = (value) =>
     ? new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     : null
 
+const todayStr = () => new Date().toISOString().slice(0, 10)
+
 // One purchased pair: wear tracker, milestone message, and an overflow menu
 // to archive it once it's finished, damaged, or lost
 function CollectionCard({ item, onChange }) {
@@ -19,13 +21,18 @@ function CollectionCard({ item, onChange }) {
   const [undoState, setUndoState] = useState(null)
   const [error, setError] = useState(null)
 
+  // Once a day, so an accidental extra tap (after the immediate Undo window
+  // has passed) can't quietly inflate the count
+  const loggedToday = item.last_worn_date === todayStr()
+
   const handleWoreToday = async () => {
+    if (loggedToday) return
     setLogging(true)
     setError(null)
     const previous = { wear_count: item.wear_count, last_worn_date: item.last_worn_date }
     const { data, error: updateError } = await supabase
       .from('lash_collection')
-      .update({ wear_count: item.wear_count + 1, last_worn_date: new Date().toISOString().slice(0, 10) })
+      .update({ wear_count: item.wear_count + 1, last_worn_date: todayStr() })
       .eq('id', item.id)
       .select()
       .single()
@@ -152,6 +159,10 @@ function CollectionCard({ item, onChange }) {
             >
               Logged today ✓ · Undo
             </button>
+          ) : loggedToday ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blush-50 px-4 py-2.5 text-sm font-semibold text-plum-400">
+              Already logged today
+            </span>
           ) : (
             <button
               type="button"
