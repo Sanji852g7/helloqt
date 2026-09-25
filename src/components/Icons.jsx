@@ -161,6 +161,14 @@ export const TrashIcon = (props) => (
   </svg>
 )
 
+// Pencil icon for "edit" actions
+export const EditIcon = (props) => (
+  <svg {...base} {...props}>
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7.5 18.5 3 20l1.5-4.5Z" />
+    <path d="M14.5 5.5 18 9" />
+  </svg>
+)
+
 // Padlock icon for secure checkout messaging
 export const LockIcon = (props) => (
   <svg {...base} {...props}>

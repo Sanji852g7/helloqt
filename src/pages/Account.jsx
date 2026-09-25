@@ -3,7 +3,23 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { formatPrice } from '../context/CartContext'
 import { supabase } from '../lib/supabaseClient'
-import { BagIcon, CheckIcon, PinIcon, StarIcon, TruckIcon } from '../components/Icons'
+import { BagIcon, CheckIcon, EditIcon, PinIcon, StarIcon, TruckIcon } from '../components/Icons'
+
+const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i
+
+// Starting values for the edit form: whatever's already saved, falling back
+// to the account's own name and the last order that had an address on file
+function addressDefaults(user, profile, fallbackOrder) {
+  return {
+    firstName: user.user_metadata?.first_name ?? '',
+    surname: user.user_metadata?.surname ?? '',
+    phone: profile?.phone ?? fallbackOrder?.phone ?? '',
+    address1: profile?.address1 ?? fallbackOrder?.address1 ?? '',
+    address2: profile?.address2 ?? fallbackOrder?.address2 ?? '',
+    city: profile?.city ?? fallbackOrder?.city ?? '',
+    postcode: profile?.postcode ?? fallbackOrder?.postcode ?? '',
+  }
+}
 
 // Builds the Royal Mail tracking page URL for a given tracking number
 const royalMailTrackingUrl = (trackingNumber) =>
@@ -152,11 +168,187 @@ function ReviewButton({ orderRef }) {
   )
 }
 
+// Editable name + default delivery address card. Saved separately from any
+// order, so changing it never rewrites what was actually shipped in the past
+function AddressCard({ user, profile, fallbackOrder, onSaved }) {
+  const [editing, setEditing] = useState(false)
+  const [values, setValues] = useState(() => addressDefaults(user, profile, fallbackOrder))
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+  const [saved, setSaved] = useState(false)
+
+  const startEditing = () => {
+    setValues(addressDefaults(user, profile, fallbackOrder))
+    setError(null)
+    setSaved(false)
+    setEditing(true)
+  }
+
+  const handleChange = (id, value) => setValues((v) => ({ ...v, [id]: value }))
+
+  const handleSave = async (e) => {
+    e.preventDefault()
+    setError(null)
+
+    const firstName = values.firstName.trim()
+    const address1 = values.address1.trim()
+    const city = values.city.trim()
+    const postcode = values.postcode.trim().toUpperCase()
+
+    if (!firstName) return setError('Enter your first name.')
+    if (!address1) return setError('Enter the first line of your address.')
+    if (!city) return setError('Enter your town or city.')
+    if (!UK_POSTCODE.test(postcode)) return setError('Enter a valid UK postcode.')
+
+    setSaving(true)
+    try {
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { first_name: firstName, surname: values.surname.trim() },
+      })
+      if (authError) throw authError
+
+      const { error: dbError } = await supabase.from('profiles').upsert({
+        user_id: user.id,
+        phone: values.phone.trim(),
+        address1,
+        address2: values.address2.trim(),
+        city,
+        postcode,
+        updated_at: new Date().toISOString(),
+      })
+      if (dbError) throw dbError
+
+      setEditing(false)
+      setSaved(true)
+      onSaved?.()
+    } catch (err) {
+      setError(err.message || 'Something went wrong, please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Whatever we'd show read-only: the saved profile, or the last order's
+  // address if nothing has been saved to the profile yet
+  const display = profile ?? fallbackOrder
+  const displayName = [user.user_metadata?.first_name, user.user_metadata?.surname]
+    .filter(Boolean)
+    .join(' ')
+
+  const formFields = [
+    { id: 'firstName', label: 'First name', type: 'text', autoComplete: 'given-name' },
+    { id: 'surname', label: 'Surname', type: 'text', autoComplete: 'family-name', optional: true },
+    { id: 'phone', label: 'Phone number', type: 'tel', autoComplete: 'tel', optional: true },
+    { id: 'address1', label: 'Address line 1', type: 'text', autoComplete: 'address-line1' },
+    { id: 'address2', label: 'Address line 2', type: 'text', autoComplete: 'address-line2', optional: true },
+    { id: 'city', label: 'Town or city', type: 'text', autoComplete: 'address-level2' },
+    { id: 'postcode', label: 'Postcode', type: 'text', autoComplete: 'postal-code' },
+  ]
+
+  return (
+    <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 font-display text-xl font-bold">
+          <PinIcon className="h-5 w-5 text-blush-500" />
+          Your details
+        </h2>
+        {!editing && (
+          <button
+            type="button"
+            onClick={startEditing}
+            className="inline-flex items-center gap-1.5 rounded-full bg-blush-50 px-3.5 py-1.5 text-sm font-semibold text-blush-700 transition hover:bg-blush-100"
+          >
+            <EditIcon className="h-3.5 w-3.5" />
+            Edit
+          </button>
+        )}
+      </div>
+
+      {!editing ? (
+        <>
+          <p className="mt-1 text-sm text-plum-500">
+            {display ? "We'll suggest this at checkout." : 'Add your details so checkout can fill itself in next time.'}
+          </p>
+          {display && (
+            <address className="mt-3 text-sm not-italic leading-relaxed text-plum-700">
+              {displayName || display.full_name}
+              <br />
+              {display.address1}
+              <br />
+              {display.address2 && (
+                <>
+                  {display.address2}
+                  <br />
+                </>
+              )}
+              {display.city}
+              <br />
+              {display.postcode}
+            </address>
+          )}
+          {saved && <p className="mt-3 text-xs font-semibold text-green-700">Saved!</p>}
+        </>
+      ) : (
+        <form onSubmit={handleSave} className="mt-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {formFields.map((field) => {
+              const wide = ['address1', 'address2'].includes(field.id)
+              return (
+                <div key={field.id} className={wide ? 'sm:col-span-2' : ''}>
+                  <label htmlFor={field.id} className="mb-1.5 block text-sm font-semibold text-plum-700">
+                    {field.label}
+                    {!field.optional && (
+                      <span className="ml-1 text-blush-600" aria-hidden="true">
+                        *
+                      </span>
+                    )}
+                    {field.optional && (
+                      <span className="ml-1.5 font-normal text-plum-400">(optional)</span>
+                    )}
+                  </label>
+                  <input
+                    id={field.id}
+                    name={field.id}
+                    type={field.type}
+                    autoComplete={field.autoComplete}
+                    value={values[field.id] ?? ''}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                    required={!field.optional}
+                    className="field"
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+          {error && <p className="mt-3 text-sm font-medium text-red-700">{error}</p>}
+
+          <div className="mt-5 flex items-center gap-3">
+            <button type="submit" disabled={saving} className="btn-primary">
+              {saving ? 'Saving…' : 'Save'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              disabled={saving}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  )
+}
+
 // Account page showing the logged-in user's details and orders
 export default function Account() {
   const { user, loading, signOut } = useAuth()
   const [orders, setOrders] = useState([])
   const [ordersLoading, setOrdersLoading] = useState(true)
+  const [profile, setProfile] = useState(null)
+  const [profileReloadKey, setProfileReloadKey] = useState(0)
 
   useEffect(() => {
     if (!user) return
@@ -170,6 +362,19 @@ export default function Account() {
         setOrdersLoading(false)
       })
   }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) console.error('[helloqt] failed to load profile:', error.message)
+        setProfile(data ?? null)
+      })
+  }, [user, profileReloadKey])
 
   if (loading) return null
   if (!user) return <Navigate to="/login" replace />
@@ -197,32 +402,12 @@ export default function Account() {
         </div>
       </div>
 
-      {savedAddress && (
-        <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
-          <h2 className="flex items-center gap-2 font-display text-xl font-bold">
-            <PinIcon className="h-5 w-5 text-blush-500" />
-            Delivery address
-          </h2>
-          <p className="mt-1 text-sm text-plum-500">
-            From your last order - we'll suggest this one at checkout.
-          </p>
-          <address className="mt-3 text-sm not-italic leading-relaxed text-plum-700">
-            {savedAddress.full_name}
-            <br />
-            {savedAddress.address1}
-            <br />
-            {savedAddress.address2 && (
-              <>
-                {savedAddress.address2}
-                <br />
-              </>
-            )}
-            {savedAddress.city}
-            <br />
-            {savedAddress.postcode}
-          </address>
-        </div>
-      )}
+      <AddressCard
+        user={user}
+        profile={profile}
+        fallbackOrder={savedAddress}
+        onSaved={() => setProfileReloadKey((k) => k + 1)}
+      />
 
       <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
         <h2 className="font-display text-xl font-bold">Your orders</h2>

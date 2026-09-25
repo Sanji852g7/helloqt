@@ -62,30 +62,48 @@ export default function Checkout() {
   const summaryRef = useRef(null)
   const cancelled = new URLSearchParams(useLocation().search).get('cancelled')
 
-  // Fills the form in from whichever address they last posted to, so a
-  // returning shopper doesn't have to retype it — never overwrites anything
+  // Fills the form in from their saved default address, falling back to
+  // whichever address they last posted to — never overwrites anything
   // they've already started typing themselves
   useEffect(() => {
     if (!user) return
+
+    const applyPrefill = (data) => {
+      if (!data) return
+      setValues((v) => ({
+        fullName: v.fullName || data.full_name || '',
+        email: v.email || data.email || user.email || '',
+        phone: v.phone || data.phone || '',
+        address1: v.address1 || data.address1 || '',
+        address2: v.address2 || data.address2 || '',
+        city: v.city || data.city || '',
+        postcode: v.postcode || data.postcode || '',
+      }))
+    }
+
     supabase
-      .from('orders')
-      .select('full_name, email, phone, address1, address2, city, postcode')
+      .from('profiles')
+      .select('phone, address1, address2, city, postcode')
       .eq('user_id', user.id)
-      .not('address1', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
       .maybeSingle()
-      .then(({ data }) => {
-        if (!data) return
-        setValues((v) => ({
-          fullName: v.fullName || data.full_name || '',
-          email: v.email || data.email || user.email || '',
-          phone: v.phone || data.phone || '',
-          address1: v.address1 || data.address1 || '',
-          address2: v.address2 || data.address2 || '',
-          city: v.city || data.city || '',
-          postcode: v.postcode || data.postcode || '',
-        }))
+      .then(({ data: profile }) => {
+        if (profile) {
+          const fullName = [user.user_metadata?.first_name, user.user_metadata?.surname]
+            .filter(Boolean)
+            .join(' ')
+          applyPrefill({ ...profile, full_name: fullName })
+          return
+        }
+
+        supabase
+          .from('orders')
+          .select('full_name, email, phone, address1, address2, city, postcode')
+          .eq('user_id', user.id)
+          .not('address1', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+          .then(({ data: order }) => applyPrefill(order))
       })
   }, [user])
 
