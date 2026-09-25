@@ -12,6 +12,7 @@ export default function ResetPassword() {
   const navigate = useNavigate()
   const [checkingLink, setCheckingLink] = useState(true)
   const [linkValid, setLinkValid] = useState(false)
+  const [linkErrorMessage, setLinkErrorMessage] = useState(null)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -21,10 +22,56 @@ export default function ResetPassword() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setLinkValid(Boolean(data.session))
+    // Supabase reports an already-used or genuinely expired link this way,
+    // as a query param or in the hash depending on the flow — surface its
+    // real reason instead of a generic message when it does
+    const params = new URLSearchParams(window.location.search)
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const description =
+      params.get('error_description') || hashParams.get('error_description')
+    if (description) {
+      setLinkErrorMessage(description.replace(/\+/g, ' '))
       setCheckingLink(false)
+      return
+    }
+
+    let settled = false
+
+    // Turning the emailed link into a real session happens asynchronously
+    // (Supabase exchanges a code in the URL after the page has already
+    // loaded), so a single getSession() call right away can easily lose that
+    // race and wrongly report the link as invalid. Listening for the auth
+    // event it fires once that exchange completes is the reliable way to
+    // catch it, whichever flow the link uses.
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+        settled = true
+        setLinkValid(true)
+        setCheckingLink(false)
+      }
     })
+
+    // Covers the case where the session was already established by the time
+    // this component mounted, so no new event is going to fire
+    supabase.auth.getSession().then(({ data }) => {
+      if (settled) return
+      if (data.session) {
+        settled = true
+        setLinkValid(true)
+        setCheckingLink(false)
+      }
+    })
+
+    // Give the exchange a few seconds before giving up and calling the link
+    // expired, rather than failing the instant the first check comes back empty
+    const timeout = window.setTimeout(() => {
+      if (!settled) setCheckingLink(false)
+    }, 4000)
+
+    return () => {
+      listener.subscription.unsubscribe()
+      window.clearTimeout(timeout)
+    }
   }, [])
 
   const handleSubmit = async (event) => {
@@ -62,8 +109,8 @@ export default function ResetPassword() {
           <>
             <h1 className="font-display text-2xl font-bold">Link expired</h1>
             <p className="mt-2 text-sm text-plum-600">
-              This reset link is no longer valid - links only work once and expire after a
-              while. Request a new one from the login page.
+              {linkErrorMessage ||
+                'This reset link is no longer valid - links only work once and expire after a while. Request a new one from the login page.'}
             </p>
             <Link to="/login" className="btn-primary mt-6 inline-flex">
               Back to log in
