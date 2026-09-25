@@ -192,11 +192,13 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
     setError(null)
 
     const firstName = values.firstName.trim()
+    const surname = values.surname.trim()
     const address1 = values.address1.trim()
     const city = values.city.trim()
     const postcode = values.postcode.trim().toUpperCase()
 
     if (!firstName) return setError('Enter your first name.')
+    if (!surname) return setError('Enter your surname.')
     if (!address1) return setError('Enter the first line of your address.')
     if (!city) return setError('Enter your town or city.')
     if (!UK_POSTCODE.test(postcode)) return setError('Enter a valid UK postcode.')
@@ -206,7 +208,7 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
       const { error: authError } = await supabase.auth.updateUser({
         data: {
           first_name: firstName,
-          surname: values.surname.trim(),
+          surname,
           nickname: values.nickname.trim(),
         },
       })
@@ -242,7 +244,7 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
 
   const formFields = [
     { id: 'firstName', label: 'First name', type: 'text', autoComplete: 'given-name' },
-    { id: 'surname', label: 'Surname', type: 'text', autoComplete: 'family-name', optional: true },
+    { id: 'surname', label: 'Surname', type: 'text', autoComplete: 'family-name' },
     {
       id: 'nickname',
       label: 'Nickname',
