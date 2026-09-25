@@ -17,7 +17,12 @@ import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import Login from './pages/Login'
 import ResetPassword from './pages/ResetPassword'
-import Account from './pages/Account'
+import AccountLayout from './pages/account/AccountLayout'
+import AccountOverview from './pages/account/AccountOverview'
+import AccountOrders from './pages/account/AccountOrders'
+import AccountDetails from './pages/account/AccountDetails'
+import AccountCollection from './pages/account/AccountCollection'
+import AccountFavourites from './pages/account/AccountFavourites'
 import Review from './pages/Review'
 
 // Scrolls to top on route change, or to a hash anchor
@@ -56,7 +61,13 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/account" element={<Account />} />
+          <Route path="/account" element={<AccountLayout />}>
+            <Route index element={<AccountOverview />} />
+            <Route path="orders" element={<AccountOrders />} />
+            <Route path="details" element={<AccountDetails />} />
+            <Route path="collection" element={<AccountCollection />} />
+            <Route path="favourites" element={<AccountFavourites />} />
+          </Route>
           <Route path="/review/:orderRef" element={<Review />} />
         </Routes>
       </main>

@@ -1,16 +1,14 @@
-import { useEffect, useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { formatPrice } from '../context/CartContext'
-import { supabase } from '../lib/supabaseClient'
-import { toTitleCase } from '../lib/text'
-import { BagIcon, CheckIcon, EditIcon, PinIcon, StarIcon, TruckIcon } from '../components/Icons'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '../../lib/supabaseClient'
+import { toTitleCase } from '../../lib/text'
+import { BagIcon, CheckIcon, EditIcon, PinIcon, StarIcon } from '../../components/Icons'
 
-const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i
+export const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i
 
 // Starting values for the edit form: whatever's already saved, falling back
 // to the account's own name and the last order that had an address on file
-function addressDefaults(user, profile, fallbackOrder) {
+export function addressDefaults(user, profile, fallbackOrder) {
   return {
     firstName: user.user_metadata?.first_name ? toTitleCase(user.user_metadata.first_name) : '',
     surname: user.user_metadata?.surname ? toTitleCase(user.user_metadata.surname) : '',
@@ -24,11 +22,11 @@ function addressDefaults(user, profile, fallbackOrder) {
 }
 
 // Builds the Royal Mail tracking page URL for a given tracking number
-const royalMailTrackingUrl = (trackingNumber) =>
+export const royalMailTrackingUrl = (trackingNumber) =>
   `https://www.royalmail.com/track-your-item#/tracking-results/${encodeURIComponent(trackingNumber)}`
 
 // A friendly greeting that matches whatever time it actually is for the visitor
-function timeGreeting() {
+export function timeGreeting() {
   const hour = new Date().getHours()
   if (hour < 5) return 'Good night'
   if (hour < 12) return 'Good morning'
@@ -37,7 +35,7 @@ function timeGreeting() {
   return 'Good night'
 }
 
-const TRACKING_STAGES = [
+export const TRACKING_STAGES = [
   { key: 'paid', label: 'Order placed' },
   { key: 'packed', label: 'Packed' },
   { key: 'shipped', label: 'Shipped' },
@@ -45,7 +43,7 @@ const TRACKING_STAGES = [
 ]
 
 // Visual progress tracker for an order's fulfilment status
-function OrderTracker({ status }) {
+export function OrderTracker({ status }) {
   const currentIndex = Math.max(
     0,
     TRACKING_STAGES.findIndex((stage) => stage.key === status),
@@ -88,7 +86,7 @@ function OrderTracker({ status }) {
 }
 
 // Circular initials avatar for the account header, matching the style used in chat and reviews
-function ProfileAvatar({ fullName, email }) {
+export function ProfileAvatar({ fullName, email }) {
   const initials = fullName
     ? fullName
         .split(' ')
@@ -106,7 +104,7 @@ function ProfileAvatar({ fullName, email }) {
 }
 
 // Order item photo that falls back to a plain icon if the image is missing or fails to load
-function OrderItemThumbnail({ src, alt }) {
+export function OrderItemThumbnail({ src, alt }) {
   const [failed, setFailed] = useState(false)
 
   if (!src || failed) {
@@ -131,7 +129,7 @@ function OrderItemThumbnail({ src, alt }) {
 
 // Takes a delivered order straight to its review page, fetching the same
 // signed token the "please review" email would have carried
-function ReviewButton({ orderRef }) {
+export function ReviewButton({ orderRef }) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -172,7 +170,7 @@ function ReviewButton({ orderRef }) {
 
 // Editable name + default delivery address card. Saved separately from any
 // order, so changing it never rewrites what was actually shipped in the past
-function AddressCard({ user, profile, fallbackOrder, onSaved }) {
+export function AddressCard({ user, profile, fallbackOrder, onSaved }) {
   const [editing, setEditing] = useState(false)
   const [values, setValues] = useState(() => addressDefaults(user, profile, fallbackOrder))
   const [saving, setSaving] = useState(false)
@@ -268,7 +266,7 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
   ]
 
   return (
-    <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
+    <div className="rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
       <div className="flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-display text-xl font-bold">
           <PinIcon className="h-5 w-5 text-blush-500" />
@@ -420,151 +418,15 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
   )
 }
 
-// Account page showing the logged-in user's details and orders
-export default function Account() {
-  const { user, loading, signOut } = useAuth()
-  const [orders, setOrders] = useState([])
-  const [ordersLoading, setOrdersLoading] = useState(true)
-  const [profile, setProfile] = useState(null)
-  const [profileReloadKey, setProfileReloadKey] = useState(0)
-
-  useEffect(() => {
-    if (!user) return
-    supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) console.error('[helloqt] failed to load orders:', error.message)
-        setOrders(data ?? [])
-        setOrdersLoading(false)
-      })
-  }, [user])
-
-  useEffect(() => {
-    if (!user) return
-    supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (error) console.error('[helloqt] failed to load profile:', error.message)
-        setProfile(data ?? null)
-      })
-  }, [user, profileReloadKey])
-
-  if (loading) return null
-  if (!user) return <Navigate to="/login" replace />
-
-  // Older accounts made before sign-up asked for a name won't have one set
-  const fullName = [user.user_metadata?.first_name, user.user_metadata?.surname]
-    .filter(Boolean)
-    .map(toTitleCase)
-    .join(' ')
-
-  // The greeting prefers a nickname, but falls back to their first name
-  const greetingName =
-    user.user_metadata?.nickname ||
-    (user.user_metadata?.first_name ? toTitleCase(user.user_metadata.first_name) : '')
-
-  // The newest order that actually has an address on file, used as the
-  // "saved" one — orders are already sorted newest first
-  const savedAddress = orders.find((order) => order.address1)
-
+// Small "back to the account dashboard" link used at the top of every
+// account sub-page, so nobody gets stuck on a page with no way out
+export function BackToAccount() {
   return (
-    <div className="section py-12 sm:py-16">
-      <h1 className="font-display text-4xl font-bold sm:text-5xl">Your account</h1>
-      <div className="mt-5 flex items-center gap-4">
-        <ProfileAvatar fullName={fullName} email={user.email} />
-        <div>
-          <p className="text-lg font-semibold text-plum-800">
-            {timeGreeting()}
-            {greetingName ? `, ${greetingName}` : ''} 💕
-          </p>
-          <p className="text-plum-600">{user.email}</p>
-        </div>
-      </div>
-
-      <AddressCard
-        user={user}
-        profile={profile}
-        fallbackOrder={savedAddress}
-        onSaved={() => setProfileReloadKey((k) => k + 1)}
-      />
-
-      <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
-        <h2 className="font-display text-xl font-bold">Your orders</h2>
-
-        {ordersLoading ? (
-          <p className="mt-2 text-sm text-plum-600">Loading your orders…</p>
-        ) : orders.length === 0 ? (
-          <p className="mt-2 text-sm text-plum-600">
-            No orders yet.{' '}
-            <Link to="/shop" className="font-semibold text-blush-700 hover:text-blush-800">
-              Go find your lash
-            </Link>
-            .
-          </p>
-        ) : (
-          <ul className="mt-5 divide-y divide-blush-200">
-            {orders.map((order) => (
-              <li key={order.id} className="py-5 first:pt-0 last:pb-0">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold text-plum-800">{order.order_ref}</p>
-                  <p className="text-sm text-plum-500">
-                    Order placed on{' '}
-                    {new Date(order.created_at).toLocaleDateString('en-GB', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </div>
-
-                <OrderTracker status={order.status} />
-
-                {order.tracking_number && (
-                  <a
-                    href={royalMailTrackingUrl(order.tracking_number)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-2 rounded-full bg-blush-50 px-4 py-2 text-sm font-semibold text-blush-700 transition hover:bg-blush-100"
-                  >
-                    <TruckIcon className="h-4 w-4" />
-                    Track with Royal Mail · {order.tracking_number}
-                  </a>
-                )}
-
-                {order.status === 'delivered' && <ReviewButton orderRef={order.order_ref} />}
-
-                <ul className="mt-4 space-y-3">
-                  {order.items.map((item) => (
-                    <li key={item.slug} className="flex items-center gap-3">
-                      <OrderItemThumbnail src={item.image} alt={`${item.name} lashes`} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-plum-800">{item.name}</p>
-                        <p className="text-sm text-plum-500">Qty {item.quantity}</p>
-                      </div>
-                      <p className="text-sm font-semibold tabular-nums text-plum-700">
-                        {formatPrice(item.price * item.quantity)}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-
-                <p className="mt-3 text-sm font-semibold text-plum-800">
-                  Total: {formatPrice(order.total)}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <button type="button" onClick={signOut} className="btn-secondary mt-6">
-        Log out
-      </button>
-    </div>
+    <Link
+      to="/account"
+      className="inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 transition hover:text-blush-800"
+    >
+      ← Back to account
+    </Link>
   )
 }
