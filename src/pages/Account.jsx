@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { formatPrice } from '../context/CartContext'
 import { supabase } from '../lib/supabaseClient'
-import { BagIcon, CheckIcon, TruckIcon } from '../components/Icons'
+import { BagIcon, CheckIcon, StarIcon, TruckIcon } from '../components/Icons'
 
 // Builds the Royal Mail tracking page URL for a given tracking number
 const royalMailTrackingUrl = (trackingNumber) =>
@@ -101,6 +101,47 @@ function OrderItemThumbnail({ src, alt }) {
   )
 }
 
+// Takes a delivered order straight to its review page, fetching the same
+// signed token the "please review" email would have carried
+function ReviewButton({ orderRef }) {
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const handleClick = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const { data: session } = await supabase.auth.getSession()
+      const accessToken = session?.session?.access_token
+      const res = await fetch(`/api/my-orders/${encodeURIComponent(orderRef)}/review-token`, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.')
+      navigate(`/review/${encodeURIComponent(orderRef)}?t=${data.token}`)
+    } catch (err) {
+      setError(err.message)
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className="inline-flex items-center gap-2 rounded-full bg-gold-100 px-4 py-2 text-sm font-semibold text-gold-700 transition hover:bg-gold-200"
+      >
+        <StarIcon className="h-4 w-4" />
+        {loading ? 'One sec…' : 'Leave a review'}
+      </button>
+      {error && <p className="mt-1.5 text-xs font-medium text-red-700">{error}</p>}
+    </div>
+  )
+}
+
 // Account page showing the logged-in user's details and orders
 export default function Account() {
   const { user, loading, signOut } = useAuth()
@@ -181,6 +222,8 @@ export default function Account() {
                     Track with Royal Mail · {order.tracking_number}
                   </a>
                 )}
+
+                {order.status === 'delivered' && <ReviewButton orderRef={order.order_ref} />}
 
                 <ul className="mt-4 space-y-3">
                   {order.items.map((item) => (

@@ -847,6 +847,26 @@ app.get('/api/review-context/:orderRef', async (req, res) => {
   })
 })
 
+// Gives a logged-in shopper the same signed review token their delivered
+// email would have contained, so they can review straight from their
+// account without digging up that email — only ever for their own order
+app.get('/api/my-orders/:orderRef/review-token', async (req, res) => {
+  const user = await userFromRequest(req)
+  if (!user) return res.status(401).json({ error: 'Please log in.' })
+
+  const { data: order } = await supabaseAdmin
+    .from('orders')
+    .select('order_ref, user_id')
+    .eq('order_ref', cleanText(req.params.orderRef, 40))
+    .maybeSingle()
+
+  if (!order || order.user_id !== user.id) {
+    return res.status(404).json({ error: 'Order not found.' })
+  }
+
+  res.json({ token: reviewToken(order.order_ref) })
+})
+
 // Saves a new review as "pending" — never shown on the site until Sanji
 // approves it in Table Editor. The review link's signature is the proof of
 // purchase, so no account or login is required to leave one.
