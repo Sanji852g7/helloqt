@@ -10,7 +10,7 @@ import { ProfileAvatar, timeGreeting } from './shared'
 // (avatar, greeting, email) everywhere so it's always clear whose account
 // this is, no matter which section they're looking at
 export default function AccountLayout() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading } = useAuth()
   const [orders, setOrders] = useState([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [profile, setProfile] = useState(null)
@@ -81,10 +81,6 @@ export default function AccountLayout() {
           }}
         />
       </div>
-
-      <button type="button" onClick={signOut} className="btn-secondary mt-8">
-        Log out
-      </button>
     </div>
   )
 }
