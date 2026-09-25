@@ -293,12 +293,14 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
             <p className="mt-0.5 text-plum-700">{displayName || display?.full_name || 'Not set yet'}</p>
           </div>
 
-          {user.user_metadata?.nickname && (
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Nickname</p>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Nickname</p>
+            {user.user_metadata?.nickname ? (
               <p className="mt-0.5 text-plum-700">{user.user_metadata.nickname}</p>
-            </div>
-          )}
+            ) : (
+              <p className="mt-0.5 text-plum-500">Not set - add one to use in your greeting instead of your first name.</p>
+            )}
+          </div>
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Email</p>
