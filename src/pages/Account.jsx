@@ -214,8 +214,13 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
       })
       if (authError) throw authError
 
+      // full_name and email are kept here too (not just in auth.users) purely
+      // so Sanji can tell rows apart in Table Editor without joining tables -
+      // same reason orders already stores them per row instead of just a user_id
       const { error: dbError } = await supabase.from('profiles').upsert({
         user_id: user.id,
+        full_name: `${firstName} ${surname}`.trim(),
+        email: user.email,
         phone: values.phone.trim(),
         address1,
         address2: values.address2.trim(),
