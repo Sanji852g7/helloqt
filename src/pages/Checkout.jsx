@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { formatPrice, useCart } from '../context/CartContext'
 import { DISCOUNT_RATE } from '../data/pricing'
+import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import { LockIcon } from '../components/Icons'
 
@@ -48,6 +49,7 @@ const validate = (values) => {
 
 // Checkout page: delivery form, order summary, demo submit
 export default function Checkout() {
+  const { user } = useAuth()
   const { items, subtotal, shipping, total, clearCart } = useCart()
   const [values, setValues] = useState({})
   const [errors, setErrors] = useState({})
@@ -59,6 +61,33 @@ export default function Checkout() {
   const [discountStatus, setDiscountStatus] = useState('idle')
   const summaryRef = useRef(null)
   const cancelled = new URLSearchParams(useLocation().search).get('cancelled')
+
+  // Fills the form in from whichever address they last posted to, so a
+  // returning shopper doesn't have to retype it — never overwrites anything
+  // they've already started typing themselves
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('orders')
+      .select('full_name, email, phone, address1, address2, city, postcode')
+      .eq('user_id', user.id)
+      .not('address1', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return
+        setValues((v) => ({
+          fullName: v.fullName || data.full_name || '',
+          email: v.email || data.email || user.email || '',
+          phone: v.phone || data.phone || '',
+          address1: v.address1 || data.address1 || '',
+          address2: v.address2 || data.address2 || '',
+          city: v.city || data.city || '',
+          postcode: v.postcode || data.postcode || '',
+        }))
+      })
+  }, [user])
 
   // Shown to the shopper only; the real total is always recalculated server-side
   const discountAmount = appliedCode ? subtotal * DISCOUNT_RATE : 0

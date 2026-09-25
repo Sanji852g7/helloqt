@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { formatPrice } from '../context/CartContext'
 import { supabase } from '../lib/supabaseClient'
-import { BagIcon, CheckIcon, StarIcon, TruckIcon } from '../components/Icons'
+import { BagIcon, CheckIcon, PinIcon, StarIcon, TruckIcon } from '../components/Icons'
 
 // Builds the Royal Mail tracking page URL for a given tracking number
 const royalMailTrackingUrl = (trackingNumber) =>
@@ -169,6 +169,10 @@ export default function Account() {
     .filter(Boolean)
     .join(' ')
 
+  // The newest order that actually has an address on file, used as the
+  // "saved" one — orders are already sorted newest first
+  const savedAddress = orders.find((order) => order.address1)
+
   return (
     <div className="section py-12 sm:py-16">
       <h1 className="font-display text-4xl font-bold sm:text-5xl">Your account</h1>
@@ -179,6 +183,33 @@ export default function Account() {
           <p className="text-plum-600">{user.email}</p>
         </div>
       </div>
+
+      {savedAddress && (
+        <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
+          <h2 className="flex items-center gap-2 font-display text-xl font-bold">
+            <PinIcon className="h-5 w-5 text-blush-500" />
+            Delivery address
+          </h2>
+          <p className="mt-1 text-sm text-plum-500">
+            From your last order - we'll suggest this one at checkout.
+          </p>
+          <address className="mt-3 text-sm not-italic leading-relaxed text-plum-700">
+            {savedAddress.full_name}
+            <br />
+            {savedAddress.address1}
+            <br />
+            {savedAddress.address2 && (
+              <>
+                {savedAddress.address2}
+                <br />
+              </>
+            )}
+            {savedAddress.city}
+            <br />
+            {savedAddress.postcode}
+          </address>
+        </div>
+      )}
 
       <div className="mt-8 rounded-3xl border border-blush-200 bg-white p-7 shadow-soft">
         <h2 className="font-display text-xl font-bold">Your orders</h2>
