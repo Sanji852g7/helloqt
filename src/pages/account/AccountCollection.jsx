@@ -11,7 +11,15 @@ const formatDate = (value) =>
     ? new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     : null
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+// The customer's own local date, not UTC - so the daily reset happens at
+// their actual midnight, not skewed by an hour during British Summer Time
+const todayStr = () => {
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
 
 // One purchased pair: wear tracker, milestone message, and an overflow menu
 // to archive it once it's finished, damaged, or lost
