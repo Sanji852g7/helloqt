@@ -13,6 +13,7 @@ function addressDefaults(user, profile, fallbackOrder) {
   return {
     firstName: user.user_metadata?.first_name ?? '',
     surname: user.user_metadata?.surname ?? '',
+    nickname: user.user_metadata?.nickname ?? '',
     phone: profile?.phone ?? fallbackOrder?.phone ?? '',
     address1: profile?.address1 ?? fallbackOrder?.address1 ?? '',
     address2: profile?.address2 ?? fallbackOrder?.address2 ?? '',
@@ -203,7 +204,11 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
     setSaving(true)
     try {
       const { error: authError } = await supabase.auth.updateUser({
-        data: { first_name: firstName, surname: values.surname.trim() },
+        data: {
+          first_name: firstName,
+          surname: values.surname.trim(),
+          nickname: values.nickname.trim(),
+        },
       })
       if (authError) throw authError
 
@@ -238,6 +243,14 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
   const formFields = [
     { id: 'firstName', label: 'First name', type: 'text', autoComplete: 'given-name' },
     { id: 'surname', label: 'Surname', type: 'text', autoComplete: 'family-name', optional: true },
+    {
+      id: 'nickname',
+      label: 'Nickname',
+      type: 'text',
+      autoComplete: 'nickname',
+      optional: true,
+      hint: "Shown in your greeting instead of your first name - we'll use your first name if you leave this blank.",
+    },
     { id: 'phone', label: 'Phone number', type: 'tel', autoComplete: 'tel', optional: true },
     { id: 'address1', label: 'Address line 1', type: 'text', autoComplete: 'address-line1' },
     { id: 'address2', label: 'Address line 2', type: 'text', autoComplete: 'address-line2', optional: true },
@@ -270,6 +283,13 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
             <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Name</p>
             <p className="mt-0.5 text-plum-700">{displayName || display?.full_name || 'Not set yet'}</p>
           </div>
+
+          {user.user_metadata?.nickname && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Nickname</p>
+              <p className="mt-0.5 text-plum-700">{user.user_metadata.nickname}</p>
+            </div>
+          )}
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Email</p>
@@ -332,7 +352,7 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {formFields.map((field) => {
-              const wide = ['address1', 'address2'].includes(field.id)
+              const wide = ['address1', 'address2', 'nickname'].includes(field.id)
               return (
                 <div key={field.id} className={wide ? 'sm:col-span-2' : ''}>
                   <label htmlFor={field.id} className="mb-1.5 block text-sm font-semibold text-plum-700">
@@ -346,6 +366,11 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
                       <span className="ml-1.5 font-normal text-plum-400">(optional)</span>
                     )}
                   </label>
+                  {field.hint && (
+                    <p id={`${field.id}-hint`} className="mb-1.5 text-xs text-plum-500">
+                      {field.hint}
+                    </p>
+                  )}
                   <input
                     id={field.id}
                     name={field.id}
@@ -354,6 +379,8 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
                     value={values[field.id] ?? ''}
                     onChange={(e) => handleChange(field.id, e.target.value)}
                     required={!field.optional}
+                    placeholder={field.id === 'nickname' ? values.firstName : undefined}
+                    aria-describedby={field.hint ? `${field.id}-hint` : undefined}
                     className="field"
                   />
                 </div>
@@ -424,6 +451,9 @@ export default function Account() {
     .filter(Boolean)
     .join(' ')
 
+  // The greeting prefers a nickname, but falls back to their first name
+  const greetingName = user.user_metadata?.nickname || user.user_metadata?.first_name
+
   // The newest order that actually has an address on file, used as the
   // "saved" one — orders are already sorted newest first
   const savedAddress = orders.find((order) => order.address1)
@@ -436,7 +466,7 @@ export default function Account() {
         <div>
           <p className="text-lg font-semibold text-plum-800">
             {timeGreeting()}
-            {user.user_metadata?.first_name ? `, ${user.user_metadata.first_name}` : ''} 💕
+            {greetingName ? `, ${greetingName}` : ''} 💕
           </p>
           <p className="text-plum-600">{user.email}</p>
         </div>
