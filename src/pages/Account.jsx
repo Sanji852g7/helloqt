@@ -265,31 +265,71 @@ function AddressCard({ user, profile, fallbackOrder, onSaved }) {
       </div>
 
       {!editing ? (
-        <>
-          <p className="mt-1 text-sm text-plum-500">
-            {display ? "We'll suggest this at checkout." : 'Add your details so checkout can fill itself in next time.'}
-          </p>
-          {display && (
-            <address className="mt-3 text-sm not-italic leading-relaxed text-plum-700">
-              {displayName || display.full_name}
-              <br />
-              {display.address1}
-              <br />
-              {display.address2 && (
-                <>
-                  {display.address2}
-                  <br />
-                </>
-              )}
-              {display.city}
-              <br />
-              {display.postcode}
-            </address>
+        <div className="mt-4 space-y-4 text-sm">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Name</p>
+            <p className="mt-0.5 text-plum-700">{displayName || display?.full_name || 'Not set yet'}</p>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Email</p>
+            <p className="mt-0.5 text-plum-700">{user.email}</p>
+          </div>
+
+          {display?.phone && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Phone</p>
+              <p className="mt-0.5 text-plum-700">{display.phone}</p>
+            </div>
           )}
-          {saved && <p className="mt-3 text-xs font-semibold text-green-700">Saved!</p>}
-        </>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">
+              Delivery address
+            </p>
+            {display?.address1 ? (
+              <address className="mt-0.5 not-italic leading-relaxed text-plum-700">
+                {display.address1}
+                <br />
+                {display.address2 && (
+                  <>
+                    {display.address2}
+                    <br />
+                  </>
+                )}
+                {display.city}
+                <br />
+                {display.postcode}
+              </address>
+            ) : (
+              <p className="mt-0.5 text-plum-500">Not added yet - we'll suggest it at checkout once you do.</p>
+            )}
+          </div>
+
+          {saved && <p className="text-xs font-semibold text-green-700">Saved!</p>}
+        </div>
       ) : (
         <form onSubmit={handleSave} className="mt-4">
+          <div className="mb-4">
+            <label htmlFor="account-email" className="mb-1.5 block text-sm font-semibold text-plum-700">
+              Email
+            </label>
+            <input
+              id="account-email"
+              type="email"
+              value={user.email}
+              disabled
+              className="field cursor-not-allowed text-plum-400"
+            />
+            <p className="mt-1.5 text-xs text-plum-500">
+              Can't be changed here yet -{' '}
+              <Link to="/contact" className="font-semibold text-blush-700 hover:text-blush-800">
+                contact me
+              </Link>{' '}
+              if you need it updated.
+            </p>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             {formFields.map((field) => {
               const wide = ['address1', 'address2'].includes(field.id)
