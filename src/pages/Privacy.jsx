@@ -162,23 +162,23 @@ export default function Privacy() {
         </p>
         <ul className="list-disc space-y-1.5 pl-5">
           <li>
-            <strong className="text-plum-800">Stripe</strong> — takes your payment securely and
+            <strong className="text-plum-800">Stripe</strong> - takes your payment securely and
             receives your name, email and payment details
           </li>
           <li>
-            <strong className="text-plum-800">Supabase</strong> — stores your account and order
+            <strong className="text-plum-800">Supabase</strong> - stores your account and order
             records
           </li>
           <li>
-            <strong className="text-plum-800">Resend</strong> — sends your order, delivery and
+            <strong className="text-plum-800">Resend</strong> - sends your order, delivery and
             account emails on my behalf
           </li>
           <li>
-            <strong className="text-plum-800">Anthropic</strong> — powers Mini Sanji, and receives
+            <strong className="text-plum-800">Anthropic</strong> - powers Mini Sanji, and receives
             only the messages you choose to send it
           </li>
           <li>
-            <strong className="text-plum-800">Royal Mail</strong> — receives your name and delivery
+            <strong className="text-plum-800">Royal Mail</strong> - receives your name and delivery
             address so your parcel can reach you
           </li>
         </ul>
@@ -251,7 +251,7 @@ export default function Privacy() {
         <p>
           Every review is checked by me before it goes live, so submitting one does not publish it
           immediately. Once approved, it is shown publicly on the product page under your first
-          name and last initial only (for example, "Sarah M.") — this is generated automatically
+          name and last initial only (for example, "Sarah M.") - this is generated automatically
           from your order, and your full surname is never published. You can leave one review per
           product per order.
         </p>

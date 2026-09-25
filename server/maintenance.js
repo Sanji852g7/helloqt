@@ -22,7 +22,7 @@ export function maintenancePageHtml() {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex" />
-<title>HelloQT — back very soon</title>
+<title>HelloQT - back very soon</title>
 <style>
   @font-face { font-family: fallback; src: local(""); }
   * { box-sizing: border-box; }

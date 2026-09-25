@@ -37,6 +37,13 @@ export function AuthProvider({ children }) {
       signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
       // Logs the current user out
       signOut: () => supabase.auth.signOut(),
+      // Emails a one-time link that lets a user set a new password
+      resetPasswordForEmail: (email) =>
+        supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        }),
+      // Sets a new password once the user has followed that emailed link
+      updatePassword: (password) => supabase.auth.updateUser({ password }),
     }),
     [session, loading],
   )

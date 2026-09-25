@@ -213,7 +213,7 @@ export function ownerOrderNotificationHtml({
     <p style="margin:0 0 4px; font-weight:bold;">Post to:</p>
     <p style="margin:0 0 16px; font-size:15px; line-height:1.5;">
       ${escapeHtml(fullName) || 'A HelloQT customer'}<br />
-      ${addressLines.length ? addressLines.join('<br />') : '<em>No address on file — check Supabase</em>'}
+      ${addressLines.length ? addressLines.join('<br />') : '<em>No address on file - check Supabase</em>'}
       ${phone ? `<br />${escapeHtml(phone)}` : ''}
     </p>
     <p style="margin:0 0 16px; font-size:14px;">

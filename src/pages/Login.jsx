@@ -8,7 +8,7 @@ import { playSuccessSound } from '../lib/sound'
 
 // Login/signup page toggling between the two modes
 export default function Login() {
-  const { user, signIn, signUp } = useAuth()
+  const { user, signIn, signUp, resetPasswordForEmail } = useAuth()
   const navigate = useNavigate()
   const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
@@ -24,8 +24,32 @@ export default function Login() {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
 
   if (user && !success) return <Navigate to="/account" replace />
+
+  // Switches mode and clears anything left over from the previous one
+  const switchMode = (nextMode) => {
+    setMode(nextMode)
+    setError(null)
+    setInfo(null)
+    setResetSent(false)
+  }
+
+  // Sends a password reset email; always looks the same whether or not the
+  // address has an account, so this can't be used to check who's a customer
+  const handleForgotPassword = async (event) => {
+    event.preventDefault()
+    setError(null)
+    setSubmitting(true)
+    const { error: resetError } = await resetPasswordForEmail(email)
+    setSubmitting(false)
+    if (resetError) {
+      setError(resetError.message)
+      return
+    }
+    setResetSent(true)
+  }
 
   // Submits the sign-in or sign-up form to Supabase
   const handleSubmit = async (event) => {
@@ -76,7 +100,7 @@ export default function Login() {
       window.setTimeout(() => navigate('/account'), 2000)
     } else {
       setInfo('Account created! You can now log in.')
-      setMode('signin')
+      switchMode('signin')
     }
   }
 
@@ -89,6 +113,61 @@ export default function Login() {
             <LoginHeartAnimation />
             <h1 className="mt-1 font-display text-xl font-bold">Welcome back!</h1>
             <p className="mt-1 text-sm text-plum-600">Taking you to your account…</p>
+          </>
+        ) : mode === 'forgot' ? (
+          <>
+            <h1 className="font-display text-2xl font-bold">Reset your password</h1>
+            <p className="mt-1.5 text-sm text-plum-600">
+              {resetSent
+                ? "Check your inbox for the link - it'll only work if that email has an account."
+                : "Enter your email and we'll send you a link to set a new password."}
+            </p>
+
+            {error && (
+              <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                {error}
+              </p>
+            )}
+
+            {resetSent ? (
+              <button
+                type="button"
+                onClick={() => switchMode('signin')}
+                className="btn-primary mt-6 w-full"
+              >
+                Back to log in
+              </button>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="mt-6 space-y-4 text-left">
+                <div>
+                  <label
+                    htmlFor="forgot-email"
+                    className="mb-1.5 block text-sm font-semibold text-plum-700"
+                  >
+                    Email address
+                  </label>
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="field"
+                  />
+                </div>
+                <button type="submit" disabled={submitting} className="btn-primary w-full">
+                  {submitting ? 'Sending…' : 'Send reset link'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode('signin')}
+                  className="w-full text-center text-sm font-semibold text-plum-500 transition hover:text-plum-700"
+                >
+                  Back to log in
+                </button>
+              </form>
+            )}
           </>
         ) : (
           <>
@@ -164,9 +243,20 @@ export default function Login() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-plum-700">
-                  Password
-                </label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-plum-700">
+                    Password
+                  </label>
+                  {mode === 'signin' && (
+                    <button
+                      type="button"
+                      onClick={() => switchMode('forgot')}
+                      className="mb-1.5 text-sm font-semibold text-blush-700 transition hover:text-blush-800"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <input
                     id="password"
@@ -260,11 +350,7 @@ export default function Login() {
 
             <button
               type="button"
-              onClick={() => {
-                setMode(mode === 'signin' ? 'signup' : 'signin')
-                setError(null)
-                setInfo(null)
-              }}
+              onClick={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}
               className="mt-5 w-full text-center text-sm font-semibold text-blush-700 transition hover:text-blush-800"
             >
               {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}

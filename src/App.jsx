@@ -16,6 +16,7 @@ import Contact from './pages/Contact'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import Login from './pages/Login'
+import ResetPassword from './pages/ResetPassword'
 import Account from './pages/Account'
 import Review from './pages/Review'
 
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/account" element={<Account />} />
           <Route path="/review/:orderRef" element={<Review />} />
         </Routes>

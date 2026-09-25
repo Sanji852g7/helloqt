@@ -512,11 +512,11 @@ async function savePaidOrder(session) {
 
   // Sanji's own copy, with the delivery address front and centre — this is
   // how she actually knows where to post the parcel
-  await sendEmail(`New order ${orderRef} — pack & post`, {
+  await sendEmail(`New order ${orderRef} - pack & post`, {
     from: FROM_EMAIL,
     to: SUPPORT_EMAIL,
     replyTo: email,
-    subject: `New order ${orderRef} — pack & post`,
+    subject: `New order ${orderRef} - pack & post`,
     html: ownerOrderNotificationHtml({
       orderRef,
       fullName,
