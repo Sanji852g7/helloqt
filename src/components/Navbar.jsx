@@ -34,6 +34,14 @@ export default function Navbar() {
 
   useEffect(() => setOpen(false), [pathname])
 
+  // Stops the page scrolling behind the drawer while it's open
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
+
   const navClass = ({ isActive }) =>
     [
       'relative rounded-full px-4 py-2 text-sm font-semibold tracking-wide transition',
@@ -106,12 +114,24 @@ export default function Navbar() {
         </div>
       </div>
 
-      {open && (
-        <nav
-          id="mobile-nav"
-          className="border-t border-blush-200 bg-cream px-5 pb-4 pt-2 md:hidden"
-          aria-label="Mobile"
-        >
+      {/* Dims the rest of the page behind the drawer, and closes it on tap */}
+      <div
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+        className={`fixed inset-0 top-16 z-30 bg-plum-900/40 transition-opacity duration-300 md:hidden ${
+          open ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      />
+
+      <nav
+        id="mobile-nav"
+        aria-label="Mobile"
+        aria-hidden={!open}
+        className={`fixed right-0 top-16 z-40 h-[calc(100dvh-4rem)] w-1/2 overflow-y-auto border-l border-blush-200 bg-cream px-5 pb-6 pt-3 shadow-lift transition-transform duration-300 md:hidden ${
+          open ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div>
           {links.map((link) => (
             <NavLink
               key={link.to}
@@ -157,8 +177,8 @@ export default function Navbar() {
               </button>
             </div>
           )}
-        </nav>
-      )}
+        </div>
+      </nav>
     </header>
   )
 }
