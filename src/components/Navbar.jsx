@@ -12,7 +12,7 @@ const links = [
 ]
 
 const accountLinks = [
-  { to: '/account/collection', label: 'My Collection', icon: SparkleIcon },
+  { to: '/account/collection', label: 'My QT Collection', icon: SparkleIcon },
   { to: '/account/orders', label: 'My Orders', icon: TruckIcon },
   { to: '/account/favourites', label: 'Favourites', icon: HeartIcon },
   { to: '/account/details', label: 'My Details', icon: UserIcon },

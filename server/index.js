@@ -473,7 +473,7 @@ async function savePaidOrder(session) {
       city: city || null,
       postcode: postcode || null,
     })
-    .select('order_ref')
+    .select('id, order_ref')
     .single()
 
   if (error) throw error
@@ -486,6 +486,31 @@ async function savePaidOrder(session) {
       .update({ used: true })
       .eq('email', email)
       .eq('used', false)
+  }
+
+  // Gives a logged-in customer one wear-tracked "pair" per unit bought, so
+  // buying two Angels becomes two separate rows (each may get worn and worn
+  // differently) - guests checking out without an account get no collection,
+  // since there's no account to keep it on. pair_key is unique, so a Stripe
+  // webhook retry for the same order can never create duplicate pairs.
+  if (userId) {
+    const pairRows = priced.items.flatMap((item) =>
+      Array.from({ length: item.quantity }, (_, i) => ({
+        user_id: userId,
+        order_id: data.id,
+        order_ref: orderRef,
+        product_slug: item.slug,
+        product_name: item.name,
+        product_image: item.image,
+        pair_key: `${orderRef}:${item.slug}:${i}`,
+      })),
+    )
+    const { error: collectionError } = await supabaseAdmin
+      .from('lash_collection')
+      .upsert(pairRows, { onConflict: 'pair_key', ignoreDuplicates: true })
+    if (collectionError) {
+      console.error('[helloqt-server] failed to add order to lash collection:', collectionError)
+    }
   }
 
   // The order and the payment are both already safe, so a failed email here

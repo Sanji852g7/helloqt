@@ -1,21 +1,33 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../../lib/supabaseClient'
 import { HeartIcon, SparkleIcon, TruckIcon, UserIcon } from '../../components/Icons'
 import { useAccountData } from './AccountLayout'
 
 // Dashboard shown at /account: a tile per section, so a customer can jump
 // straight to what they want instead of scrolling one long page
 export default function AccountOverview() {
-  const { orders, ordersLoading, profile } = useAccountData()
+  const { user, orders, ordersLoading, profile } = useAccountData()
+  const [pairCount, setPairCount] = useState(null)
 
-  const collectionCount = new Set(orders.flatMap((order) => order.items.map((item) => item.slug)))
-    .size
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('lash_collection')
+      .select('id', { count: 'exact', head: true })
+      .eq('archived', false)
+      .then(({ count, error }) => {
+        if (error) console.error('[helloqt] failed to load collection count:', error.message)
+        setPairCount(count ?? 0)
+      })
+  }, [user])
 
   const tiles = [
     {
       to: '/account/collection',
       icon: SparkleIcon,
-      label: 'My Collection',
-      detail: ordersLoading ? '…' : `${collectionCount} lash${collectionCount === 1 ? '' : 'es'}`,
+      label: 'My QT Collection',
+      detail: pairCount === null ? '…' : `${pairCount} pair${pairCount === 1 ? '' : 's'}`,
     },
     {
       to: '/account/orders',
