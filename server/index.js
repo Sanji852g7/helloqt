@@ -488,31 +488,6 @@ async function savePaidOrder(session) {
       .eq('used', false)
   }
 
-  // Gives a logged-in customer one wear-tracked "pair" per unit bought, so
-  // buying two Angels becomes two separate rows (each may get worn and worn
-  // differently) - guests checking out without an account get no collection,
-  // since there's no account to keep it on. pair_key is unique, so a Stripe
-  // webhook retry for the same order can never create duplicate pairs.
-  if (userId) {
-    const pairRows = priced.items.flatMap((item) =>
-      Array.from({ length: item.quantity }, (_, i) => ({
-        user_id: userId,
-        order_id: data.id,
-        order_ref: orderRef,
-        product_slug: item.slug,
-        product_name: item.name,
-        product_image: item.image,
-        pair_key: `${orderRef}:${item.slug}:${i}`,
-      })),
-    )
-    const { error: collectionError } = await supabaseAdmin
-      .from('lash_collection')
-      .upsert(pairRows, { onConflict: 'pair_key', ignoreDuplicates: true })
-    if (collectionError) {
-      console.error('[helloqt-server] failed to add order to lash collection:', collectionError)
-    }
-  }
-
   // The order and the payment are both already safe, so a failed email here
   // never undoes the checkout — sendEmail logs it either way
   await sendEmail(`Order confirmation for ${orderRef}`, {
@@ -558,6 +533,39 @@ async function savePaidOrder(session) {
 
   console.log(`[helloqt-server] Payment received, saved order ${orderRef}`)
   return orderRef
+}
+
+/**
+ * Gives a logged-in customer one wear-tracked "pair" per unit in an order,
+ * so buying two Angels becomes two separate rows (each may get worn and
+ * worn differently). Only called once an order is actually delivered - not
+ * at payment - since a pair someone doesn't have in hand yet isn't part of
+ * their collection. Guests checking out without an account get no
+ * collection, since there's no account to keep it on. pair_key is unique,
+ * so a retried or repeated "delivered" update can never create duplicates.
+ */
+async function addOrderToLashCollection(order) {
+  if (!order.user_id) return
+
+  const pairRows = (order.items ?? []).flatMap((item) =>
+    Array.from({ length: item.quantity }, (_, i) => ({
+      user_id: order.user_id,
+      order_id: order.id,
+      order_ref: order.order_ref,
+      product_slug: item.slug,
+      product_name: item.name,
+      product_image: item.image,
+      pair_key: `${order.order_ref}:${item.slug}:${i}`,
+    })),
+  )
+  if (pairRows.length === 0) return
+
+  const { error } = await supabaseAdmin
+    .from('lash_collection')
+    .upsert(pairRows, { onConflict: 'pair_key', ignoreDuplicates: true })
+  if (error) {
+    console.error('[helloqt-server] failed to add order to lash collection:', error)
+  }
 }
 
 // Stripe calls this the moment a payment succeeds. The signature check means
@@ -795,6 +803,12 @@ app.post('/api/order-webhook', async (req, res) => {
   if (!justShipped && !justDelivered) {
     return res.json({ skipped: true })
   }
+
+  // Only now does the customer actually have the lashes in hand, so this is
+  // when they join the collection - not at payment. Independent of the
+  // email below: a delivery still adds to the collection even if Resend
+  // isn't configured or the email itself fails.
+  if (justDelivered) await addOrderToLashCollection(record)
 
   if (!resend) {
     return res.status(503).json({ error: 'Email sending is not configured yet.' })
