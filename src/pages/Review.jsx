@@ -72,6 +72,9 @@ export default function Review() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong saving your review.')
+      // Marked locally too, so a second lash on the same order can be
+      // reviewed straight away instead of needing the email link reopened
+      setItems((prev) => prev.map((item) => (item.slug === slug ? { ...item, alreadyReviewed: true } : item)))
       setSent(true)
       playChime()
       setShowConfetti(true)
@@ -84,6 +87,15 @@ export default function Review() {
   }
 
   const selected = items.find((item) => item.slug === slug)
+  const nextUnreviewed = items.find((item) => item.slug !== slug && !item.alreadyReviewed)
+
+  const handleReviewAnother = () => {
+    setSlug(nextUnreviewed.slug)
+    setRating(0)
+    setBody('')
+    setSendError(null)
+    setSent(false)
+  }
 
   return (
     <div className="section flex justify-center py-16 sm:py-20">
@@ -106,6 +118,17 @@ export default function Review() {
               Your review has been sent - feedback like yours genuinely helps a small business
               like mine grow, so thank you so much for taking the time.
             </p>
+
+            {nextUnreviewed && (
+              <div className="mt-6 border-t border-blush-100 pt-5">
+                <p className="text-sm font-semibold text-plum-700">
+                  Got a moment for {nextUnreviewed.name} too?
+                </p>
+                <button type="button" onClick={handleReviewAnother} className="btn-primary mt-3 w-full">
+                  Review {nextUnreviewed.name}
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <>
