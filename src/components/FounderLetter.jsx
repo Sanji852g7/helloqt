@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { HeartStem, TapeStrip } from './Doodles'
 
 const HEART_CLIP_PATH =
@@ -71,19 +72,44 @@ export default function FounderLetter({ headingLevel = 'p' }) {
               <Heading className="mt-2 font-script text-3xl text-blush-600 sm:text-4xl">
                 A little note from me
               </Heading>
+              <p className="mt-4 max-w-xl leading-relaxed text-plum-700">Hiya, I&apos;m Sanji 💕</p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                Hiya, I&apos;m Sanji 💕 Software developer by day, but a full-time makeup and
-                beauty lover. HelloQT is a one-woman brand, just me, no team behind it.
+                I&apos;m a software developer by day and a huge makeup and beauty lover. HelloQT
+                is my little one-woman brand - no big team, just me designing, packing your
+                orders and even building the website you&apos;re on right now.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                It started because I kept losing my lashes, one always went missing in my bag or
-                just vanished, so I made ones that come with their own little box to live in.
-                Durable and comfortable too, with flexible bands so you&apos;re not binning them
-                after one wear.
+                HelloQT started because I kept losing my lashes. 😭 I&apos;d wear a pair, put
+                them somewhere &ldquo;safe&rdquo; and somehow one would always disappear. So I
+                thought, why not give them their own little home?
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                I pack every order myself. And this is only the start, I want to take HelloQT
-                further than just lashes one day.
+                That&apos;s why HelloQT lashes come with their own cases to keep them safe,
+                organised and ready for the next wear. They&apos;re also comfortable and
+                reusable, with flexible bands so you can get plenty of wears out of your
+                favourite pairs.
+              </p>
+              <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
+                And because I&apos;m a developer, I had to take it a little further 😂. Your
+                account has its own QT Collection, where you can see your lashes and keep track
+                of how many times you&apos;ve worn each pair.
+              </p>
+              <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
+                That&apos;s really what HelloQT is about; cute lashes, their own little home,
+                and hopefully no more mysteriously disappearing pairs. 😂💕
+              </p>
+              <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
+                And genuinely, thank you for being here. Whether you&apos;re shopping or just
+                having a browse, every bit of support means a lot to me. If you ever have
+                feedback, an idea, or just want to say hi,{' '}
+                <Link to="/contact" className="font-semibold text-blush-700 hover:text-blush-800">
+                  drop me an email
+                </Link>
+                . 💌
+              </p>
+
+              <p className="mt-5 font-script text-2xl text-blush-600 sm:text-3xl">
+                Made to make you feel QT 💕
               </p>
 
               <div className="mt-6">
