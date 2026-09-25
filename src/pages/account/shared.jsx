@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 import { toTitleCase } from '../../lib/text'
@@ -133,6 +133,22 @@ export function ReviewButton({ orderRef }) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [reviewed, setReviewed] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    supabase.auth.getSession().then(async ({ data: session }) => {
+      const accessToken = session?.session?.access_token
+      const res = await fetch(`/api/my-orders/${encodeURIComponent(orderRef)}/review-status`, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      })
+      const data = await res.json().catch(() => null)
+      if (!cancelled && res.ok) setReviewed(Boolean(data?.allReviewed))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [orderRef])
 
   const handleClick = async () => {
     setLoading(true)
@@ -150,6 +166,17 @@ export function ReviewButton({ orderRef }) {
       setError(err.message)
       setLoading(false)
     }
+  }
+
+  if (reviewed) {
+    return (
+      <div className="mt-3">
+        <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-green-700">
+          <CheckIcon className="h-4 w-4" />
+          Thanks for your review 💕
+        </span>
+      </div>
+    )
   }
 
   return (

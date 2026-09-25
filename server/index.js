@@ -906,6 +906,33 @@ app.get('/api/my-orders/:orderRef/review-token', async (req, res) => {
   res.json({ token: reviewToken(order.order_ref) })
 })
 
+// Tells the account page whether every item on this order already has a
+// review, so the button can show "Thanks for your review" up front instead
+// of only finding out once the shopper clicks through
+app.get('/api/my-orders/:orderRef/review-status', async (req, res) => {
+  const user = await userFromRequest(req)
+  if (!user) return res.status(401).json({ error: 'Please log in.' })
+
+  const { data: order } = await supabaseAdmin
+    .from('orders')
+    .select('order_ref, user_id, items')
+    .eq('order_ref', cleanText(req.params.orderRef, 40))
+    .maybeSingle()
+
+  if (!order || order.user_id !== user.id) {
+    return res.status(404).json({ error: 'Order not found.' })
+  }
+
+  const { data: existing } = await supabaseAdmin
+    .from('reviews')
+    .select('product_slug')
+    .eq('order_ref', order.order_ref)
+  const reviewedSlugs = new Set((existing ?? []).map((r) => r.product_slug))
+
+  const allReviewed = (order.items ?? []).every((item) => reviewedSlugs.has(item.slug))
+  res.json({ allReviewed })
+})
+
 // Saves a new review as "pending" — never shown on the site until Sanji
 // approves it in Table Editor. The review link's signature is the proof of
 // purchase, so no account or login is required to leave one.
