@@ -74,29 +74,20 @@ export default function FounderLetter({ headingLevel = 'p' }) {
               </Heading>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">Hiya, I&apos;m Sanji 💕</p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                I&apos;m a software developer by day and a huge makeup and beauty lover. HelloQT
-                is my little one-woman brand - no big team, just me designing, packing your
+                I&apos;m a software developer by day and a huge makeup and beauty lover always.
+                HelloQT is my one-woman brand - no big team, just me designing, packing your
                 orders and even building the website you&apos;re on right now.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                HelloQT started because I kept losing my lashes. 😭 I&apos;d wear a pair, put
-                them somewhere &ldquo;safe&rdquo; and somehow one would always disappear. So I
-                thought, why not give them their own little home?
+                It started because I kept losing my lashes. One would always vanish, so I gave
+                them their own little case to live in - safe, organised, and ready for next
+                time. They&apos;re comfortable and reusable too, with flexible bands so you get
+                plenty of wears out of your favourites.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                That&apos;s why HelloQT lashes come with their own cases to keep them safe,
-                organised and ready for the next wear. They&apos;re also comfortable and
-                reusable, with flexible bands so you can get plenty of wears out of your
-                favourite pairs.
-              </p>
-              <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                And because I&apos;m a developer, I had to take it a little further 😂. Your
-                account has its own QT Collection, where you can see your lashes and keep track
-                of how many times you&apos;ve worn each pair.
-              </p>
-              <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                That&apos;s really what HelloQT is about; cute lashes, their own little home,
-                and hopefully no more mysteriously disappearing pairs. 😂💕
+                And because I&apos;m a developer, I couldn&apos;t resist taking it further. Your
+                account has its own QT Collection, where you can see your lashes and track
+                exactly how many times you&apos;ve worn each pair.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
                 And genuinely, thank you for being here. Whether you&apos;re shopping or just
