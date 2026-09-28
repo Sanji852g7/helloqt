@@ -4,7 +4,7 @@ import { CheckIcon, InstagramIcon, MailIcon, PinIcon, TruckIcon } from '../compo
 const faqs = [
   {
     q: 'How long does UK delivery take?',
-    a: 'Orders placed before 2pm are posted the same working day via Royal Mail. Standard delivery usually arrives in 2–3 working days, and it is free on orders over £40.',
+    a: 'Orders placed before 2pm are posted the same working day via Royal Mail. Standard delivery usually arrives in 2–3 working days, and it is free on orders over £40. I currently only ship within the UK.',
   },
   {
     q: 'Can I return lashes?',

@@ -307,6 +307,7 @@ export default function Checkout() {
 
           <fieldset className="rounded-3xl border border-blush-200 bg-white p-6 sm:p-8">
             <legend className="px-2 font-display text-xl font-bold">Delivery details</legend>
+            <p className="mt-1 text-sm text-plum-500">UK addresses only - I don't currently ship internationally.</p>
 
             <div className="mt-4 grid gap-5 sm:grid-cols-2">
               {fields.map((field) => {

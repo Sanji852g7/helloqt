@@ -148,6 +148,7 @@ export default function Cart() {
             <LockIcon className="h-4 w-4" />
             Checkout
           </Link>
+          <p className="mt-2 text-center text-xs text-plum-500">UK delivery only.</p>
 
           <Link
             to="/shop"

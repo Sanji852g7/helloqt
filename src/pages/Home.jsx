@@ -381,7 +381,7 @@ export default function Home() {
             Ready to find your signature lash?
           </h2>
           <p className="relative mx-auto mt-4 max-w-lg text-plum-700">
-            Free UK delivery on orders over £40. Reusable up to 25 times.
+            UK delivery only, free over £40. Reusable up to 25 times.
           </p>
           <Link
             to="/shop"
