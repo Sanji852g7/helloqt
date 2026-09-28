@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import { toTitleCase } from '../lib/text'
+import { playPop } from '../lib/sound'
 import { HeartIcon } from './Icons'
 
 // Heart toggle for saving a product to the customer's favourites. A guest
@@ -66,7 +67,10 @@ export default function FavouriteButton({ slug, className, iconClassName = 'h-4 
         email: user.email,
         product_slug: slug,
       })
-      if (!error) setSaved(true)
+      if (!error) {
+        setSaved(true)
+        playPop()
+      }
     }
     setLoading(false)
   }
