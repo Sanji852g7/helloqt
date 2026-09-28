@@ -9,6 +9,7 @@ import { useAccountData } from './AccountLayout'
 export default function AccountOverview() {
   const { user, orders, ordersLoading, profile } = useAccountData()
   const [pairCount, setPairCount] = useState(null)
+  const [favouriteCount, setFavouriteCount] = useState(null)
 
   useEffect(() => {
     if (!user) return
@@ -19,6 +20,13 @@ export default function AccountOverview() {
       .then(({ count, error }) => {
         if (error) console.error('[helloqt] failed to load collection count:', error.message)
         setPairCount(count ?? 0)
+      })
+    supabase
+      .from('favourites')
+      .select('id', { count: 'exact', head: true })
+      .then(({ count, error }) => {
+        if (error) console.error('[helloqt] failed to load favourite count:', error.message)
+        setFavouriteCount(count ?? 0)
       })
   }, [user])
 
@@ -39,7 +47,7 @@ export default function AccountOverview() {
       to: '/account/favourites',
       icon: HeartIcon,
       label: 'Favourites',
-      detail: 'Coming soon',
+      detail: favouriteCount === null ? '…' : `${favouriteCount} saved`,
     },
     {
       to: '/account/details',

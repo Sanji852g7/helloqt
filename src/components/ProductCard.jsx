@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { formatPrice, useCart } from '../context/CartContext'
 import { getCollection } from '../data/products'
 import { playPop } from '../lib/sound'
+import FavouriteButton from './FavouriteButton'
 import { BagIcon, CheckIcon } from './Icons'
 
 // Shows one product's image, price, and add-to-cart button
@@ -43,7 +44,12 @@ export default function ProductCard({ product }) {
         )}
       </div>
 
-      <span className="absolute right-4 top-4 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm">
+      <FavouriteButton
+        slug={product.slug}
+        className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white"
+      />
+
+      <span className="absolute right-4 top-16 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm">
         {collection?.volume} · {product.length}
       </span>
 

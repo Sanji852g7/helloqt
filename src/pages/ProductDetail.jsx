@@ -5,6 +5,7 @@ import { formatPrice, useCart } from '../context/CartContext'
 import { supabase } from '../lib/supabaseClient'
 import { playPop } from '../lib/sound'
 import ProductCard from '../components/ProductCard'
+import FavouriteButton from '../components/FavouriteButton'
 import {
   ArrowLeftIcon,
   BagIcon,
@@ -212,6 +213,12 @@ export default function ProductDetail() {
               {added ? <CheckIcon className="h-5 w-5" /> : <BagIcon className="h-5 w-5" />}
               {added ? 'Added to basket' : 'Add to basket'}
             </button>
+
+            <FavouriteButton
+              slug={product.slug}
+              iconClassName="h-5 w-5"
+              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 border-blush-200 text-blush-600 transition hover:bg-blush-50"
+            />
           </div>
 
           <p className="sr-only" role="status">
