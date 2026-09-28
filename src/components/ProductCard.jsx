@@ -6,8 +6,10 @@ import { playPop } from '../lib/sound'
 import FavouriteButton from './FavouriteButton'
 import { BagIcon, CheckIcon } from './Icons'
 
-// Shows one product's image, price, and add-to-cart button
-export default function ProductCard({ product }) {
+// Shows one product's image, price, and add-to-cart button. The favourite
+// heart defaults to the size used on Shop's wide grid - pass `compact` for
+// denser grids (like the account pages) where that size looks oversized.
+export default function ProductCard({ product, compact = false }) {
   const { addItem } = useCart()
   const collection = getCollection(product.collection)
   const [added, setAdded] = useState(false)
@@ -46,11 +48,21 @@ export default function ProductCard({ product }) {
 
       <FavouriteButton
         slug={product.slug}
-        iconClassName="h-8 w-8 sm:h-9 sm:w-9 lg:h-11 lg:w-11"
-        className="absolute right-4 top-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white sm:h-16 sm:w-16 lg:h-20 lg:w-20"
+        iconClassName={compact ? 'h-5 w-5' : 'h-8 w-8 sm:h-9 sm:w-9 lg:h-11 lg:w-11'}
+        className={
+          compact
+            ? 'absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white'
+            : 'absolute right-4 top-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white sm:h-16 sm:w-16 lg:h-20 lg:w-20'
+        }
       />
 
-      <span className="absolute right-4 top-20 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm sm:top-24 lg:top-28">
+      <span
+        className={
+          compact
+            ? 'absolute right-3 top-14 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm'
+            : 'absolute right-4 top-20 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm sm:top-24 lg:top-28'
+        }
+      >
         {collection?.volume} · {product.length}
       </span>
 
@@ -72,10 +84,14 @@ export default function ProductCard({ product }) {
           <button
             type="button"
             onClick={handleAdd}
-            className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full bg-blush-600 px-4 text-sm font-semibold text-white transition duration-200 hover:bg-blush-700 active:scale-[0.97] ${added ? 'animate-add-pop' : ''}`}
+            className={`inline-flex min-h-[44px] cursor-pointer items-center rounded-full bg-blush-600 font-semibold text-white transition duration-200 hover:bg-blush-700 active:scale-[0.97] ${compact ? 'gap-1.5 px-3 text-xs' : 'gap-2 px-4 text-sm'} ${added ? 'animate-add-pop' : ''}`}
             aria-label={`Add ${product.name} to basket`}
           >
-            {added ? <CheckIcon className="h-4 w-4" /> : <BagIcon className="h-4 w-4" />}
+            {added ? (
+              <CheckIcon className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+            ) : (
+              <BagIcon className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+            )}
             {added ? 'Added!' : 'Add to basket'}
           </button>
         </div>

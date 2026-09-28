@@ -52,7 +52,7 @@ export default function AccountFavourites() {
         ) : (
           <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
             {products.map((product) => (
-              <ProductCard key={product.slug} product={product} />
+              <ProductCard key={product.slug} product={product} compact />
             ))}
           </div>
         )}
