@@ -63,8 +63,7 @@ export default function AccountLayout() {
         <ProfileAvatar fullName={fullName} email={user.email} />
         <div>
           <p className="text-lg font-semibold text-plum-800">
-            {timeGreeting()}
-            {greetingName ? `, ${greetingName}` : ''} 💕
+            {timeGreeting(greetingName)} 💕
           </p>
           <p className="text-plum-600">{user.email}</p>
         </div>
