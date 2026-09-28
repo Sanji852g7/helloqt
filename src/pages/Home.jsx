@@ -293,6 +293,56 @@ export default function Home() {
         <FounderLetter />
       </section>
 
+      {/* QT Collection showcase */}
+      <section className="section py-16 sm:py-20">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <div className="text-center lg:text-left">
+            <p className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blush-600 lg:justify-start">
+              <SparkleIcon className="h-4 w-4" />
+              Only at HelloQT
+            </p>
+            <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">Track every wear</h2>
+            <p className="mx-auto mt-4 max-w-md text-plum-600 lg:mx-0">
+              Every account gets its own QT Collection - see every lash you&apos;ve bought, log
+              each wear with one tap, and watch your favourites get their money&apos;s worth.
+            </p>
+            <Link to="/login" className="btn-secondary mt-6 inline-flex">
+              Create your account
+            </Link>
+          </div>
+
+          {/* Illustrative preview - not a live account */}
+          <div className="mx-auto w-full max-w-sm rounded-3xl border border-blush-200 bg-white p-5 shadow-lift">
+            <div className="flex gap-4">
+              <img
+                src="/media/angel.JPG"
+                alt=""
+                width="80"
+                height="80"
+                className="h-20 w-20 shrink-0 rounded-2xl border border-blush-200 object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-lg font-bold text-plum-900">Angel</p>
+                <p className="text-xs text-plum-500">Purchased 12 Sept 2026</p>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between gap-2 text-xs font-semibold text-plum-600">
+                    <span>8 / 25 wears</span>
+                    <span>Last worn 2 days ago</span>
+                  </div>
+                  <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-blush-100">
+                    <div className="h-full w-[32%] rounded-full bg-blush-500" />
+                  </div>
+                </div>
+                <p className="mt-2.5 text-sm font-medium text-blush-700">Still going strong ✨</p>
+              </div>
+            </div>
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-blush-600 px-4 py-2.5 text-sm font-semibold text-white">
+              + Wore today
+            </span>
+          </div>
+        </div>
+      </section>
+
       {/* Favourites */}
       <section className="section py-16 sm:py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
