@@ -197,6 +197,31 @@ function cleanText(value, maxLength) {
   return typeof value === 'string' ? value.trim().slice(0, maxLength) : ''
 }
 
+/**
+ * Confirms a postcode genuinely exists, using postcodes.io - a free, public
+ * lookup backed by Ordnance Survey/Royal Mail data, no API key needed. The
+ * regex check elsewhere only confirms a postcode is shaped correctly, not
+ * that it's real - since Sanji only ever posts within the UK, this is what
+ * actually stops someone outside the UK paying for an order that could
+ * never be delivered. If the lookup service itself is having issues, this
+ * fails open (returns true) rather than blocking every genuine sale over a
+ * third-party outage.
+ */
+async function isRealUkPostcode(postcode) {
+  try {
+    const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}/validate`)
+    if (!res.ok) {
+      console.warn(`[helloqt-server] postcodes.io returned ${res.status}, allowing the order through`)
+      return true
+    }
+    const data = await res.json()
+    return Boolean(data.result)
+  } catch (error) {
+    console.warn('[helloqt-server] postcodes.io lookup failed, allowing the order through:', error.message)
+    return true
+  }
+}
+
 // Compares two secrets without leaking which character differed
 function secretsMatch(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false
@@ -351,6 +376,9 @@ app.post('/api/create-checkout-session', orderLimit, async (req, res) => {
   if (!city) return res.status(400).json({ error: 'Enter your town or city.' })
   if (!/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(postcode)) {
     return res.status(400).json({ error: 'Enter a valid UK postcode.' })
+  }
+  if (!(await isRealUkPostcode(postcode))) {
+    return res.status(400).json({ error: "That postcode doesn't seem to exist - please check it." })
   }
   if (!stripe) return res.status(503).json({ error: 'Card payments are not set up yet.' })
 

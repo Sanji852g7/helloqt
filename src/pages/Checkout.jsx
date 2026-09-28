@@ -48,6 +48,22 @@ const validate = (values) => {
   return errors
 }
 
+// Confirms a postcode genuinely exists (not just correctly shaped), via the
+// free postcodes.io lookup - Sanji only posts within the UK, so this is
+// what actually stops an order being placed for somewhere it could never
+// be delivered. Fails open if the lookup itself is unreachable - the
+// server-side check on submit is the real, unbypassable gate either way.
+async function postcodeExists(postcode) {
+  try {
+    const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}/validate`)
+    if (!res.ok) return true
+    const data = await res.json()
+    return Boolean(data.result)
+  } catch {
+    return true
+  }
+}
+
 // Checkout page: delivery form, order summary, demo submit
 export default function Checkout() {
   const { user } = useAuth()
@@ -57,6 +73,9 @@ export default function Checkout() {
   const [touched, setTouched] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [orderError, setOrderError] = useState(null)
+  const [checkingPostcode, setCheckingPostcode] = useState(false)
+  const valuesRef = useRef(values)
+  valuesRef.current = values
   const [discountCode, setDiscountCode] = useState('')
   const [appliedCode, setAppliedCode] = useState(null)
   const [discountStatus, setDiscountStatus] = useState('idle')
@@ -131,7 +150,23 @@ export default function Checkout() {
   // Marks a field touched and re-runs validation on blur
   const handleBlur = (id) => {
     setTouched((t) => ({ ...t, [id]: true }))
-    setErrors(validate(values))
+    const found = validate(values)
+    setErrors(found)
+
+    // Only worth checking against postcodes.io once the format itself is
+    // already valid - no point looking up something we know is malformed
+    if (id === 'postcode' && !found.postcode) {
+      const postcode = values.postcode.trim()
+      setCheckingPostcode(true)
+      postcodeExists(postcode).then((exists) => {
+        setCheckingPostcode(false)
+        // Ignore a stale result if they've since changed the postcode
+        if (valuesRef.current.postcode?.trim() !== postcode) return
+        if (!exists) {
+          setErrors((e) => ({ ...e, postcode: "That postcode doesn't seem to exist - please check it." }))
+        }
+      })
+    }
   }
 
   // Checks the discount code against this checkout's email and applies it if valid
@@ -174,6 +209,16 @@ export default function Checkout() {
 
     setSubmitting(true)
     setOrderError(null)
+
+    // A final, authoritative check regardless of whether blur already ran
+    // one - catches a paste-then-submit that never triggered handleBlur
+    const postcodeIsReal = await postcodeExists(values.postcode.trim())
+    if (!postcodeIsReal) {
+      setSubmitting(false)
+      setErrors((e) => ({ ...e, postcode: "That postcode doesn't seem to exist - please check it." }))
+      window.requestAnimationFrame(() => summaryRef.current?.focus())
+      return
+    }
 
     try {
       // Logged-in shoppers send their session token so the backend can file the
@@ -307,6 +352,10 @@ export default function Checkout() {
                       }
                       className={`field ${invalid ? 'border-red-400 focus:border-red-500 focus:ring-red-200' : ''}`}
                     />
+
+                    {field.id === 'postcode' && checkingPostcode && !invalid && (
+                      <p className="mt-1.5 text-xs text-plum-500">Checking postcode…</p>
+                    )}
 
                     {invalid && (
                       <p id={`${field.id}-error`} className="mt-1.5 text-sm font-medium text-red-700">
