@@ -320,7 +320,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="section py-16 sm:py-20">
+      <section className="section pt-16 sm:pt-20">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush-200 via-blush-300 to-gold-200 px-8 py-12 text-center sm:px-14">
           <div
             aria-hidden="true"
