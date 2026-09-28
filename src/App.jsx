@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
+import AnnouncementBar from './components/AnnouncementBar'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import AiLashChat from './components/AiLashChat'
@@ -48,6 +49,7 @@ export default function App() {
     <div className="flex min-h-dvh flex-col">
       <ScrollToTop />
       <DocumentTitle />
+      <AnnouncementBar />
       <Navbar />
       <main id="main" className="flex-1">
         <Routes>

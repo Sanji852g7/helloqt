@@ -79,6 +79,10 @@ export default {
           '65%': { transform: 'scale(0.96)' },
           '100%': { transform: 'scale(1)' },
         },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
@@ -88,6 +92,7 @@ export default {
         sway: 'sway 1.8s ease-in-out infinite',
         twinkle: 'twinkle 1.1s ease-in-out infinite',
         'add-pop': 'add-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        marquee: 'marquee 28s linear infinite',
       },
     },
   },
