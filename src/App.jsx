@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import AiLashChat from './components/AiLashChat'
 import DiscountPopup from './components/DiscountPopup'
 import CustomCursor from './components/CustomCursor'
+import DocumentTitle from './components/DocumentTitle'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
@@ -46,6 +47,7 @@ export default function App() {
   return (
     <div className="flex min-h-dvh flex-col">
       <ScrollToTop />
+      <DocumentTitle />
       <Navbar />
       <main id="main" className="flex-1">
         <Routes>
