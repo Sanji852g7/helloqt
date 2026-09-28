@@ -19,8 +19,9 @@ const accountLinks = [
 ]
 
 // Sticky site header with nav links, cart badge, mobile menu
-// A touch has to end within this many pixels of where it started to count
-// as a tap - further than that and it's a scroll/drag passing over the button
+// A press has to release within this many pixels of where it started to
+// count as a tap - further than that and it's a drag/swipe passing over the
+// button (mouse or touch - pointer events cover both)
 const TAP_TOLERANCE = 10
 
 export default function Navbar() {
@@ -29,7 +30,8 @@ export default function Navbar() {
   const { user, signOut } = useAuth()
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const touchStartRef = useRef(null)
+  const pointerStartRef = useRef(null)
+  const handledByPointerRef = useRef(false)
 
   const handleLogOut = () => {
     setOpen(false)
@@ -37,22 +39,29 @@ export default function Navbar() {
     navigate('/')
   }
 
-  const handleMenuTouchStart = (e) => {
-    const touch = e.touches[0]
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+  const handleMenuPointerDown = (e) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY }
   }
 
-  const handleMenuTouchEnd = (e) => {
-    const start = touchStartRef.current
-    touchStartRef.current = null
+  const handleMenuPointerUp = (e) => {
+    const start = pointerStartRef.current
+    pointerStartRef.current = null
     if (!start) return
-    const touch = e.changedTouches[0]
     const movedTooFar =
-      Math.abs(touch.clientX - start.x) > TAP_TOLERANCE ||
-      Math.abs(touch.clientY - start.y) > TAP_TOLERANCE
-    if (movedTooFar) return
-    // A real tap - handle it here and skip the browser's emulated click
-    e.preventDefault()
+      Math.abs(e.clientX - start.x) > TAP_TOLERANCE ||
+      Math.abs(e.clientY - start.y) > TAP_TOLERANCE
+    // Either way, the click that follows this pointer sequence is already decided here
+    handledByPointerRef.current = true
+    if (!movedTooFar) setOpen((v) => !v)
+  }
+
+  const handleMenuClick = () => {
+    // Skip a click that already came from a pointer tap/drag we just judged above -
+    // this only fires standalone for keyboard activation (Enter/Space), which has no pointer events
+    if (handledByPointerRef.current) {
+      handledByPointerRef.current = false
+      return
+    }
     setOpen((v) => !v)
   }
 
@@ -127,9 +136,9 @@ export default function Navbar() {
 
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
-            onTouchStart={handleMenuTouchStart}
-            onTouchEnd={handleMenuTouchEnd}
+            onClick={handleMenuClick}
+            onPointerDown={handleMenuPointerDown}
+            onPointerUp={handleMenuPointerUp}
             className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 md:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"

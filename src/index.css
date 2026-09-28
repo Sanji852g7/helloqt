@@ -9,10 +9,12 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-cream text-plum-800 font-sans antialiased;
+    overflow-x: hidden;
   }
 
   h1,
