@@ -294,7 +294,7 @@ export default function Home() {
       </section>
 
       {/* Favourites */}
-      <section className="section pb-16 pt-8 sm:pb-20 sm:pt-10">
+      <section className="section py-16 sm:py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blush-600">
@@ -320,7 +320,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="section pt-16 sm:pt-20">
+      <section className="section py-16 sm:py-20">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush-200 via-blush-300 to-gold-200 px-8 py-12 text-center sm:px-14">
           <div
             aria-hidden="true"
