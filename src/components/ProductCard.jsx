@@ -46,11 +46,11 @@ export default function ProductCard({ product }) {
 
       <FavouriteButton
         slug={product.slug}
-        iconClassName="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8"
-        className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white sm:h-12 sm:w-12 lg:h-14 lg:w-14"
+        iconClassName="h-8 w-8 sm:h-9 sm:w-9 lg:h-11 lg:w-11"
+        className="absolute right-4 top-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white sm:h-16 sm:w-16 lg:h-20 lg:w-20"
       />
 
-      <span className="absolute right-4 top-16 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm sm:top-20 lg:top-24">
+      <span className="absolute right-4 top-20 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm sm:top-24 lg:top-28">
         {collection?.volume} · {product.length}
       </span>
 
