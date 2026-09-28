@@ -49,8 +49,10 @@ export default function App() {
     <div className="flex min-h-dvh flex-col">
       <ScrollToTop />
       <DocumentTitle />
-      <AnnouncementBar />
-      <Navbar />
+      <div className="sticky top-0 z-40">
+        <AnnouncementBar />
+        <Navbar />
+      </div>
       <main id="main" className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
