@@ -304,7 +304,8 @@ export default function Home() {
             <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">Track every wear</h2>
             <p className="mx-auto mt-4 max-w-md text-plum-600 lg:mx-0">
               Every account gets its own QT Collection - see every lash you&apos;ve bought, log
-              each wear with one tap, and watch your favourites get their money&apos;s worth.
+              each wear with a tap, watch your count grow, and prepare to be amazed at how many
+              wears you actually get out of one pair.
             </p>
             <Link to="/login" className="btn-secondary mt-6 inline-flex">
               Create your account
