@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
+import { toTitleCase } from '../lib/text'
 import { HeartIcon } from './Icons'
 
 // Heart toggle for saving a product to the customer's favourites. A guest
@@ -52,7 +53,19 @@ export default function FavouriteButton({ slug, className, iconClassName = 'h-4 
         .eq('product_slug', slug)
       if (!error) setSaved(false)
     } else {
-      const { error } = await supabase.from('favourites').insert({ user_id: user.id, product_slug: slug })
+      // full_name and email are cached here too (not just in auth.users) so
+      // Sanji can tell rows apart in Table Editor without joining tables -
+      // same reason profiles and lash_collection already store them
+      const fullName = [user.user_metadata?.first_name, user.user_metadata?.surname]
+        .filter(Boolean)
+        .map(toTitleCase)
+        .join(' ')
+      const { error } = await supabase.from('favourites').insert({
+        user_id: user.id,
+        full_name: fullName,
+        email: user.email,
+        product_slug: slug,
+      })
       if (!error) setSaved(true)
     }
     setLoading(false)
