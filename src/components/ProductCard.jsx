@@ -77,14 +77,14 @@ export default function ProductCard({ product, compact = false }) {
         </h3>
         <p className="mt-1 flex-1 text-sm font-semibold text-blush-600">{product.style}</p>
 
-        <div className="mt-3 flex items-center justify-between gap-3">
+        <div className={compact ? 'mt-3 flex flex-col gap-2' : 'mt-3 flex items-center justify-between gap-3'}>
           <p className="font-display text-lg font-bold text-plum-900">
             {formatPrice(product.price)}
           </p>
           <button
             type="button"
             onClick={handleAdd}
-            className={`inline-flex min-h-[44px] cursor-pointer items-center rounded-full bg-blush-600 font-semibold text-white transition duration-200 hover:bg-blush-700 active:scale-[0.97] ${compact ? 'gap-1.5 px-3 text-xs' : 'gap-2 px-4 text-sm'} ${added ? 'animate-add-pop' : ''}`}
+            className={`inline-flex min-h-[44px] cursor-pointer items-center rounded-full bg-blush-600 font-semibold text-white transition duration-200 hover:bg-blush-700 active:scale-[0.97] ${compact ? 'w-full justify-center gap-1.5 px-3 text-xs' : 'gap-2 px-4 text-sm'} ${added ? 'animate-add-pop' : ''}`}
             aria-label={`Add ${product.name} to basket`}
           >
             {added ? (
