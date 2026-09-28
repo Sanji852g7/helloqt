@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { collections, products } from '../data/products'
 import ProductCard from '../components/ProductCard'
@@ -6,31 +6,6 @@ import LashQuiz from '../components/LashQuiz'
 import FounderLetter from '../components/FounderLetter'
 import { Squiggle } from '../components/Doodles'
 import { ArrowRightIcon, SparkleIcon } from '../components/Icons'
-
-const HERO_WORDS = ['occasion', 'mood', 'moment', 'look']
-
-// Cycles the highlighted hero word every couple of seconds, keeping the
-// same underline squiggle under whichever word is currently showing
-function RotatingWord({ words }) {
-  const [index, setIndex] = useState(0)
-
-  useEffect(() => {
-    const id = setInterval(() => setIndex((i) => (i + 1) % words.length), 2200)
-    return () => clearInterval(id)
-  }, [words.length])
-
-  return (
-    <span className="relative inline-block">
-      <span key={index} className="relative z-10 inline-block animate-fade-up">
-        {words[index]}
-      </span>
-      <span
-        aria-hidden="true"
-        className="absolute inset-x-[-0.1em] bottom-[0.08em] z-0 h-[0.22em] -rotate-1 rounded-full bg-blush-300/80"
-      />
-    </span>
-  )
-}
 
 const promises = [
   { emoji: '🐇', title: 'Cruelty-free', body: 'Never tested on animals.' },
@@ -62,7 +37,15 @@ export default function Home() {
         <div className="section relative grid items-center gap-6 pb-6 pt-8 lg:grid-cols-2 lg:gap-12 lg:pb-10 lg:pt-10">
           <div className="animate-fade-up text-center lg:text-left">
             <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
-              Pack a lash for every <RotatingWord words={HERO_WORDS} />.
+              Pack a lash for every{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10">occasion</span>
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-[-0.1em] bottom-[0.08em] z-0 h-[0.22em] -rotate-1 rounded-full bg-blush-300/80"
+                />
+              </span>
+              .
             </h1>
 
             <p className="mt-3 font-script text-2xl text-blush-600 sm:text-3xl">
