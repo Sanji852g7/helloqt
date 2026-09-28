@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -19,17 +19,41 @@ const accountLinks = [
 ]
 
 // Sticky site header with nav links, cart badge, mobile menu
+// A touch has to end within this many pixels of where it started to count
+// as a tap - further than that and it's a scroll/drag passing over the button
+const TAP_TOLERANCE = 10
+
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const { count } = useCart()
   const { user, signOut } = useAuth()
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const touchStartRef = useRef(null)
 
   const handleLogOut = () => {
     setOpen(false)
     signOut()
     navigate('/')
+  }
+
+  const handleMenuTouchStart = (e) => {
+    const touch = e.touches[0]
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  const handleMenuTouchEnd = (e) => {
+    const start = touchStartRef.current
+    touchStartRef.current = null
+    if (!start) return
+    const touch = e.changedTouches[0]
+    const movedTooFar =
+      Math.abs(touch.clientX - start.x) > TAP_TOLERANCE ||
+      Math.abs(touch.clientY - start.y) > TAP_TOLERANCE
+    if (movedTooFar) return
+    // A real tap - handle it here and skip the browser's emulated click
+    e.preventDefault()
+    setOpen((v) => !v)
   }
 
   useEffect(() => setOpen(false), [pathname])
@@ -104,6 +128,8 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
+            onTouchStart={handleMenuTouchStart}
+            onTouchEnd={handleMenuTouchEnd}
             className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 md:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
