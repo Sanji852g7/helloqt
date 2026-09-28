@@ -46,7 +46,8 @@ export default function ProductCard({ product }) {
 
       <FavouriteButton
         slug={product.slug}
-        className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white"
+        iconClassName="h-6 w-6"
+        className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-blush-600 backdrop-blur-sm transition hover:bg-white"
       />
 
       <span className="absolute right-4 top-16 rounded-full border border-white/70 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm">

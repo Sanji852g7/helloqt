@@ -216,8 +216,8 @@ export default function ProductDetail() {
 
             <FavouriteButton
               slug={product.slug}
-              iconClassName="h-5 w-5"
-              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 border-blush-200 text-blush-600 transition hover:bg-blush-50"
+              iconClassName="h-7 w-7"
+              className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-2 border-blush-200 text-blush-600 transition hover:bg-blush-50"
             />
           </div>
 
