@@ -91,12 +91,12 @@ export default function Footer() {
             <li className="flex items-start gap-2.5">
               <InstagramIcon className="mt-0.5 h-4 w-4 shrink-0 text-blush-500" />
               <a
-                href="https://www.instagram.com/helloqtcos/"
+                href="https://www.instagram.com/helloqt.co/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition hover:text-blush-700"
               >
-                @helloqtcos
+                @helloqt.co
               </a>
             </li>
           </ul>

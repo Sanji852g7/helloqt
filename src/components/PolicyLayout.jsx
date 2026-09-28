@@ -17,7 +17,7 @@ export const BUSINESS = {
   owner: 'Sanji Gurung',
   tradingAddress: 'London, United Kingdom',
   email: 'helloqts@hotmail.com',
-  instagram: 'https://www.instagram.com/helloqtcos/',
+  instagram: 'https://www.instagram.com/helloqt.co/',
 }
 
 export const LAST_UPDATED = '24 September 2026'

@@ -278,8 +278,8 @@ export default function Contact() {
             {
               icon: InstagramIcon,
               title: 'Instagram',
-              body: '@helloqtcos',
-              href: 'https://www.instagram.com/helloqtcos/',
+              body: '@helloqt.co',
+              href: 'https://www.instagram.com/helloqt.co/',
               external: true,
               note: 'New styles and restocks land here first.',
             },

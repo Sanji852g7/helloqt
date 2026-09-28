@@ -130,7 +130,7 @@ function emailFooter({ unsubscribeEmail } = {}) {
             &nbsp;&middot;&nbsp;
             <a href="${SITE_BASE_URL}/contact" style="color:#ab5a76; text-decoration:none;">Contact</a>
             &nbsp;&middot;&nbsp;
-            <a href="https://www.instagram.com/helloqtcos/" style="color:#ab5a76; text-decoration:none;">Instagram</a>
+            <a href="https://www.instagram.com/helloqt.co/" style="color:#ab5a76; text-decoration:none;">Instagram</a>
           </p>
           <p style="margin:0; font-size:11px; color:#b498a2;">
             &copy; ${new Date().getFullYear()} HelloQT. All rights reserved.
