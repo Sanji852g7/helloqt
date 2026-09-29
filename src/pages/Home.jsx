@@ -69,9 +69,9 @@ export default function Home() {
           full-bleed crop once a side is tapped open. Large screens keep the
           constant full-viewport-height treatment regardless of hover state. */}
       <section
-        className={`relative overflow-hidden bg-cream flex transition-[min-height] duration-700 ease-out ${
-          heroHover ? 'min-h-[80vh]' : 'min-h-[52vh]'
-        } lg:min-h-[calc(100dvh-6rem)]`}
+        className={`relative overflow-hidden bg-cream flex transition-[height] duration-700 ease-out ${
+          heroHover ? 'h-[65dvh]' : 'h-[52dvh]'
+        } lg:h-[calc(100dvh-6rem)]`}
       >
         {/* Split collection backdrop, side by side at every screen size. Hovering
             (or tapping, on touch) a side expands it to fill the section and
