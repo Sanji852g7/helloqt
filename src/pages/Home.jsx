@@ -73,18 +73,10 @@ export default function Home() {
 
           {/* Hero image collage */}
           <div className="relative">
-            <div className="relative mx-auto flex w-full max-w-lg items-center justify-center gap-4 sm:max-w-xl sm:gap-6">
-              <svg width="0" height="0" className="absolute">
-                <defs>
-                  <clipPath id="hero-heart-clip" clipPathUnits="objectBoundingBox">
-                    <path d="M0.5,0.978 C0.22,0.756 0.06,0.533 0.06,0.333 C0.06,0.167 0.18,0.044 0.32,0.044 C0.40,0.044 0.47,0.089 0.5,0.167 C0.53,0.089 0.60,0.044 0.68,0.044 C0.82,0.044 0.94,0.167 0.94,0.333 C0.94,0.533 0.78,0.756 0.5,0.978 Z" />
-                  </clipPath>
-                </defs>
-              </svg>
-
+            <div className="relative mx-auto flex w-full max-w-xl items-center justify-center gap-5 sm:max-w-2xl sm:gap-7">
               <Link to="/shop?collection=suitcase#suitcase" className="group w-1/2">
                 <div
-                  className="relative animate-float transition duration-300 group-hover:scale-[1.03]"
+                  className="relative animate-float overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
                   style={{ aspectRatio: '100 / 90' }}
                 >
                   <img
@@ -92,25 +84,8 @@ export default function Home() {
                     alt="King lashes in the QT Luggage Set travel case"
                     width="1080"
                     height="1080"
-                    style={{
-                      clipPath: 'url(#hero-heart-clip)',
-                      objectPosition: 'center',
-                    }}
-                    className="h-full w-full bg-white object-contain"
+                    className="h-full w-full object-contain"
                   />
-                  <svg
-                    viewBox="0 0 100 90"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
-                  >
-                    <path
-                      d="M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
                 </div>
                 <p className="mt-1.5 text-center">
                   <span className="block font-display text-sm font-bold text-plum-800">
@@ -127,7 +102,7 @@ export default function Home() {
 
               <Link to="/shop?collection=compact#compact" className="group w-1/2">
                 <div
-                  className="relative animate-float-reverse transition duration-300 group-hover:scale-[1.03]"
+                  className="relative animate-float-reverse overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
                   style={{ aspectRatio: '100 / 90' }}
                 >
                   <img
@@ -135,25 +110,8 @@ export default function Home() {
                     alt="Royalty lashes in the QT Vanity Set mirror case"
                     width="1080"
                     height="1080"
-                    style={{
-                      clipPath: 'url(#hero-heart-clip)',
-                      objectPosition: 'center',
-                    }}
-                    className="h-full w-full bg-white object-contain"
+                    className="h-full w-full object-contain"
                   />
-                  <svg
-                    viewBox="0 0 100 90"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
-                  >
-                    <path
-                      d="M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
                 </div>
                 <p className="mt-1.5 text-center">
                   <span className="block font-display text-sm font-bold text-plum-800">
@@ -365,7 +323,7 @@ export default function Home() {
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {favourites.map((product) => (
-            <ProductCard key={product.slug} product={product} />
+            <ProductCard key={product.slug} product={product} heartImage />
           ))}
         </div>
       </section>
