@@ -194,8 +194,8 @@ export default function Home() {
               setHeroHover('right')
             }}
             aria-label="Show the QT Vanity Set"
-            className={`absolute right-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-plum-700 shadow-lift backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
-              heroHover === 'left' ? 'opacity-100 delay-300' : 'pointer-events-none opacity-0'
+            className={`absolute right-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-plum-700 shadow-lift transition-opacity duration-200 lg:hidden ${
+              heroHover === 'left' ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
             <ArrowRightIcon className="h-5 w-5" />
@@ -207,8 +207,8 @@ export default function Home() {
               setHeroHover('left')
             }}
             aria-label="Show the QT Luggage Set"
-            className={`absolute left-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-plum-700 shadow-lift backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
-              heroHover === 'right' ? 'opacity-100 delay-300' : 'pointer-events-none opacity-0'
+            className={`absolute left-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-plum-700 shadow-lift transition-opacity duration-200 lg:hidden ${
+              heroHover === 'right' ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
             <ArrowLeftIcon className="h-5 w-5" />
