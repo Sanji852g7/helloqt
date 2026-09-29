@@ -95,11 +95,7 @@ export default function Home() {
             onTouchStart={handleHeroTouchStart('left')}
             onClick={handleHeroTap('left')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
-              heroHover === 'right'
-                ? 'basis-[0%] lg:basis-[15%]'
-                : heroHover === 'left'
-                  ? 'basis-full lg:basis-[85%]'
-                  : 'basis-1/2'
+              heroHover === 'right' ? 'basis-[0%]' : heroHover === 'left' ? 'basis-full' : 'basis-1/2'
             }`}
             aria-label="Shop the QT Luggage Set"
           >
@@ -153,11 +149,7 @@ export default function Home() {
             onTouchStart={handleHeroTouchStart('right')}
             onClick={handleHeroTap('right')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
-              heroHover === 'left'
-                ? 'basis-[0%] lg:basis-[15%]'
-                : heroHover === 'right'
-                  ? 'basis-full lg:basis-[85%]'
-                  : 'basis-1/2'
+              heroHover === 'left' ? 'basis-[0%]' : heroHover === 'right' ? 'basis-full' : 'basis-1/2'
             }`}
             aria-label="Shop the QT Vanity Set"
           >
