@@ -39,107 +39,66 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero - fills the screen below the header on large/desktop viewports */}
-      <section className="relative overflow-hidden bg-cream lg:flex lg:min-h-[calc(100dvh-6rem)] lg:flex-col">
-        {/* Headline - its own space above the photos, always plain and crisp */}
-        <div className="section relative z-10 py-8 lg:py-10">
-          <div className="animate-fade-up text-center">
-            <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
-              Pack a lash for every{' '}
-              <span className="relative inline-block">
-                <span className="relative z-10">occasion</span>
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-x-[-0.1em] bottom-[0.08em] z-0 h-[0.22em] -rotate-1 rounded-full bg-blush-300/80"
-                />
-              </span>
-              .
-            </h1>
-
-            <p className="mt-3 font-script text-2xl text-blush-600 sm:text-3xl">
-              Made to make you feel QT 💕
-            </p>
-
-            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg">
-              Handcrafted, reusable and cruelty-free lashes, each with its own little home.
-            </p>
-
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/shop" className="btn-primary">
-                Shop lashes
-                <ArrowRightIcon className="h-4 w-4" />
-              </Link>
-              <button
-                type="button"
-                onClick={() => setQuizOpen(true)}
-                className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-full border border-plum-300 bg-white px-7 py-3 font-semibold text-plum-600 transition duration-200 hover:border-plum-400 hover:text-plum-800 active:scale-[0.98]"
+      {/* Hero - pure photography, fills the screen below the header on large/desktop viewports */}
+      <section className="relative overflow-hidden bg-cream lg:flex lg:min-h-[calc(100dvh-6rem)]">
+        {/* Mobile/tablet collage */}
+        <div className="section py-8 lg:hidden">
+          <div className="relative mx-auto flex w-full max-w-xl items-center justify-center gap-5 sm:max-w-2xl sm:gap-7">
+            <Link to="/shop?collection=suitcase#suitcase" className="group w-1/2">
+              <div
+                className="relative animate-float overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
+                style={{ aspectRatio: '100 / 90' }}
               >
-                Find my perfect lash
-              </button>
-            </div>
+                <img
+                  src="/media/king.JPG"
+                  alt="King lashes in the QT Luggage Set travel case"
+                  width="1080"
+                  height="1080"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <p className="mt-1.5 text-center">
+                <span className="block font-display text-sm font-bold text-plum-800">
+                  The QT Luggage Set 🧳
+                </span>
+                <span className="text-xs text-plum-500">
+                  Bold, dramatic and ready to travel
+                </span>
+                <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
+                  Shop &rarr;
+                </span>
+              </p>
+            </Link>
+
+            <Link to="/shop?collection=compact#compact" className="group w-1/2">
+              <div
+                className="relative animate-float-reverse overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
+                style={{ aspectRatio: '100 / 90' }}
+              >
+                <img
+                  src="/media/royalty.JPG"
+                  alt="Royalty lashes in the QT Vanity Set mirror case"
+                  width="1080"
+                  height="1080"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <p className="mt-1.5 text-center">
+                <span className="block font-display text-sm font-bold text-plum-800">
+                  The QT Vanity Set 🪞
+                </span>
+                <span className="text-xs text-plum-500">Cute, compact &amp; ready to glam</span>
+                <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
+                  Shop &rarr;
+                </span>
+              </p>
+            </Link>
           </div>
         </div>
 
-        {/* Photos - mobile/tablet collage below the text, or the interactive
-            split backdrop filling the rest of the section at lg */}
-        <div className="relative mt-8 lg:mt-0 lg:min-h-[380px] lg:flex-1">
-          <div className="section lg:hidden">
-            <div className="relative mx-auto flex w-full max-w-xl items-center justify-center gap-5 sm:max-w-2xl sm:gap-7">
-              <Link to="/shop?collection=suitcase#suitcase" className="group w-1/2">
-                <div
-                  className="relative animate-float overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
-                  style={{ aspectRatio: '100 / 90' }}
-                >
-                  <img
-                    src="/media/king.JPG"
-                    alt="King lashes in the QT Luggage Set travel case"
-                    width="1080"
-                    height="1080"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-                <p className="mt-1.5 text-center">
-                  <span className="block font-display text-sm font-bold text-plum-800">
-                    The QT Luggage Set 🧳
-                  </span>
-                  <span className="text-xs text-plum-500">
-                    Bold, dramatic and ready to travel
-                  </span>
-                  <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
-                    Shop &rarr;
-                  </span>
-                </p>
-              </Link>
-
-              <Link to="/shop?collection=compact#compact" className="group w-1/2">
-                <div
-                  className="relative animate-float-reverse overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
-                  style={{ aspectRatio: '100 / 90' }}
-                >
-                  <img
-                    src="/media/royalty.JPG"
-                    alt="Royalty lashes in the QT Vanity Set mirror case"
-                    width="1080"
-                    height="1080"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-                <p className="mt-1.5 text-center">
-                  <span className="block font-display text-sm font-bold text-plum-800">
-                    The QT Vanity Set 🪞
-                  </span>
-                  <span className="text-xs text-plum-500">Cute, compact &amp; ready to glam</span>
-                  <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
-                    Shop &rarr;
-                  </span>
-                </p>
-              </Link>
-            </div>
-          </div>
-
-          {/* Split collection backdrop - large screens only. Hovering a side expands
-              it to fill the section and reveals that collection's story and CTA. */}
-          <div className="hidden lg:flex lg:h-full">
+        {/* Split collection backdrop - large screens only. Hovering a side expands
+            it to fill the section and reveals that collection's story and CTA. */}
+        <div className="hidden lg:flex lg:w-full">
           <Link
             to="/shop?collection=suitcase#suitcase"
             onMouseEnter={() => setHeroHover('left')}
@@ -228,6 +187,46 @@ export default function Home() {
               </span>
             </div>
           </Link>
+        </div>
+      </section>
+
+      {/* Hero headline - sits below the photos, letting them read as pure photography */}
+      <section className="bg-cream py-14 sm:py-16">
+        <div className="section text-center">
+          <div className="animate-fade-up">
+            <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
+              Pack a lash for every{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10">occasion</span>
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-[-0.1em] bottom-[0.08em] z-0 h-[0.22em] -rotate-1 rounded-full bg-blush-300/80"
+                />
+              </span>
+              .
+            </h1>
+
+            <p className="mt-3 font-script text-2xl text-blush-600 sm:text-3xl">
+              Made to make you feel QT 💕
+            </p>
+
+            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg">
+              Handcrafted, reusable and cruelty-free lashes, each with its own little home.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/shop" className="btn-primary">
+                Shop lashes
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setQuizOpen(true)}
+                className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-full border border-plum-300 bg-white px-7 py-3 font-semibold text-plum-600 transition duration-200 hover:border-plum-400 hover:text-plum-800 active:scale-[0.98]"
+              >
+                Find my perfect lash
+              </button>
+            </div>
           </div>
         </div>
       </section>
