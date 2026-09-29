@@ -152,10 +152,10 @@ export default function Home() {
               alt="Royalty lashes in the QT Vanity Set mirror case"
               width="1080"
               height="1080"
-              className={`h-full w-full transition-transform duration-700 ease-out ${
+              className={`h-full w-full transition-[object-position] duration-700 ease-out ${
                 heroHover === 'right'
-                  ? 'object-cover scale-105'
-                  : 'object-contain bg-white scale-100 lg:object-cover lg:bg-transparent'
+                  ? 'object-cover'
+                  : 'object-contain bg-white lg:object-cover lg:bg-transparent'
               }`}
             />
             <div
