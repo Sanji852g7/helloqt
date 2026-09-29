@@ -5,7 +5,7 @@ import { formatPrice } from '../context/CartContext'
 import LashQuiz from '../components/LashQuiz'
 import FounderLetter from '../components/FounderLetter'
 import { Squiggle } from '../components/Doodles'
-import { ArrowRightIcon, SparkleIcon } from '../components/Icons'
+import { ArrowLeftIcon, ArrowRightIcon, SparkleIcon } from '../components/Icons'
 
 // Same heart-shaped photo frame as the hero collage, reused for favourites
 const HEART_CLIP_PATH =
@@ -40,10 +40,12 @@ export default function Home() {
   // Touch has no hover - the first tap reveals a side instead of navigating
   // straight away, so people can see what it is before committing. Tapping
   // the same side again (or the Shop now button) goes through as normal.
-  // A mouse click always fires its own mouseenter first (setting heroHover
-  // before the click even runs), so only gate this for a genuine touch tap -
-  // tracked via touchstart, which always precedes a real tap's click.
+  // A real tap also fires a browser-synthesized mouseenter of its own right
+  // before the click (for compatibility with hover-only sites), which sets
+  // heroHover before this handler even runs - so whether a side still counts
+  // as "unrevealed" is tracked in its own ref, independent of heroHover.
   const touchSideRef = useRef(null)
+  const revealedSideRef = useRef(null)
 
   const handleHeroTouchStart = (side) => () => {
     touchSideRef.current = side
@@ -52,8 +54,10 @@ export default function Home() {
   const handleHeroTap = (side) => (e) => {
     const isTouch = touchSideRef.current === side
     touchSideRef.current = null
-    if (isTouch && heroHover !== side) {
+    if (!isTouch) return
+    if (revealedSideRef.current !== side) {
       e.preventDefault()
+      revealedSideRef.current = side
       setHeroHover(side)
     }
   }
@@ -91,7 +95,7 @@ export default function Home() {
             onTouchStart={handleHeroTouchStart('left')}
             onClick={handleHeroTap('left')}
             className="relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out"
-            style={{ flexBasis: heroHover === 'right' ? '15%' : heroHover === 'left' ? '85%' : '50%' }}
+            style={{ flexBasis: heroHover === 'right' ? '0%' : heroHover === 'left' ? '100%' : '50%' }}
             aria-label="Shop the QT Luggage Set"
           >
             <img
@@ -144,7 +148,7 @@ export default function Home() {
             onTouchStart={handleHeroTouchStart('right')}
             onClick={handleHeroTap('right')}
             className="relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out"
-            style={{ flexBasis: heroHover === 'left' ? '15%' : heroHover === 'right' ? '85%' : '50%' }}
+            style={{ flexBasis: heroHover === 'left' ? '0%' : heroHover === 'right' ? '100%' : '50%' }}
             aria-label="Shop the QT Vanity Set"
           >
             <img
@@ -178,6 +182,35 @@ export default function Home() {
               </span>
             </div>
           </Link>
+
+          {/* Phone/tablet only - switches to the other side without navigating,
+              since there's no hover there to reveal it by moving the mouse away */}
+          <button
+            type="button"
+            onClick={() => {
+              revealedSideRef.current = 'right'
+              setHeroHover('right')
+            }}
+            aria-label="Show the QT Vanity Set"
+            className={`absolute right-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-plum-700 shadow-lift backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+              heroHover === 'left' ? 'opacity-100 delay-300' : 'pointer-events-none opacity-0'
+            }`}
+          >
+            <ArrowRightIcon className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              revealedSideRef.current = 'left'
+              setHeroHover('left')
+            }}
+            aria-label="Show the QT Luggage Set"
+            className={`absolute left-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-plum-700 shadow-lift backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+              heroHover === 'right' ? 'opacity-100 delay-300' : 'pointer-events-none opacity-0'
+            }`}
+          >
+            <ArrowLeftIcon className="h-5 w-5" />
+          </button>
         </div>
       </section>
 
