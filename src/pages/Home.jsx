@@ -44,7 +44,7 @@ export default function Home() {
         <div className="absolute inset-0 hidden lg:flex">
           <Link
             to="/shop?collection=suitcase#suitcase"
-            className="group relative flex w-1/2 items-center justify-center overflow-hidden bg-blush-100"
+            className="group relative w-1/2 overflow-hidden"
             aria-label="Shop the QT Luggage Set"
           >
             <img
@@ -52,16 +52,13 @@ export default function Home() {
               alt="King lashes in the QT Luggage Set travel case"
               width="1080"
               height="1080"
-              className="max-h-[75%] max-w-[75%] object-contain transition duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
-            <span className="absolute bottom-10 rounded-full border border-white/70 bg-white/85 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm transition group-hover:bg-white">
-              The QT Luggage Set 🧳
-            </span>
           </Link>
 
           <Link
             to="/shop?collection=compact#compact"
-            className="group relative flex w-1/2 items-center justify-center overflow-hidden bg-gold-100"
+            className="group relative w-1/2 overflow-hidden"
             aria-label="Shop the QT Vanity Set"
           >
             <img
@@ -69,11 +66,8 @@ export default function Home() {
               alt="Royalty lashes in the QT Vanity Set mirror case"
               width="1080"
               height="1080"
-              className="max-h-[75%] max-w-[75%] object-contain transition duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
-            <span className="absolute bottom-10 rounded-full border border-white/70 bg-white/85 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm transition group-hover:bg-white">
-              The QT Vanity Set 🪞
-            </span>
           </Link>
         </div>
 
