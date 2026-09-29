@@ -91,7 +91,7 @@ export default function Home() {
             onTouchStart={handleHeroTouchStart('left')}
             onClick={handleHeroTap('left')}
             className="relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out"
-            style={{ flexBasis: heroHover === 'right' ? '0%' : heroHover === 'left' ? '100%' : '50%' }}
+            style={{ flexBasis: heroHover === 'right' ? '15%' : heroHover === 'left' ? '85%' : '50%' }}
             aria-label="Shop the QT Luggage Set"
           >
             <img
@@ -144,7 +144,7 @@ export default function Home() {
             onTouchStart={handleHeroTouchStart('right')}
             onClick={handleHeroTap('right')}
             className="relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out"
-            style={{ flexBasis: heroHover === 'left' ? '0%' : heroHover === 'right' ? '100%' : '50%' }}
+            style={{ flexBasis: heroHover === 'left' ? '15%' : heroHover === 'right' ? '85%' : '50%' }}
             aria-label="Shop the QT Vanity Set"
           >
             <img
