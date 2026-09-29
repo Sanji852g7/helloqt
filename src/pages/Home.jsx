@@ -60,19 +60,25 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero - pure photography, fills the screen below the header */}
-      <section className="relative overflow-hidden bg-cream flex min-h-[calc(100dvh-6rem)]">
-        {/* Split collection backdrop - stacked top/bottom on phones and tablets,
-            side by side from lg up. Hovering (or tapping, on touch) a side
-            expands it to fill the section and reveals that collection's story and CTA. */}
-        <div className="relative flex w-full flex-col lg:flex-row">
-          {/* Marks the seam between the two collections - a horizontal line while
-              stacked, vertical once side by side at lg. Disappears as soon as either
+      {/* Hero - pure photography. On phones/tablets it rests at a modest height
+          showing both full photos uncropped, then grows tall with a dramatic
+          full-bleed crop once a side is tapped open. Large screens keep the
+          constant full-viewport-height treatment regardless of hover state. */}
+      <section
+        className={`relative overflow-hidden bg-cream flex transition-[min-height] duration-700 ease-out ${
+          heroHover ? 'min-h-[80vh]' : 'min-h-[52vh]'
+        } lg:min-h-[calc(100dvh-6rem)]`}
+      >
+        {/* Split collection backdrop, side by side at every screen size. Hovering
+            (or tapping, on touch) a side expands it to fill the section and
+            reveals that collection's story and CTA. */}
+        <div className="relative flex w-full">
+          {/* Marks the seam between the two collections - disappears as soon as either
               side starts expanding, and only reappears once both have fully shrunk
               back to resting size (matches the panels' own 700ms transition) */}
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute left-0 right-0 top-1/2 z-20 h-[3px] -translate-y-1/2 lg:left-1/2 lg:right-auto lg:top-0 lg:bottom-0 lg:h-full lg:w-[3px] lg:translate-y-0 lg:-translate-x-1/2 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-opacity duration-300 ${
+            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-[3px] -translate-x-1/2 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-opacity duration-300 ${
               heroHover ? 'opacity-0' : 'opacity-100 delay-700'
             }`}
           />
@@ -93,7 +99,9 @@ export default function Home() {
               alt="King lashes in the QT Luggage Set travel case"
               width="1080"
               height="1080"
-              className="h-full w-full object-cover"
+              className={`h-full w-full ${
+                heroHover === 'left' ? 'object-cover' : 'object-contain bg-white lg:object-cover lg:bg-transparent'
+              }`}
             />
             {/* Crossfades in to focus on the lash itself once this side takes over the screen */}
             <img
@@ -144,8 +152,10 @@ export default function Home() {
               alt="Royalty lashes in the QT Vanity Set mirror case"
               width="1080"
               height="1080"
-              className={`h-full w-full object-cover transition-transform duration-700 ease-out ${
-                heroHover === 'right' ? 'scale-105' : 'scale-100'
+              className={`h-full w-full transition-transform duration-700 ease-out ${
+                heroHover === 'right'
+                  ? 'object-cover scale-105'
+                  : 'object-contain bg-white scale-100 lg:object-cover lg:bg-transparent'
               }`}
             />
             <div
