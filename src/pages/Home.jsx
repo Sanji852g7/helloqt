@@ -32,8 +32,8 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-cream">
+      {/* Hero - fills the screen below the header on large/desktop viewports */}
+      <section className="relative overflow-hidden bg-cream lg:flex lg:min-h-[calc(100dvh-6rem)] lg:items-center">
         <div className="section relative grid items-center gap-6 pb-6 pt-8 lg:grid-cols-2 lg:gap-12 lg:pb-10 lg:pt-10">
           <div className="animate-fade-up text-center lg:text-left">
             <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
