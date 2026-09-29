@@ -75,14 +75,6 @@ export default function Navbar() {
     }
   }, [open])
 
-  const navClass = ({ isActive }) =>
-    [
-      'relative rounded-full px-4 py-2 text-sm font-semibold tracking-wide transition',
-      isActive
-        ? 'text-blush-700 after:absolute after:inset-x-4 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-blush-500'
-        : 'text-plum-600 hover:text-blush-700',
-    ].join(' ')
-
   return (
     <header className="sticky top-0 z-40 border-b border-blush-200/70 bg-cream/85 backdrop-blur-md">
       <a
@@ -103,14 +95,6 @@ export default function Navbar() {
           />
           <span className="font-display text-lg font-bold text-plum-900">HelloQT</span>
         </Link>
-
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
-          {links.map((link) => (
-            <NavLink key={link.to} to={link.to} className={navClass} end={link.to === '/'}>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
 
         <div className="flex items-center gap-1">
           <Link
@@ -139,7 +123,7 @@ export default function Navbar() {
             onClick={handleMenuClick}
             onPointerDown={handleMenuPointerDown}
             onPointerUp={handleMenuPointerUp}
-            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100 md:hidden"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-plum-700 transition hover:bg-blush-100"
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? 'Close menu' : 'Open menu'}
@@ -153,7 +137,7 @@ export default function Navbar() {
       <div
         onClick={() => setOpen(false)}
         aria-hidden="true"
-        className={`fixed inset-0 top-16 z-30 bg-plum-900/40 transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 top-16 z-30 bg-plum-900/40 transition-opacity duration-300 ${
           open ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
@@ -162,7 +146,7 @@ export default function Navbar() {
         id="mobile-nav"
         aria-label="Mobile"
         aria-hidden={!open}
-        className={`fixed right-0 top-16 z-40 h-[calc(100dvh-4rem)] w-1/2 overflow-y-auto border-l border-blush-200 bg-cream px-5 pb-6 pt-3 shadow-lift transition-transform duration-300 md:hidden ${
+        className={`fixed right-0 top-16 z-40 h-[calc(100dvh-4rem)] w-1/2 max-w-xs overflow-y-auto border-l border-blush-200 bg-cream px-5 pb-6 pt-3 shadow-lift transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
