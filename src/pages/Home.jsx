@@ -32,6 +32,14 @@ const badgePriority = { 'My Pick': 0, Bestseller: 1, 'New In': 2 }
 export default function Home() {
   const [quizOpen, setQuizOpen] = useState(false)
   const [heroHover, setHeroHover] = useState(null) // 'left' | 'right' | null
+  // Touch devices still fire a compatibility mouseenter/mouseleave of their
+  // own around taps (for hover-only sites), which was resetting the reveal
+  // right as the switch arrow was tapped - a visible flash back to the split
+  // view before jumping to the new side. Hover handlers below are skipped
+  // entirely on devices that don't genuinely support hover, so only a real
+  // tap (via onClick) can ever change which side is revealed there.
+  const supportsHover =
+    typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
   const favourites = products
     .filter((p) => p.badge)
     .sort((a, b) => (badgePriority[a.badge] ?? 9) - (badgePriority[b.badge] ?? 9))
@@ -40,26 +48,20 @@ export default function Home() {
   // Touch has no hover - the first tap reveals a side instead of navigating
   // straight away, so people can see what it is before committing. Tapping
   // the same side again (or the Shop now button) goes through as normal.
-  // A real tap also fires a browser-synthesized mouseenter of its own right
-  // before the click (for compatibility with hover-only sites), which sets
-  // heroHover before this handler even runs - so whether a side still counts
-  // as "unrevealed" is tracked in its own ref, independent of heroHover.
-  const touchSideRef = useRef(null)
+  // Handled entirely in touchend rather than a click handler: a touch that
+  // isn't prevented still fires its own native click ~afterward, so revealing
+  // needs to preventDefault the touchend itself to stop that click reaching
+  // the Link at all, not race it with a second synthetic click of our own.
   const revealedSideRef = useRef(null)
 
-  const handleHeroTouchStart = (side) => () => {
-    touchSideRef.current = side
-  }
-
-  const handleHeroTap = (side) => (e) => {
-    const isTouch = touchSideRef.current === side
-    touchSideRef.current = null
-    if (!isTouch) return
+  const handleHeroTouchEnd = (side) => (e) => {
+    if (supportsHover) return
     if (revealedSideRef.current !== side) {
       e.preventDefault()
       revealedSideRef.current = side
       setHeroHover(side)
     }
+    // else: already revealed - let the browser's normal click-after-touch navigate
   }
 
   return (
@@ -88,12 +90,11 @@ export default function Home() {
           />
           <Link
             to="/shop?collection=suitcase#suitcase"
-            onMouseEnter={() => setHeroHover('left')}
-            onMouseLeave={() => setHeroHover(null)}
+            onMouseEnter={supportsHover ? () => setHeroHover('left') : undefined}
+            onMouseLeave={supportsHover ? () => setHeroHover(null) : undefined}
             onFocus={() => setHeroHover('left')}
             onBlur={() => setHeroHover(null)}
-            onTouchStart={handleHeroTouchStart('left')}
-            onClick={handleHeroTap('left')}
+            onTouchEnd={handleHeroTouchEnd('left')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
               heroHover === 'right' ? 'basis-[0%]' : heroHover === 'left' ? 'basis-full' : 'basis-1/2'
             }`}
@@ -142,12 +143,11 @@ export default function Home() {
 
           <Link
             to="/shop?collection=compact#compact"
-            onMouseEnter={() => setHeroHover('right')}
-            onMouseLeave={() => setHeroHover(null)}
+            onMouseEnter={supportsHover ? () => setHeroHover('right') : undefined}
+            onMouseLeave={supportsHover ? () => setHeroHover(null) : undefined}
             onFocus={() => setHeroHover('right')}
             onBlur={() => setHeroHover(null)}
-            onTouchStart={handleHeroTouchStart('right')}
-            onClick={handleHeroTap('right')}
+            onTouchEnd={handleHeroTouchEnd('right')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
               heroHover === 'left' ? 'basis-[0%]' : heroHover === 'right' ? 'basis-full' : 'basis-1/2'
             }`}
