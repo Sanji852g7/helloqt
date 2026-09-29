@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { collections, products } from '../data/products'
 import { formatPrice } from '../context/CartContext'
@@ -32,14 +32,22 @@ const badgePriority = { 'My Pick': 0, Bestseller: 1, 'New In': 2 }
 export default function Home() {
   const [quizOpen, setQuizOpen] = useState(false)
   const [heroHover, setHeroHover] = useState(null) // 'left' | 'right' | null
-  // Touch devices still fire a compatibility mouseenter/mouseleave of their
-  // own around taps (for hover-only sites), which was resetting the reveal
-  // right as the switch arrow was tapped - a visible flash back to the split
-  // view before jumping to the new side. Hover handlers below are skipped
-  // entirely on devices that don't genuinely support hover, so only a real
-  // tap (via onClick) can ever change which side is revealed there.
-  const supportsHover =
-    typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
+  // Some tablets report (hover: hover) as true even though they're touch-first,
+  // which let stray compatibility mouse events interfere with the tap-to-reveal
+  // arrow there. Tying this to the same lg breakpoint used everywhere else in
+  // the hero is more predictable - only genuine desktop widths get hover,
+  // tablet and phone always use tap regardless of what the device claims to
+  // support. Reactive to resize/rotation, not just read once on mount.
+  const [isDesktopWidth, setIsDesktopWidth] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+  )
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 1024px)')
+    const update = () => setIsDesktopWidth(mql.matches)
+    update()
+    mql.addEventListener('change', update)
+    return () => mql.removeEventListener('change', update)
+  }, [])
   const favourites = products
     .filter((p) => p.badge)
     .sort((a, b) => (badgePriority[a.badge] ?? 9) - (badgePriority[b.badge] ?? 9))
@@ -55,7 +63,7 @@ export default function Home() {
   const revealedSideRef = useRef(null)
 
   const handleHeroTouchEnd = (side) => (e) => {
-    if (supportsHover) return
+    if (isDesktopWidth) return
     if (revealedSideRef.current !== side) {
       e.preventDefault()
       revealedSideRef.current = side
@@ -90,8 +98,8 @@ export default function Home() {
           />
           <Link
             to="/shop?collection=suitcase#suitcase"
-            onMouseEnter={supportsHover ? () => setHeroHover('left') : undefined}
-            onMouseLeave={supportsHover ? () => setHeroHover(null) : undefined}
+            onMouseEnter={isDesktopWidth ? () => setHeroHover('left') : undefined}
+            onMouseLeave={isDesktopWidth ? () => setHeroHover(null) : undefined}
             onFocus={() => setHeroHover('left')}
             onBlur={() => setHeroHover(null)}
             onTouchEnd={handleHeroTouchEnd('left')}
@@ -143,8 +151,8 @@ export default function Home() {
 
           <Link
             to="/shop?collection=compact#compact"
-            onMouseEnter={supportsHover ? () => setHeroHover('right') : undefined}
-            onMouseLeave={supportsHover ? () => setHeroHover(null) : undefined}
+            onMouseEnter={isDesktopWidth ? () => setHeroHover('right') : undefined}
+            onMouseLeave={isDesktopWidth ? () => setHeroHover(null) : undefined}
             onFocus={() => setHeroHover('right')}
             onBlur={() => setHeroHover(null)}
             onTouchEnd={handleHeroTouchEnd('right')}
