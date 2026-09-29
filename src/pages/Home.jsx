@@ -31,6 +31,7 @@ const badgePriority = { 'My Pick': 0, Bestseller: 1, 'New In': 2 }
 // Homepage: hero, promises, collections, favourites, CTA
 export default function Home() {
   const [quizOpen, setQuizOpen] = useState(false)
+  const [heroHover, setHeroHover] = useState(null) // 'left' | 'right' | null
   const favourites = products
     .filter((p) => p.badge)
     .sort((a, b) => (badgePriority[a.badge] ?? 9) - (badgePriority[b.badge] ?? 9))
@@ -40,25 +41,57 @@ export default function Home() {
     <>
       {/* Hero - fills the screen below the header on large/desktop viewports */}
       <section className="relative overflow-hidden bg-cream lg:flex lg:min-h-[calc(100dvh-6rem)] lg:items-center">
-        {/* Split collection backdrop - large screens only, luggage left / vanity right */}
+        {/* Split collection backdrop - large screens only. Hovering a side expands
+            it to fill the section and reveals that collection's story and CTA. */}
         <div className="absolute inset-0 hidden lg:flex">
           <Link
             to="/shop?collection=suitcase#suitcase"
-            className="group relative w-1/2 overflow-hidden"
+            onMouseEnter={() => setHeroHover('left')}
+            onMouseLeave={() => setHeroHover(null)}
+            onFocus={() => setHeroHover('left')}
+            onBlur={() => setHeroHover(null)}
+            className="relative min-w-0 overflow-hidden transition-all duration-700 ease-out"
+            style={{ flexBasis: heroHover === 'right' ? '0%' : heroHover === 'left' ? '100%' : '50%' }}
             aria-label="Shop the QT Luggage Set"
           >
             <img
-              src="/media/king.JPG"
+              src="/media/king-lash.jpg"
               alt="King lashes in the QT Luggage Set travel case"
-              width="1080"
-              height="1080"
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              width="590"
+              height="470"
+              className={`h-full w-full object-cover transition-transform duration-700 ease-out ${
+                heroHover === 'left' ? 'scale-110' : 'scale-100'
+              }`}
             />
+            <div
+              className={`absolute inset-0 bg-plum-900/55 transition-opacity duration-500 ${
+                heroHover === 'left' ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <div
+              className={`absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center text-white transition-opacity duration-500 ${
+                heroHover === 'left' ? 'opacity-100 delay-150' : 'pointer-events-none opacity-0'
+              }`}
+            >
+              <span className="font-display text-3xl font-bold">The QT Luggage Set 🧳</span>
+              <span className="max-w-xs text-sm text-white/85">
+                Our boldest, most dramatic lashes, tucked into their own little travel case.
+              </span>
+              <span className="mt-2 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-plum-800 shadow-lift transition hover:bg-blush-50">
+                Shop now
+                <ArrowRightIcon className="h-4 w-4" />
+              </span>
+            </div>
           </Link>
 
           <Link
             to="/shop?collection=compact#compact"
-            className="group relative w-1/2 overflow-hidden"
+            onMouseEnter={() => setHeroHover('right')}
+            onMouseLeave={() => setHeroHover(null)}
+            onFocus={() => setHeroHover('right')}
+            onBlur={() => setHeroHover(null)}
+            className="relative min-w-0 overflow-hidden transition-all duration-700 ease-out"
+            style={{ flexBasis: heroHover === 'left' ? '0%' : heroHover === 'right' ? '100%' : '50%' }}
             aria-label="Shop the QT Vanity Set"
           >
             <img
@@ -66,13 +99,38 @@ export default function Home() {
               alt="Royalty lashes in the QT Vanity Set mirror case"
               width="1080"
               height="1080"
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              className={`h-full w-full object-cover transition-transform duration-700 ease-out ${
+                heroHover === 'right' ? 'scale-105' : 'scale-100'
+              }`}
             />
+            <div
+              className={`absolute inset-0 bg-plum-900/55 transition-opacity duration-500 ${
+                heroHover === 'right' ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <div
+              className={`absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center text-white transition-opacity duration-500 ${
+                heroHover === 'right' ? 'opacity-100 delay-150' : 'pointer-events-none opacity-0'
+              }`}
+            >
+              <span className="font-display text-3xl font-bold">The QT Vanity Set 🪞</span>
+              <span className="max-w-xs text-sm text-white/85">
+                Cute, compact everyday lashes with their own mirrored little home.
+              </span>
+              <span className="mt-2 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-plum-800 shadow-lift transition hover:bg-blush-50">
+                Shop now
+                <ArrowRightIcon className="h-4 w-4" />
+              </span>
+            </div>
           </Link>
         </div>
 
-        <div className="section relative py-8 lg:py-10">
-          <div className="animate-fade-up text-center lg:mx-auto lg:max-w-xl lg:rounded-[2.5rem] lg:bg-cream/90 lg:px-10 lg:py-14 lg:shadow-lift lg:backdrop-blur-sm">
+        <div
+          className={`section relative z-10 py-8 lg:py-10 lg:pointer-events-none ${
+            heroHover ? 'lg:opacity-0' : 'lg:opacity-100'
+          } transition-opacity duration-500`}
+        >
+          <div className="animate-fade-up text-center lg:pointer-events-auto lg:mx-auto lg:max-w-xl lg:rounded-[2.5rem] lg:bg-cream/90 lg:px-10 lg:py-14 lg:shadow-lift lg:backdrop-blur-sm">
             <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
               Pack a lash for every{' '}
               <span className="relative inline-block">
