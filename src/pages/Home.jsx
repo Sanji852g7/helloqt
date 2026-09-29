@@ -98,7 +98,14 @@ export default function Home() {
 
         {/* Split collection backdrop - large screens only. Hovering a side expands
             it to fill the section and reveals that collection's story and CTA. */}
-        <div className="hidden lg:flex lg:w-full">
+        <div className="relative hidden lg:flex lg:w-full">
+          {/* Marks the seam between the two collections - fades out once either side expands */}
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-[3px] -translate-x-1/2 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-opacity duration-300 ${
+              heroHover ? 'opacity-0' : 'opacity-100'
+            }`}
+          />
           <Link
             to="/shop?collection=suitcase#suitcase"
             onMouseEnter={() => setHeroHover('left')}
