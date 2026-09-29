@@ -102,7 +102,7 @@ export default function Home() {
           {/* Marks the seam between the two collections - fades out once either side expands */}
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-[3px] -translate-x-1/2 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-opacity duration-300 ${
+            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-[3px] -translate-x-1/2 bg-gold-400 shadow-[0_0_10px_rgba(0,0,0,0.25)] transition-opacity duration-300 ${
               heroHover ? 'opacity-0' : 'opacity-100'
             }`}
           />
