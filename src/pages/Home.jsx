@@ -99,11 +99,13 @@ export default function Home() {
         {/* Split collection backdrop - large screens only. Hovering a side expands
             it to fill the section and reveals that collection's story and CTA. */}
         <div className="relative hidden lg:flex lg:w-full">
-          {/* Marks the seam between the two collections - fades out once either side expands */}
+          {/* Marks the seam between the two collections - disappears as soon as either
+              side starts expanding, and only reappears once both have fully shrunk
+              back to resting size (matches the panels' own 700ms width transition) */}
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-[3px] -translate-x-1/2 bg-gold-400 shadow-[0_0_10px_rgba(0,0,0,0.25)] transition-opacity duration-300 ${
-              heroHover ? 'opacity-0' : 'opacity-100'
+            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-[3px] -translate-x-1/2 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-opacity duration-300 ${
+              heroHover ? 'opacity-0' : 'opacity-100 delay-700'
             }`}
           />
           <Link
