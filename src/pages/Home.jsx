@@ -40,8 +40,45 @@ export default function Home() {
     <>
       {/* Hero - fills the screen below the header on large/desktop viewports */}
       <section className="relative overflow-hidden bg-cream lg:flex lg:min-h-[calc(100dvh-6rem)] lg:items-center">
-        <div className="section relative grid items-center gap-6 pb-6 pt-8 lg:grid-cols-2 lg:gap-12 lg:pb-10 lg:pt-10">
-          <div className="animate-fade-up text-center lg:text-left">
+        {/* Split collection backdrop - large screens only, luggage left / vanity right */}
+        <div className="absolute inset-0 hidden lg:flex">
+          <Link
+            to="/shop?collection=suitcase#suitcase"
+            className="group relative flex w-1/2 items-center justify-center overflow-hidden bg-blush-100"
+            aria-label="Shop the QT Luggage Set"
+          >
+            <img
+              src="/media/king.JPG"
+              alt="King lashes in the QT Luggage Set travel case"
+              width="1080"
+              height="1080"
+              className="max-h-[75%] max-w-[75%] object-contain transition duration-500 group-hover:scale-105"
+            />
+            <span className="absolute bottom-10 rounded-full border border-white/70 bg-white/85 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm transition group-hover:bg-white">
+              The QT Luggage Set 🧳
+            </span>
+          </Link>
+
+          <Link
+            to="/shop?collection=compact#compact"
+            className="group relative flex w-1/2 items-center justify-center overflow-hidden bg-gold-100"
+            aria-label="Shop the QT Vanity Set"
+          >
+            <img
+              src="/media/royalty.JPG"
+              alt="Royalty lashes in the QT Vanity Set mirror case"
+              width="1080"
+              height="1080"
+              className="max-h-[75%] max-w-[75%] object-contain transition duration-500 group-hover:scale-105"
+            />
+            <span className="absolute bottom-10 rounded-full border border-white/70 bg-white/85 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-plum-700 backdrop-blur-sm transition group-hover:bg-white">
+              The QT Vanity Set 🪞
+            </span>
+          </Link>
+        </div>
+
+        <div className="section relative py-8 lg:py-10">
+          <div className="animate-fade-up text-center lg:mx-auto lg:max-w-xl lg:rounded-[2.5rem] lg:bg-cream/90 lg:px-10 lg:py-14 lg:shadow-lift lg:backdrop-blur-sm">
             <h1 className="text-balance font-display text-[2.6rem] font-bold leading-[1.12] text-plum-900 sm:text-6xl">
               Pack a lash for every{' '}
               <span className="relative inline-block">
@@ -58,11 +95,11 @@ export default function Home() {
               Made to make you feel QT 💕
             </p>
 
-            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg lg:mx-0">
+            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-plum-600 sm:text-lg">
               Handcrafted, reusable and cruelty-free lashes, each with its own little home.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Link to="/shop" className="btn-primary">
                 Shop lashes
                 <ArrowRightIcon className="h-4 w-4" />
@@ -77,8 +114,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Hero image collage */}
-          <div className="relative">
+          {/* Image collage - mobile and tablet only, the split backdrop takes over at lg */}
+          <div className="relative mt-8 lg:hidden">
             <div className="relative mx-auto flex w-full max-w-xl items-center justify-center gap-5 sm:max-w-2xl sm:gap-7">
               <Link to="/shop?collection=suitcase#suitcase" className="group w-1/2">
                 <div
