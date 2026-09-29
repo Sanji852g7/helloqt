@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { collections, products } from '../data/products'
 import { formatPrice } from '../context/CartContext'
@@ -37,74 +37,42 @@ export default function Home() {
     .sort((a, b) => (badgePriority[a.badge] ?? 9) - (badgePriority[b.badge] ?? 9))
     .slice(0, 3)
 
+  // Touch has no hover - the first tap reveals a side instead of navigating
+  // straight away, so people can see what it is before committing. Tapping
+  // the same side again (or the Shop now button) goes through as normal.
+  // A mouse click always fires its own mouseenter first (setting heroHover
+  // before the click even runs), so only gate this for a genuine touch tap -
+  // tracked via touchstart, which always precedes a real tap's click.
+  const touchSideRef = useRef(null)
+
+  const handleHeroTouchStart = (side) => () => {
+    touchSideRef.current = side
+  }
+
+  const handleHeroTap = (side) => (e) => {
+    const isTouch = touchSideRef.current === side
+    touchSideRef.current = null
+    if (isTouch && heroHover !== side) {
+      e.preventDefault()
+      setHeroHover(side)
+    }
+  }
+
   return (
     <>
-      {/* Hero - pure photography, fills the screen below the header on large/desktop viewports */}
-      <section className="relative overflow-hidden bg-cream lg:flex lg:min-h-[calc(100dvh-6rem)]">
-        {/* Mobile/tablet collage */}
-        <div className="section py-8 lg:hidden">
-          <div className="relative mx-auto flex w-full max-w-xl items-center justify-center gap-5 sm:max-w-2xl sm:gap-7">
-            <Link to="/shop?collection=suitcase#suitcase" className="group w-1/2">
-              <div
-                className="relative animate-float overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
-                style={{ aspectRatio: '100 / 90' }}
-              >
-                <img
-                  src="/media/king.JPG"
-                  alt="King lashes in the QT Luggage Set travel case"
-                  width="1080"
-                  height="1080"
-                  className="h-full w-full object-contain"
-                />
-              </div>
-              <p className="mt-1.5 text-center">
-                <span className="block font-display text-sm font-bold text-plum-800">
-                  The QT Luggage Set 🧳
-                </span>
-                <span className="text-xs text-plum-500">
-                  Bold, dramatic and ready to travel
-                </span>
-                <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
-                  Shop &rarr;
-                </span>
-              </p>
-            </Link>
-
-            <Link to="/shop?collection=compact#compact" className="group w-1/2">
-              <div
-                className="relative animate-float-reverse overflow-hidden rounded-[2rem] border border-blush-200 bg-white shadow-lift transition duration-300 group-hover:scale-[1.03]"
-                style={{ aspectRatio: '100 / 90' }}
-              >
-                <img
-                  src="/media/royalty.JPG"
-                  alt="Royalty lashes in the QT Vanity Set mirror case"
-                  width="1080"
-                  height="1080"
-                  className="h-full w-full object-contain"
-                />
-              </div>
-              <p className="mt-1.5 text-center">
-                <span className="block font-display text-sm font-bold text-plum-800">
-                  The QT Vanity Set 🪞
-                </span>
-                <span className="text-xs text-plum-500">Cute, compact &amp; ready to glam</span>
-                <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
-                  Shop &rarr;
-                </span>
-              </p>
-            </Link>
-          </div>
-        </div>
-
-        {/* Split collection backdrop - large screens only. Hovering a side expands
-            it to fill the section and reveals that collection's story and CTA. */}
-        <div className="relative hidden lg:flex lg:w-full">
-          {/* Marks the seam between the two collections - disappears as soon as either
+      {/* Hero - pure photography, fills the screen below the header */}
+      <section className="relative overflow-hidden bg-cream flex min-h-[calc(100dvh-6rem)]">
+        {/* Split collection backdrop - stacked top/bottom on phones and tablets,
+            side by side from lg up. Hovering (or tapping, on touch) a side
+            expands it to fill the section and reveals that collection's story and CTA. */}
+        <div className="relative flex w-full flex-col lg:flex-row">
+          {/* Marks the seam between the two collections - a horizontal line while
+              stacked, vertical once side by side at lg. Disappears as soon as either
               side starts expanding, and only reappears once both have fully shrunk
-              back to resting size (matches the panels' own 700ms width transition) */}
+              back to resting size (matches the panels' own 700ms transition) */}
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-[3px] -translate-x-1/2 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-opacity duration-300 ${
+            className={`pointer-events-none absolute left-0 right-0 top-1/2 z-20 h-[3px] -translate-y-1/2 lg:left-1/2 lg:right-auto lg:top-0 lg:bottom-0 lg:h-full lg:w-[3px] lg:translate-y-0 lg:-translate-x-1/2 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-opacity duration-300 ${
               heroHover ? 'opacity-0' : 'opacity-100 delay-700'
             }`}
           />
@@ -114,7 +82,9 @@ export default function Home() {
             onMouseLeave={() => setHeroHover(null)}
             onFocus={() => setHeroHover('left')}
             onBlur={() => setHeroHover(null)}
-            className="relative min-w-0 overflow-hidden transition-all duration-700 ease-out"
+            onTouchStart={handleHeroTouchStart('left')}
+            onClick={handleHeroTap('left')}
+            className="relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out"
             style={{ flexBasis: heroHover === 'right' ? '0%' : heroHover === 'left' ? '100%' : '50%' }}
             aria-label="Shop the QT Luggage Set"
           >
@@ -146,7 +116,7 @@ export default function Home() {
                 heroHover === 'left' ? 'opacity-100 delay-150' : 'pointer-events-none opacity-0'
               }`}
             >
-              <span className="font-display text-3xl font-bold">The QT Luggage Set 🧳</span>
+              <span className="font-display text-2xl font-bold sm:text-3xl">The QT Luggage Set 🧳</span>
               <span className="max-w-xs text-sm text-white/85">
                 Our boldest, most dramatic lashes, tucked into their own little travel case.
               </span>
@@ -163,7 +133,9 @@ export default function Home() {
             onMouseLeave={() => setHeroHover(null)}
             onFocus={() => setHeroHover('right')}
             onBlur={() => setHeroHover(null)}
-            className="relative min-w-0 overflow-hidden transition-all duration-700 ease-out"
+            onTouchStart={handleHeroTouchStart('right')}
+            onClick={handleHeroTap('right')}
+            className="relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out"
             style={{ flexBasis: heroHover === 'left' ? '0%' : heroHover === 'right' ? '100%' : '50%' }}
             aria-label="Shop the QT Vanity Set"
           >
@@ -186,7 +158,7 @@ export default function Home() {
                 heroHover === 'right' ? 'opacity-100 delay-150' : 'pointer-events-none opacity-0'
               }`}
             >
-              <span className="font-display text-3xl font-bold">The QT Vanity Set 🪞</span>
+              <span className="font-display text-2xl font-bold sm:text-3xl">The QT Vanity Set 🪞</span>
               <span className="max-w-xs text-sm text-white/85">
                 Cute, compact everyday lashes with their own mirrored little home.
               </span>
