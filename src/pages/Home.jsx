@@ -56,20 +56,24 @@ export default function Home() {
   // Touch has no hover - the first tap reveals a side instead of navigating
   // straight away, so people can see what it is before committing. Tapping
   // the same side again (or the Shop now button) goes through as normal.
-  // Handled entirely in touchend rather than a click handler: a touch that
-  // isn't prevented still fires its own native click ~afterward, so revealing
-  // needs to preventDefault the touchend itself to stop that click reaching
-  // the Link at all, not race it with a second synthetic click of our own.
+  // Wired to BOTH touchend and click: a real touch's own native click (which
+  // would otherwise follow ~immediately) is stopped by preventDefault-ing the
+  // touchend itself, but tablets/laptops used with an actual mouse or
+  // trackpad never fire a touch event at all - only click - so the same
+  // check needs to run there too, or a plain click would go straight through
+  // unblocked. Whichever event fires first does the work; if both fire (a
+  // real tap that wasn't prevented), the second is a no-op since the ref
+  // already matches.
   const revealedSideRef = useRef(null)
 
-  const handleHeroTouchEnd = (side) => (e) => {
+  const handleHeroActivate = (side) => (e) => {
     if (isDesktopWidth) return
     if (revealedSideRef.current !== side) {
       e.preventDefault()
       revealedSideRef.current = side
       setHeroHover(side)
     }
-    // else: already revealed - let the browser's normal click-after-touch navigate
+    // else: already revealed - let this navigate normally
   }
 
   return (
@@ -102,7 +106,8 @@ export default function Home() {
             onMouseLeave={isDesktopWidth ? () => setHeroHover(null) : undefined}
             onFocus={() => setHeroHover('left')}
             onBlur={() => setHeroHover(null)}
-            onTouchEnd={handleHeroTouchEnd('left')}
+            onTouchEnd={handleHeroActivate('left')}
+            onClick={handleHeroActivate('left')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
               heroHover === 'right' ? 'basis-[0%]' : heroHover === 'left' ? 'basis-full' : 'basis-1/2'
             }`}
@@ -155,7 +160,8 @@ export default function Home() {
             onMouseLeave={isDesktopWidth ? () => setHeroHover(null) : undefined}
             onFocus={() => setHeroHover('right')}
             onBlur={() => setHeroHover(null)}
-            onTouchEnd={handleHeroTouchEnd('right')}
+            onTouchEnd={handleHeroActivate('right')}
+            onClick={handleHeroActivate('right')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
               heroHover === 'left' ? 'basis-[0%]' : heroHover === 'right' ? 'basis-full' : 'basis-1/2'
             }`}
