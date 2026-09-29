@@ -1,11 +1,17 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { collections, products } from '../data/products'
-import ProductCard from '../components/ProductCard'
+import { formatPrice } from '../context/CartContext'
 import LashQuiz from '../components/LashQuiz'
 import FounderLetter from '../components/FounderLetter'
 import { Squiggle } from '../components/Doodles'
 import { ArrowRightIcon, SparkleIcon } from '../components/Icons'
+
+// Same heart-shaped photo frame as the hero collage, reused for favourites
+const HEART_CLIP_PATH =
+  'M0.5,0.978 C0.22,0.756 0.06,0.533 0.06,0.333 C0.06,0.167 0.18,0.044 0.32,0.044 C0.40,0.044 0.47,0.089 0.5,0.167 C0.53,0.089 0.60,0.044 0.68,0.044 C0.82,0.044 0.94,0.167 0.94,0.333 C0.94,0.533 0.78,0.756 0.5,0.978 Z'
+const HEART_OUTLINE_PATH =
+  'M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z'
 
 const promises = [
   { emoji: '🐇', title: 'Cruelty-free', body: 'Never tested on animals.' },
@@ -321,10 +327,67 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {favourites.map((product) => (
-            <ProductCard key={product.slug} product={product} heartImage />
-          ))}
+        <div className="mt-10 flex flex-wrap justify-center gap-10 sm:gap-14">
+          {favourites.map((product, i) => {
+            const heartClipId = `fav-heart-${product.slug}`
+            return (
+              <Link
+                key={product.slug}
+                to={`/product/${product.slug}`}
+                className="group w-44 sm:w-52"
+              >
+                <div
+                  className={`relative transition duration-300 group-hover:scale-[1.03] ${
+                    i % 2 === 0 ? 'animate-float' : 'animate-float-reverse'
+                  }`}
+                  style={{ aspectRatio: '100 / 90' }}
+                >
+                  {product.badge && (
+                    <span className="absolute left-2 top-0 z-10 rounded-full bg-gold-600 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+                      {product.badge}
+                    </span>
+                  )}
+                  <svg width="0" height="0" className="absolute">
+                    <defs>
+                      <clipPath id={heartClipId} clipPathUnits="objectBoundingBox">
+                        <path d={HEART_CLIP_PATH} />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <img
+                    src={product.image}
+                    alt={`${product.name}, ${product.style} lashes by HelloQT`}
+                    width="1080"
+                    height="1080"
+                    style={{ clipPath: `url(#${heartClipId})` }}
+                    className="h-full w-full bg-white object-contain"
+                  />
+                  <svg
+                    viewBox="0 0 100 90"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
+                  >
+                    <path
+                      d={HEART_OUTLINE_PATH}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                </div>
+                <p className="mt-1.5 text-center">
+                  <span className="block font-display text-sm font-bold text-plum-800">
+                    {product.name}
+                  </span>
+                  <span className="text-xs text-plum-500">{product.style}</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-blush-700 transition group-hover:text-blush-800">
+                    {formatPrice(product.price)} · Shop &rarr;
+                  </span>
+                </p>
+              </Link>
+            )
+          })}
         </div>
       </section>
 

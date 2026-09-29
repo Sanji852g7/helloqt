@@ -6,22 +6,13 @@ import { playPop } from '../lib/sound'
 import FavouriteButton from './FavouriteButton'
 import { BagIcon, CheckIcon } from './Icons'
 
-// The heart-shaped image frame used on the homepage favourites - moved here
-// from the old hero collage so it can be reused on any card via `heartImage`
-const HEART_CLIP_PATH =
-  'M0.5,0.978 C0.22,0.756 0.06,0.533 0.06,0.333 C0.06,0.167 0.18,0.044 0.32,0.044 C0.40,0.044 0.47,0.089 0.5,0.167 C0.53,0.089 0.60,0.044 0.68,0.044 C0.82,0.044 0.94,0.167 0.94,0.333 C0.94,0.533 0.78,0.756 0.5,0.978 Z'
-const HEART_OUTLINE_PATH =
-  'M50,88 C22,68 6,48 6,30 C6,15 18,4 32,4 C40,4 47,8 50,15 C53,8 60,4 68,4 C82,4 94,15 94,30 C94,48 78,68 50,88 Z'
-
 // Shows one product's image, price, and add-to-cart button. The favourite
 // heart defaults to the size used on Shop's wide grid - pass `compact` for
 // denser grids (like the account pages) where that size looks oversized.
-// Pass `heartImage` to frame the photo in the heart shape instead of a plain square.
-export default function ProductCard({ product, compact = false, heartImage = false }) {
+export default function ProductCard({ product, compact = false }) {
   const { addItem } = useCart()
   const collection = getCollection(product.collection)
   const [added, setAdded] = useState(false)
-  const heartClipId = `heart-clip-${product.slug}`
 
   const handleAdd = () => {
     addItem(product)
@@ -37,43 +28,14 @@ export default function ProductCard({ product, compact = false, heartImage = fal
         className="block overflow-hidden bg-white"
         aria-label={`View ${product.name} lashes`}
       >
-        {heartImage ? (
-          <div className="relative aspect-square w-full">
-            <svg width="0" height="0" className="absolute">
-              <defs>
-                <clipPath id={heartClipId} clipPathUnits="objectBoundingBox">
-                  <path d={HEART_CLIP_PATH} />
-                </clipPath>
-              </defs>
-            </svg>
-            <img
-              src={product.image}
-              alt={`${product.name}, ${product.style} lashes by HelloQT`}
-              width="600"
-              height="600"
-              loading="lazy"
-              style={{ clipPath: `url(#${heartClipId})` }}
-              className="h-full w-full bg-white object-contain transition duration-500 group-hover:scale-105"
-            />
-            <svg
-              viewBox="0 0 100 90"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full text-blush-500"
-            >
-              <path d={HEART_OUTLINE_PATH} fill="none" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
-          </div>
-        ) : (
-          <img
-            src={product.image}
-            alt={`${product.name}, ${product.style} lashes by HelloQT`}
-            width="600"
-            height="600"
-            loading="lazy"
-            className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
-          />
-        )}
+        <img
+          src={product.image}
+          alt={`${product.name}, ${product.style} lashes by HelloQT`}
+          width="600"
+          height="600"
+          loading="lazy"
+          className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
+        />
       </Link>
 
       <div className="absolute left-4 top-4 flex flex-col items-start gap-1.5">
