@@ -55,12 +55,21 @@ export default function Home() {
             aria-label="Shop the QT Luggage Set"
           >
             <img
-              src="/media/king-lash.jpg"
+              src="/media/king.JPG"
               alt="King lashes in the QT Luggage Set travel case"
+              width="1080"
+              height="1080"
+              className="h-full w-full object-cover"
+            />
+            {/* Crossfades in to focus on the lash itself once this side takes over the screen */}
+            <img
+              src="/media/king-lash.jpg"
+              alt=""
+              aria-hidden="true"
               width="590"
               height="470"
-              className={`h-full w-full object-cover transition-transform duration-700 ease-out ${
-                heroHover === 'left' ? 'scale-110' : 'scale-100'
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out ${
+                heroHover === 'left' ? 'opacity-100' : 'opacity-0'
               }`}
             />
             <div
