@@ -67,11 +67,26 @@ export default function Navbar() {
 
   useEffect(() => setOpen(false), [pathname])
 
-  // Stops the page scrolling behind the drawer while it's open
+  // Stops the page scrolling behind the drawer while it's open. Plain
+  // overflow:hidden on the body doesn't reliably block touch-scroll on iOS
+  // Safari, so the body is pinned in place with position:fixed instead (the
+  // standard workaround), then restored to exactly where it was on close.
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
+    if (!open) return
+    const scrollY = window.scrollY
+    const { style } = document.body
+    style.position = 'fixed'
+    style.top = `-${scrollY}px`
+    style.left = '0'
+    style.right = '0'
+    style.overflow = 'hidden'
     return () => {
-      document.body.style.overflow = ''
+      style.position = ''
+      style.top = ''
+      style.left = ''
+      style.right = ''
+      style.overflow = ''
+      window.scrollTo(0, scrollY)
     }
   }, [open])
 
