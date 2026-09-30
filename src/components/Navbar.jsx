@@ -67,26 +67,31 @@ export default function Navbar() {
 
   useEffect(() => setOpen(false), [pathname])
 
-  // Stops the page scrolling behind the drawer while it's open. Plain
-  // overflow:hidden on the body doesn't reliably block touch-scroll on iOS
-  // Safari, so the body is pinned in place with position:fixed instead (the
-  // standard workaround), then restored to exactly where it was on close.
+  // Stops the page scrolling behind the drawer while it's open, by
+  // cancelling the wheel/touch/keyboard events that would cause it, rather
+  // than touching body/html's own CSS. Both overflow:hidden and
+  // position:fixed on body break the header's position:sticky - sticky
+  // needs a genuinely scrolling ancestor to compute against, and freezing
+  // body removes that, so the header renders at its natural (and, once
+  // scrolled down, off-screen) position instead of pinned to the viewport.
   useEffect(() => {
     if (!open) return
-    const scrollY = window.scrollY
-    const { style } = document.body
-    style.position = 'fixed'
-    style.top = `-${scrollY}px`
-    style.left = '0'
-    style.right = '0'
-    style.overflow = 'hidden'
+    const isInsideDrawer = (target) => target?.closest?.('#mobile-nav')
+    const preventScroll = (e) => {
+      if (isInsideDrawer(e.target)) return
+      e.preventDefault()
+    }
+    const scrollKeys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']
+    const preventKeyScroll = (e) => {
+      if (scrollKeys.includes(e.key) && !isInsideDrawer(e.target)) e.preventDefault()
+    }
+    document.addEventListener('wheel', preventScroll, { passive: false })
+    document.addEventListener('touchmove', preventScroll, { passive: false })
+    document.addEventListener('keydown', preventKeyScroll)
     return () => {
-      style.position = ''
-      style.top = ''
-      style.left = ''
-      style.right = ''
-      style.overflow = ''
-      window.scrollTo(0, scrollY)
+      document.removeEventListener('wheel', preventScroll)
+      document.removeEventListener('touchmove', preventScroll)
+      document.removeEventListener('keydown', preventKeyScroll)
     }
   }, [open])
 
@@ -99,7 +104,7 @@ export default function Navbar() {
         Skip to content
       </a>
 
-      <div className="section flex h-16 items-center justify-between gap-4">
+      <div className="flex h-16 items-center justify-between gap-4 px-5 sm:px-8">
         <Link to="/" className="flex items-center gap-2.5" aria-label="HelloQT home">
           <img
             src="/media/helloqtlogo.JPG"
@@ -161,7 +166,7 @@ export default function Navbar() {
         id="mobile-nav"
         aria-label="Mobile"
         aria-hidden={!open}
-        className={`fixed right-0 top-16 z-40 h-[calc(100dvh-4rem)] w-1/2 max-w-xs overflow-y-auto border-l border-blush-200 bg-cream px-5 pb-6 pt-3 shadow-lift transition-transform duration-300 ${
+        className={`fixed right-0 top-16 z-40 h-[calc(100dvh-4rem)] w-1/2 max-w-xs overflow-y-auto overscroll-contain border-l border-blush-200 bg-cream px-5 pb-6 pt-3 shadow-lift transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
