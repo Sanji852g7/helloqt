@@ -7,6 +7,8 @@ import AiLashChat from './components/AiLashChat'
 import DiscountPopup from './components/DiscountPopup'
 import CustomCursor from './components/CustomCursor'
 import DocumentTitle from './components/DocumentTitle'
+import LashQuiz from './components/LashQuiz'
+import { useQuiz } from './context/QuizContext'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
@@ -45,6 +47,8 @@ function ScrollToTop() {
 
 // Root layout: navbar, page routes, footer, AI chat
 export default function App() {
+  const { quizOpen, closeQuiz } = useQuiz()
+
   return (
     <div className="flex min-h-dvh flex-col">
       <ScrollToTop />
@@ -81,6 +85,7 @@ export default function App() {
       <AiLashChat />
       <DiscountPopup />
       <CustomCursor />
+      <LashQuiz open={quizOpen} onClose={closeQuiz} />
     </div>
   )
 }

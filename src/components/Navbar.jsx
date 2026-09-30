@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { useQuiz } from '../context/QuizContext'
 import { BagIcon, CloseIcon, HeartIcon, MenuIcon, SparkleIcon, TruckIcon, UserIcon } from './Icons'
 
 const links = [
@@ -28,6 +29,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const { count } = useCart()
   const { user, signOut } = useAuth()
+  const { openQuiz } = useQuiz()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const pointerStartRef = useRef(null)
@@ -37,6 +39,11 @@ export default function Navbar() {
     setOpen(false)
     signOut()
     navigate('/')
+  }
+
+  const handleFindMatch = () => {
+    setOpen(false)
+    openQuiz()
   }
 
   const handleMenuPointerDown = (e) => {
@@ -74,23 +81,55 @@ export default function Navbar() {
   // needs a genuinely scrolling ancestor to compute against, and freezing
   // body removes that, so the header renders at its natural (and, once
   // scrolled down, off-screen) position instead of pinned to the viewport.
+  //
+  // Scrolling inside the drawer itself is only let through as far as the
+  // drawer's own content actually has room to move - CSS overscroll-behavior
+  // is meant to stop it chaining through to the page past that point, but
+  // isn't reliable enough here (the drawer's own list is almost always
+  // shorter than the drawer, i.e. nothing to scroll at all), so the bounds
+  // are also checked by hand before letting an event through.
   useEffect(() => {
     if (!open) return
-    const isInsideDrawer = (target) => target?.closest?.('#mobile-nav')
-    const preventScroll = (e) => {
-      if (isInsideDrawer(e.target)) return
+    const nav = document.getElementById('mobile-nav')
+
+    const drawerHasRoom = (deltaY) => {
+      if (!nav || nav.scrollHeight <= nav.clientHeight) return false
+      if (deltaY < 0) return nav.scrollTop > 0
+      return nav.scrollTop + nav.clientHeight < nav.scrollHeight
+    }
+
+    const preventWheel = (e) => {
+      if (nav?.contains(e.target) && drawerHasRoom(e.deltaY)) return
       e.preventDefault()
     }
+
+    let touchStartY = null
+    const onTouchStart = (e) => {
+      touchStartY = e.touches[0]?.clientY ?? null
+    }
+    const preventTouchMove = (e) => {
+      const currentY = e.touches[0]?.clientY ?? touchStartY
+      const deltaY = touchStartY === null ? 0 : touchStartY - currentY
+      if (nav?.contains(e.target) && drawerHasRoom(deltaY)) {
+        touchStartY = currentY
+        return
+      }
+      e.preventDefault()
+    }
+
     const scrollKeys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']
     const preventKeyScroll = (e) => {
-      if (scrollKeys.includes(e.key) && !isInsideDrawer(e.target)) e.preventDefault()
+      if (scrollKeys.includes(e.key) && !nav?.contains(e.target)) e.preventDefault()
     }
-    document.addEventListener('wheel', preventScroll, { passive: false })
-    document.addEventListener('touchmove', preventScroll, { passive: false })
+
+    document.addEventListener('wheel', preventWheel, { passive: false })
+    document.addEventListener('touchstart', onTouchStart, { passive: true })
+    document.addEventListener('touchmove', preventTouchMove, { passive: false })
     document.addEventListener('keydown', preventKeyScroll)
     return () => {
-      document.removeEventListener('wheel', preventScroll)
-      document.removeEventListener('touchmove', preventScroll)
+      document.removeEventListener('wheel', preventWheel)
+      document.removeEventListener('touchstart', onTouchStart)
+      document.removeEventListener('touchmove', preventTouchMove)
       document.removeEventListener('keydown', preventKeyScroll)
     }
   }, [open])
@@ -186,6 +225,15 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
+
+          <button
+            type="button"
+            onClick={handleFindMatch}
+            className="mt-1 flex min-h-[48px] w-full items-center gap-2.5 rounded-2xl px-4 text-base font-semibold text-plum-700 transition hover:bg-blush-50"
+          >
+            <SparkleIcon className="h-4 w-4" />
+            Find your match
+          </button>
 
           {user && (
             <div className="mt-3 border-t border-blush-200 pt-3">

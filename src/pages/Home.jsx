@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { collections, products } from '../data/products'
 import { formatPrice } from '../context/CartContext'
-import LashQuiz from '../components/LashQuiz'
+import { useQuiz } from '../context/QuizContext'
 import FounderLetter from '../components/FounderLetter'
 import { Squiggle } from '../components/Doodles'
 import { ArrowLeftIcon, ArrowRightIcon, SparkleIcon } from '../components/Icons'
@@ -30,7 +30,7 @@ const badgePriority = { 'My Pick': 0, Bestseller: 1, 'New In': 2 }
 
 // Homepage: hero, promises, collections, favourites, CTA
 export default function Home() {
-  const [quizOpen, setQuizOpen] = useState(false)
+  const { openQuiz } = useQuiz()
   const [heroHover, setHeroHover] = useState(null) // 'left' | 'right' | null
   // Some tablets report (hover: hover) as true even though they're touch-first,
   // which let stray compatibility mouse events interfere with the tap-to-reveal
@@ -261,10 +261,10 @@ export default function Home() {
               </Link>
               <button
                 type="button"
-                onClick={() => setQuizOpen(true)}
+                onClick={openQuiz}
                 className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-full border border-plum-300 bg-white px-7 py-3 font-semibold text-plum-600 transition duration-200 hover:border-plum-400 hover:text-plum-800 active:scale-[0.98]"
               >
-                Find my perfect lash
+                Find your match
               </button>
             </div>
           </div>
@@ -550,8 +550,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-
-      <LashQuiz open={quizOpen} onClose={() => setQuizOpen(false)} />
     </>
   )
 }
