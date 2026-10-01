@@ -477,6 +477,10 @@ app.post('/api/create-checkout-session', orderLimit, async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       customer_email: email,
+      // Without this, Stripe charges the card but never saves a Customer
+      // record - so repeat buyers never show up as one person in the
+      // dashboard, only as separate one-off payments
+      customer_creation: 'always',
       line_items: priced.items.map((item) => ({
         quantity: item.quantity,
         price_data: {
