@@ -7,6 +7,7 @@ import AiLashChat from './components/AiLashChat'
 import DiscountPopup from './components/DiscountPopup'
 import CustomCursor from './components/CustomCursor'
 import DocumentTitle from './components/DocumentTitle'
+import PinterestPageTracker from './components/PinterestPageTracker'
 import LashQuiz from './components/LashQuiz'
 import { useQuiz } from './context/QuizContext'
 import Home from './pages/Home'
@@ -53,6 +54,7 @@ export default function App() {
     <div className="flex min-h-dvh flex-col">
       <ScrollToTop />
       <DocumentTitle />
+      <PinterestPageTracker />
       <div className="sticky top-0 z-40">
         <AnnouncementBar />
         <Navbar />

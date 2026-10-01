@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { shippingFor } from '../data/pricing'
+import { pinterestTrack } from '../lib/pinterest'
 
 const CartContext = createContext(null)
 const STORAGE_KEY = 'helloqt-cart'
@@ -49,6 +50,22 @@ export function CartProvider({ children }) {
             quantity,
           },
         ]
+      })
+
+      // Tells Pinterest a lash was added to the basket, for ad reporting and
+      // retargeting - never blocks the add itself if the tag isn't loaded
+      pinterestTrack('addtocart', {
+        value: product.price * quantity,
+        order_quantity: quantity,
+        currency: 'GBP',
+        line_items: [
+          {
+            product_id: product.slug,
+            product_name: product.name,
+            product_price: product.price,
+            product_quantity: quantity,
+          },
+        ],
       })
     }
 

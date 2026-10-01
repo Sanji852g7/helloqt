@@ -177,6 +177,18 @@ if (stripe && !STRIPE_WEBHOOK_SECRET) {
 // Shared password Supabase must send with every order webhook call
 const ORDER_WEBHOOK_SECRET = process.env.ORDER_WEBHOOK_SECRET || null
 
+// Lets the server report a confirmed sale straight to Pinterest's
+// Conversions API, so ad performance is measured even when the customer's
+// browser blocks the Pinterest tag (ad blockers, Safari/iOS privacy limits)
+const PINTEREST_ACCESS_TOKEN = process.env.PINTEREST_ACCESS_TOKEN || null
+const PINTEREST_AD_ACCOUNT_ID = process.env.PINTEREST_AD_ACCOUNT_ID || null
+
+if (!PINTEREST_ACCESS_TOKEN || !PINTEREST_AD_ACCOUNT_ID) {
+  console.warn(
+    '\n[helloqt-server] PINTEREST_ACCESS_TOKEN / PINTEREST_AD_ACCOUNT_ID not set. Purchases will not be reported to Pinterest until both are.\n',
+  )
+}
+
 if (!ORDER_WEBHOOK_SECRET) {
   console.warn(
     '\n[helloqt-server] ORDER_WEBHOOK_SECRET is not set. Shipping emails are disabled until it is, so nobody can trigger fake ones.\n',
@@ -219,6 +231,70 @@ async function isRealUkPostcode(postcode) {
   } catch (error) {
     console.warn('[helloqt-server] postcodes.io lookup failed, allowing the order through:', error.message)
     return true
+  }
+}
+
+// Hashes an email the way Pinterest's Conversions API requires: SHA-256 of
+// the lowercased address, so the real address is never sent in the clear
+function hashEmail(email) {
+  return crypto.createHash('sha256').update(email.trim().toLowerCase()).digest('hex')
+}
+
+/**
+ * Reports a confirmed order to Pinterest's Conversions API as a "checkout"
+ * event, so Pinterest can measure which ads actually led to a sale - even
+ * when the customer's browser never let the Pinterest tag fire at all
+ * (ad blockers, Safari/iOS tracking prevention).
+ *
+ * `eventId` is the same order_ref the browser-side Pinterest tag is sent
+ * for this same purchase (see CheckoutSuccess.jsx), so Pinterest dedupes
+ * the two reports of the one sale into a single conversion instead of
+ * double-counting it. A failure here never affects the order itself - it
+ * is only logged, same as a failed confirmation email.
+ */
+async function reportPinterestPurchase({ eventId, email, total, items }) {
+  if (!PINTEREST_ACCESS_TOKEN || !PINTEREST_AD_ACCOUNT_ID) return
+
+  try {
+    const res = await fetch(
+      `https://api.pinterest.com/v5/ad_accounts/${PINTEREST_AD_ACCOUNT_ID}/events`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${PINTEREST_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: [
+            {
+              event_name: 'checkout',
+              action_source: 'web',
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: eventId,
+              event_source_url: SITE_BASE_URL,
+              user_data: { em: [hashEmail(email)] },
+              custom_data: {
+                currency: 'GBP',
+                value: String(total),
+                order_id: eventId,
+                content_ids: items.map((item) => item.slug),
+                num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+              },
+            },
+          ],
+        }),
+      },
+    )
+
+    if (!res.ok) {
+      console.error(
+        `[helloqt-server] Pinterest Conversions API rejected order ${eventId}:`,
+        res.status,
+        await res.text(),
+      )
+    }
+  } catch (error) {
+    console.error(`[helloqt-server] Pinterest Conversions API call failed for order ${eventId}:`, error)
   }
 }
 
@@ -559,6 +635,10 @@ async function savePaidOrder(session) {
     }),
   })
 
+  // Fire-and-forget: the order is already fully saved and emailed, so a
+  // slow or failed Pinterest call must never hold up or fail the checkout
+  reportPinterestPurchase({ eventId: orderRef, email, total: priced.total, items: priced.items })
+
   console.log(`[helloqt-server] Payment received, saved order ${orderRef}`)
   return orderRef
 }
@@ -637,11 +717,15 @@ app.get('/api/order-by-session', async (req, res) => {
 
   const { data } = await supabaseAdmin
     .from('orders')
-    .select('order_ref')
+    .select('order_ref, total, items')
     .eq('stripe_session_id', sessionId)
     .maybeSingle()
 
-  res.json({ orderRef: data?.order_ref ?? null })
+  res.json({
+    orderRef: data?.order_ref ?? null,
+    total: data?.total ?? null,
+    items: data?.items ?? null,
+  })
 })
 
 /* ------------------------------------------------------------------ */

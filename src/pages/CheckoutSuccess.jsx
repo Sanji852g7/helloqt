@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext'
 import { CheckIcon } from '../components/Icons'
 import ConfettiBurst from '../components/ConfettiBurst'
 import { playSuccessSound } from '../lib/sound'
+import { pinterestTrack } from '../lib/pinterest'
 
 // How long to keep checking for the order before showing the gentler message
 const MAX_ATTEMPTS = 12
@@ -45,6 +46,22 @@ export default function CheckoutSuccess() {
         if (data.orderRef) {
           setOrderRef(data.orderRef)
           setStillLooking(false)
+
+          // Tells Pinterest the sale happened, so ad spend can be measured
+          // against it. event_id matches the server-side Conversions API
+          // event sent from the same order, so Pinterest counts it once.
+          pinterestTrack('checkout', {
+            value: data.total,
+            currency: 'GBP',
+            order_id: data.orderRef,
+            event_id: data.orderRef,
+            line_items: (data.items ?? []).map((item) => ({
+              product_id: item.slug,
+              product_name: item.name,
+              product_price: item.price,
+              product_quantity: item.quantity,
+            })),
+          })
           return
         }
       } catch {

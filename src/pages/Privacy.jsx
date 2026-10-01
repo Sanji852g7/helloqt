@@ -233,8 +233,15 @@ export default function Privacy() {
       <Section id="cookies" title="Cookies and your basket">
         <p>
           This site stores your basket and a couple of small preferences, such as whether you have
-          already seen the discount pop-up, in your own browser on your own device. It does not
-          track you across other websites, and there are no advertising or analytics trackers.
+          already seen the discount pop-up, in your own browser on your own device.
+        </p>
+        <p>
+          I also use the Pinterest tag to measure how my Pinterest ads are performing - it can
+          record things like page visits and purchases made after clicking one of my ads. When you
+          complete an order, I share a securely hashed (not plain-text, and not reversible) version
+          of your email with Pinterest, so that sale can be matched back to the ad that led to it.
+          You can opt out of this kind of ad tracking at any time through your browser or device's
+          privacy settings, or through Pinterest's own ad personalisation settings.
         </p>
         <p>
           Stripe may set its own cookies on its payment page to prevent fraud. That is covered by
