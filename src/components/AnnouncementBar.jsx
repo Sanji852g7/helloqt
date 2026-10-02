@@ -1,43 +1,66 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+
+// How long each message stays up, and how long the fade between them takes
+const ROTATE_MS = 4500
+const FADE_MS = 300
+
 const MESSAGES = [
-  'Free UK delivery over £40',
-  'Cruelty-free',
-  'Handmade with love',
-  'UK shipping only',
+  { text: '🎀 HelloQT is officially back - shop the relaunch now', to: '/shop' },
+  { text: '✨ Find your perfect lash with Mini Sanji Chatbot', openChat: true },
+  { text: '💗 Track your lash wears with QT Collection', to: '/account/collection' },
 ]
 
-function MessageRow({ hideOnReducedMotion = false }) {
-  return (
-    <div
-      className={`flex shrink-0 items-center gap-10 pr-10 ${hideOnReducedMotion ? 'motion-reduce:hidden' : ''}`}
-      aria-hidden="true"
-    >
-      {MESSAGES.map((message) => (
-        <span
-          key={message}
-          className="flex items-center gap-10 text-[11px] font-bold uppercase tracking-[0.15em] text-white"
-        >
-          {message}
-          <span className="text-white/50">✦</span>
-        </span>
-      ))}
-    </div>
-  )
-}
-
-// Slow, continuous scrolling strip of trust signals, sat above the navbar.
-// Content is duplicated back to back so the translateX(-50%) loop is seamless;
-// the duplicate is hidden for prefers-reduced-motion so it reads as one static line.
+// Rotating promo strip above the navbar. Cycles through MESSAGES on a timer
+// with a short fade, pausing while a visitor is hovering or has it focused
+// so it never changes mid-read. Each message is a single clickable link/
+// button for its own destination - the chatbot one opens the existing Mini
+// Sanji widget via a custom event rather than navigating, since that widget
+// is mounted globally and already has its own open/closed state.
 export default function AnnouncementBar() {
+  const [index, setIndex] = useState(0)
+  const [visible, setVisible] = useState(true)
+  const [paused, setPaused] = useState(false)
+
+  useEffect(() => {
+    if (paused) return
+    const rotate = window.setInterval(() => {
+      setVisible(false)
+      window.setTimeout(() => {
+        setIndex((i) => (i + 1) % MESSAGES.length)
+        setVisible(true)
+      }, FADE_MS)
+    }, ROTATE_MS)
+    return () => window.clearInterval(rotate)
+  }, [paused])
+
+  const message = MESSAGES[index]
+
+  const textClassName = `block truncate px-10 text-center text-[11px] font-bold uppercase tracking-[0.15em] text-white transition-opacity motion-reduce:transition-none ${
+    visible ? 'opacity-100 duration-300' : 'opacity-0 duration-0'
+  }`
+
   return (
     <div
-      role="note"
-      aria-label={MESSAGES.join(' · ')}
       className="overflow-hidden bg-plum-900 py-2"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
     >
-      <div className="flex w-max animate-marquee motion-reduce:animate-none">
-        <MessageRow />
-        <MessageRow hideOnReducedMotion />
-      </div>
+      {message.openChat ? (
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event('open-mini-sanji'))}
+          className="block w-full"
+        >
+          <span className={textClassName}>{message.text}</span>
+        </button>
+      ) : (
+        <Link to={message.to} className="block w-full">
+          <span className={textClassName}>{message.text}</span>
+        </Link>
+      )}
     </div>
   )
 }

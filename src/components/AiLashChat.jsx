@@ -115,6 +115,14 @@ export default function AiLashChat() {
 
   useEffect(() => () => introTimers.current.forEach(clearTimeout), [])
 
+  // Lets other components (the announcement banner) open the chat without
+  // needing their own copy of this widget's open state
+  useEffect(() => {
+    const handler = () => openChat()
+    window.addEventListener('open-mini-sanji', handler)
+    return () => window.removeEventListener('open-mini-sanji', handler)
+  })
+
   // Sends the sticker, simulates Sanji typing, then "sends" the greeting text
   const playIntroSequence = () => {
     introTimers.current.forEach(clearTimeout)
