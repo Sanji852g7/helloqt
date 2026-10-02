@@ -220,31 +220,31 @@ export default function AiLashChat() {
       <button
         type="button"
         onClick={() => (open ? setOpen(false) : openChat())}
-        className="fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-blush-600 text-white shadow-lift transition hover:bg-blush-700 active:scale-95 sm:bottom-5 sm:right-5 sm:h-16 sm:w-16"
+        className="fixed bottom-4 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-blush-600 text-white shadow-lift transition hover:bg-blush-700 active:scale-95 sm:bottom-5 sm:right-5 sm:h-[3.75rem] sm:w-[3.75rem]"
         aria-label={open ? 'Minimise Mini Sanji chat' : 'Chat with Mini Sanji'}
       >
         {open ? (
-          <MinimizeIcon className="h-6 w-6 sm:h-7 sm:w-7" />
+          <MinimizeIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         ) : (
-          <ChatIcon className="h-6 w-6 sm:h-7 sm:w-7" />
+          <ChatIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         )}
         {!open && badgeCount > 0 && (
           <>
-            <span className="absolute -right-1 -top-1 flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-gold-600 px-1 text-xs font-bold text-white ring-2 ring-cream">
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gold-600 px-1 text-[11px] font-bold text-white ring-2 ring-cream">
               {badgeCount}
             </span>
             <SparkleIcon
               aria-hidden="true"
               fill="currentColor"
               stroke="none"
-              className="absolute -left-2 -top-2.5 h-4 w-4 animate-twinkle text-gold-400"
+              className="absolute -left-1.5 -top-2 h-3.5 w-3.5 animate-twinkle text-gold-400"
             />
           </>
         )}
       </button>
 
       {open && (
-        <div className="fixed bottom-[5.5rem] right-4 z-40 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[1.5rem] border border-blush-200 bg-cream shadow-lift sm:bottom-24 sm:right-5 sm:max-w-[calc(100vw-2.5rem)]">
+        <div className="fixed bottom-[4.75rem] right-4 z-40 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[1.5rem] border border-blush-200 bg-cream shadow-lift sm:bottom-[5.75rem] sm:right-5 sm:max-w-[calc(100vw-2.5rem)]">
           <div className="flex items-center gap-2 border-b border-blush-100 bg-blush-50 px-4 py-3">
             <ChatIcon className="h-4 w-4 text-blush-600" />
             <p className="flex-1 font-display text-sm font-bold text-plum-800">Mini Sanji</p>
