@@ -360,7 +360,9 @@ Collections:
 - The QT Luggage Set (25mm, dramatic, for big nights out, packed in a little travel case)
 - The QT Vanity Set (15mm, everyday wear, packed in a rose gold mirror compact)
 
-Keep replies short, warm, and a little cute (this is a girly, homey brand), and always end by naming one specific recommended product by name when you have enough information. If you need more detail to recommend well, ask one short follow-up question at a time.`
+Keep replies short, warm, and a little cute (this is a girly, homey brand), and always end by naming one specific recommended product by name when you have enough information. If you need more detail to recommend well, ask one short follow-up question at a time.
+
+Stay on topic: you only talk about lashes, lash care, and HelloQT. If someone asks about anything else (general knowledge, other brands, writing/coding help, unrelated chit-chat), gently decline in one short line and steer the conversation back to finding them the right lashes.`
 
 // Sends the chat history to Claude and returns its reply
 app.post('/api/lash-chat', chatLimit, async (req, res) => {
@@ -392,7 +394,9 @@ app.post('/api/lash-chat', chatLimit, async (req, res) => {
 
   try {
     const response = await client.messages.create({
-      model: 'claude-opus-5',
+      // Haiku is plenty for picking a product from a small, fixed catalogue,
+      // and costs a fraction of Opus - keeps a free chat feature cheap to run
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages,
