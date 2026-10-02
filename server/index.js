@@ -399,7 +399,10 @@ app.post('/api/lash-chat', chatLimit, async (req, res) => {
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
-      messages,
+      // The browser also sends a `time` field (for the on-screen timestamp)
+      // that Claude's API rejects as an unknown field, so only role/content
+      // are forwarded
+      messages: messages.map(({ role, content }) => ({ role, content })),
     })
 
     const textBlock = response.content.find((block) => block.type === 'text')
