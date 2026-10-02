@@ -244,6 +244,21 @@ export default function Privacy() {
           privacy settings, or through Pinterest's own ad personalisation settings.
         </p>
         <p>
+          I also use Google Analytics to understand how people generally use this site - which pages
+          get visited, roughly how many people are shopping at a time, and similar. It does not
+          collect your name, email or anything you type into a form. You can opt out of Google
+          Analytics across every site that uses it with Google's own{' '}
+          <a
+            href="https://tools.google.com/dlpage/gaoptout"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            browser opt-out tool
+          </a>
+          .
+        </p>
+        <p>
           Stripe may set its own cookies on its payment page to prevent fraud. That is covered by
           Stripe's own privacy policy.
         </p>
