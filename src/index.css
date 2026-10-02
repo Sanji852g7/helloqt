@@ -12,6 +12,10 @@
     overflow-x: clip;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* Edge/IE */
+    /* Without this, fast scrolling on iOS Safari's elastic overscroll
+       bounce briefly reveals the browser's default white canvas behind
+       the page instead of our actual background */
+    @apply bg-cream;
   }
 
   html::-webkit-scrollbar {
