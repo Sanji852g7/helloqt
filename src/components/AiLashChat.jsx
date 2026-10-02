@@ -22,7 +22,7 @@ function customerInitials(user) {
 }
 
 const GREETING =
-  "heyyy it's Sanji 👋 well, the AI version of me! HelloQT is my brand so need help picking a lash, care tips, or just wanna ask about your order? I got you 💕"
+  "heyyy I'm AI Sanji 👋 the AI version of the real Sanji! HelloQT is my brand so need help picking a lash, comparing styles, or care tips? I got you 💕"
 
 // Circular profile photo shown beside Mini Sanji's messages
 function SanjiAvatar() {
