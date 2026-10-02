@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabaseClient'
 import { ChatIcon, MinimizeIcon, SendIcon, SparkleIcon } from './Icons'
 import { playPop } from '../lib/sound'
 
@@ -173,10 +174,20 @@ export default function AiLashChat() {
     const MIN_TYPING_MS = 1000
     const startedAt = Date.now()
 
+    // Logged-in shoppers get their token sent along, the same way the
+    // discount pop-up checks its own eligibility - lets Mini Sanji mention
+    // a real unused welcome code instead of guessing. Guests just send none.
+    let authHeaders = {}
+    if (user) {
+      const { data: session } = await supabase.auth.getSession()
+      const accessToken = session?.session?.access_token
+      if (accessToken) authHeaders = { Authorization: `Bearer ${accessToken}` }
+    }
+
     try {
       const res = await fetch('/api/lash-chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ messages: nextMessages }),
       })
       const data = await res.json()

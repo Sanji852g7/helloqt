@@ -382,6 +382,8 @@ Application troubleshooting: if a customer describes a problem actually wearing 
 
 Removal and care: if a customer asks how to take their lashes off, clean them, store them, or get more wears out of them, give short, beginner-friendly steps. To remove: never pull or rip them off, since that can damage the band and your natural lashes - instead loosen the glue first (a cotton pad with a little oil-based makeup remover or micellar water pressed along the band for a few seconds works well), then gently peel from the outer corner inward once it has loosened. To clean: once removed, gently wipe any leftover glue off the band with a dry cotton bud or lightly damp cloth - do not soak the lashes or scrub the fibres. To store: let them dry fully, then keep them flat or back in their original case so the band keeps its shape for next time. Handled gently like this is how our lashes reach their 20+ wears.
 
+Discount nudge: if a note below says this customer already has an unused 10% welcome code, mention it naturally once - a good moment is when they seem close to deciding on a lash, not the very first message. Something like "and since you've got your 10% welcome code ready, that's an even better time to grab it" fits well. Never claim a specific customer has a code unless that note says so. If there is no such note (a guest, or a logged-in customer with no code), do not claim they have one - at most, if it comes up naturally (someone asking about price, or deciding between lashes), you can mention that first-time customers can grab 10% off by popping their email into the discount pop-up on the site. Do not bring this up in every message, once in a conversation is plenty.
+
 Keep replies short, warm, and a little cute (this is a girly, homey brand), and always end by naming one specific recommended product by name when you have enough information. If you need more detail to recommend well, ask one short follow-up question at a time.
 
 Write in plain conversational text only - no markdown (no **bold**, no bullet points, no headings, no dashes used as list markers). The chat window displays exactly what you send with no formatting, so anything like that shows up as stray symbols like literal asterisks. This matters most when comparing lashes, since a comparison is the thing most likely to tempt you into a formatted list - write it as flowing sentences instead. For example, when asked to compare two lashes, a good reply reads like: "Halo and Goddess are both 15mm, but they feel pretty different! Halo is soft and rounded through the centre, really dreamy for almond or hooded eyes, while Goddess is our fluffiest volume style, big and editorial. If you want something more natural day to day, go Halo, if you want people to notice, go Goddess." Notice that has no bold text, no line breaks between points, and no bullet list - just normal sentences, exactly like that. The one exception is application troubleshooting: short plain steps written as "1. ... 2. ... 3. ..." are fine there, since a customer fixing something mid-application actually wants a quick numbered fix rather than a sentence to read through.
@@ -429,13 +431,22 @@ app.post('/api/lash-chat', chatLimit, async (req, res) => {
     })
   }
 
+  // Only ever checks the logged-in shopper's own token, same as the
+  // discount popup - a guest or a user with no unread code just gets no
+  // note added, never a guess based on anything the browser claims
+  const user = await userFromRequest(req)
+  const hasCode = user?.email ? await hasUnusedWelcomeCode(user.email.toLowerCase()) : false
+  const customerNote = hasCode
+    ? '\n\nThis customer is logged in and already has an unused 10% welcome code (WELCOME10) sitting on their account from signing up.'
+    : ''
+
   try {
     const response = await client.messages.create({
       // Haiku is plenty for picking a product from a small, fixed catalogue,
       // and costs a fraction of Opus - keeps a free chat feature cheap to run
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + customerNote,
       // The browser also sends a `time` field (for the on-screen timestamp)
       // that Claude's API rejects as an unknown field, so only role/content
       // are forwarded
@@ -461,6 +472,13 @@ const toStripeAmount = (pounds) => Math.round(pounds * 100)
 async function discountIsAvailable(email, code) {
   if (!supabaseAdmin) return false
   if (cleanText(code, 40).toUpperCase() !== WELCOME_CODE) return false
+  return hasUnusedWelcomeCode(email)
+}
+
+// Shared by the discount popup's own eligibility check and Mini Sanji's
+// discount nudge, so both ever only agree on one definition of "eligible"
+async function hasUnusedWelcomeCode(email) {
+  if (!supabaseAdmin) return false
   const { data, error } = await supabaseAdmin
     .from('subscribers')
     .select('used')
