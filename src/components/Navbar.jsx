@@ -135,7 +135,7 @@ export default function Navbar() {
   }, [open])
 
   return (
-    <header className="sticky top-0 z-40 border-b border-blush-200/70 bg-cream/85 backdrop-blur-md">
+    <header className="border-b border-blush-200/70 bg-cream/85 backdrop-blur-md">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-full focus:bg-blush-600 focus:px-4 focus:py-2 focus:text-white"
