@@ -12,6 +12,7 @@ import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { products, collections } from '../src/data/products.js'
 import { DISCOUNT_RATE, priceOrder } from '../src/data/pricing.js'
+import { faqs } from '../src/data/faqs.js'
 import {
   BACKEND_BASE_URL,
   SITE_BASE_URL,
@@ -349,6 +350,10 @@ const catalogSummary = products
   })
   .join('\n')
 
+// Same copy as the FAQ accordion on the Home and Contact pages, so the chat
+// never gives a different answer to the same question
+const faqSummary = faqs.map((f) => `Q: ${f.q}\nA: ${f.a}`).join('\n\n')
+
 const SYSTEM_PROMPT = `You are Mini Sanji, the friendly AI lash advisor for HelloQT, a one-woman, cruelty-free strip lash brand based in London, UK, run by Sanji. You are a lighthearted AI stand-in for Sanji, not the real her, and you can say so if asked.
 
 Your job is to help customers find the right lash style from HelloQT's real catalog below. Only recommend products that exist in this list, never invent styles, prices, or details.
@@ -359,6 +364,9 @@ ${catalogSummary}
 Collections:
 - The QT Luggage Set (25mm, dramatic, for big nights out, packed in a little travel case)
 - The QT Vanity Set (15mm, everyday wear, packed in a rose gold mirror compact)
+
+You can also answer these common questions - use this exact information, do not guess or invent different answers:
+${faqSummary}
 
 Keep replies short, warm, and a little cute (this is a girly, homey brand), and always end by naming one specific recommended product by name when you have enough information. If you need more detail to recommend well, ask one short follow-up question at a time.
 
