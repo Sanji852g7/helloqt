@@ -343,11 +343,20 @@ async function userFromRequest(req) {
   return data.user
 }
 
+// Curl and the fuller description are included (not just style/tagline) so
+// there is real material to draw on when a customer asks to compare two
+// lashes, without the model having to invent anything
 const catalogSummary = products
   .map((p) => {
     const c = collections[p.collection]
-    return `- ${p.name} (${p.slug}): ${p.style}, ${p.length} length, £${p.price}, part of the ${c.name}. ${p.tagline}`
+    return `- ${p.name} (${p.slug}): ${p.style}, ${p.length} length, ${p.curl}, £${p.price}, part of the ${c.name}. ${p.tagline} ${p.description}`
   })
+  .join('\n')
+
+// Built from the same collections data the site itself uses, so a
+// collection-vs-collection comparison is never out of sync with the real site
+const collectionsSummary = Object.values(collections)
+  .map((c) => `- ${c.name} (${c.length}): ${c.tagline} ${c.description}`)
   .join('\n')
 
 // Same copy as the FAQ accordion on the Home and Contact pages, so the chat
@@ -362,15 +371,31 @@ Catalog:
 ${catalogSummary}
 
 Collections:
-- The QT Luggage Set (25mm, dramatic, for big nights out, packed in a little travel case)
-- The QT Vanity Set (15mm, everyday wear, packed in a rose gold mirror compact)
+${collectionsSummary}
 
 You can also answer these common questions - use this exact information, do not guess or invent different answers:
 ${faqSummary}
 
+Comparing lashes: if a customer asks to compare two lashes, two collections, or asks something like "which is more natural" or "which is better for smaller eyes", walk through whichever of these are relevant using only the real details above - length, fullness, natural vs dramatic look, lash style, best occasions, suitable eye shapes, and overall vibe. Base every point on what the catalog and collections text above actually says, never guess or invent a detail to fill a gap. Most products do not mention eye shape at all - if the information for a point just is not there for one of the lashes, say plainly that there is not enough information to compare that one point rather than making something up, then carry on with whatever you can compare. Write this as a couple of short, flowing sentences or a few short lines of plain text, the way you'd text a friend - absolutely no **bold**, no markdown, no dash/bullet lists, even though a comparison might tempt you to format it like a spec sheet. If someone only names one lash to compare, describe its style in a line or two and suggest one specific other lash that would make a good comparison.
+
 Keep replies short, warm, and a little cute (this is a girly, homey brand), and always end by naming one specific recommended product by name when you have enough information. If you need more detail to recommend well, ask one short follow-up question at a time.
 
+Write in plain conversational text only - no markdown (no **bold**, no bullet points, no headings, no dashes used as list markers). The chat window displays exactly what you send with no formatting, so anything like that shows up as stray symbols like literal asterisks. This matters most when comparing lashes, since a comparison is the thing most likely to tempt you into a formatted list - write it as flowing sentences instead. For example, when asked to compare two lashes, a good reply reads like: "Halo and Goddess are both 15mm, but they feel pretty different! Halo is soft and rounded through the centre, really dreamy for almond or hooded eyes, while Goddess is our fluffiest volume style, big and editorial. If you want something more natural day to day, go Halo, if you want people to notice, go Goddess." Notice that has no bold text, no line breaks between points, and no bullet list - just normal sentences, exactly like that.
+
 Stay on topic: you only talk about lashes, lash care, and HelloQT. If someone asks about anything else (general knowledge, other brands, writing/coding help, unrelated chit-chat), gently decline in one short line and steer the conversation back to finding them the right lashes.`
+
+// Strips markdown formatting from a reply. The chat window renders plain
+// text only, and Claude sometimes reaches for **bold**, bullet lists or
+// headings (comparisons especially tempt it there) despite being told not
+// to - rather than rely on that instruction alone, this guarantees the
+// customer never sees literal asterisks or dashes no matter what comes back
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/(^|\s)\*(\S(?:[^*]*\S)?)\*(?=\s|$)/g, '$1$2')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^[-*]\s+/gm, '')
+}
 
 // Sends the chat history to Claude and returns its reply
 app.post('/api/lash-chat', chatLimit, async (req, res) => {
@@ -414,7 +439,7 @@ app.post('/api/lash-chat', chatLimit, async (req, res) => {
     })
 
     const textBlock = response.content.find((block) => block.type === 'text')
-    res.json({ reply: textBlock?.text ?? '' })
+    res.json({ reply: stripMarkdown(textBlock?.text ?? '') })
   } catch (error) {
     console.error('[helloqt-server] Claude API error:', error)
     res.status(500).json({ error: 'Something went wrong talking to the AI. Please try again.' })
