@@ -36,7 +36,10 @@ export default function AnnouncementBar() {
 
   const message = MESSAGES[index]
 
-  const textClassName = `block truncate px-10 text-center text-[11px] font-bold uppercase tracking-[0.15em] text-white transition-opacity motion-reduce:transition-none ${
+  // No longer truncated to one line - on a narrow phone these messages can
+  // run to two lines, so the text wraps and the banner grows to fit instead
+  // of cutting words off
+  const textClassName = `block px-10 text-center text-[11px] font-bold uppercase leading-snug tracking-[0.15em] text-white transition-opacity motion-reduce:transition-none ${
     visible ? 'opacity-100 duration-300' : 'opacity-0 duration-0'
   }`
 
