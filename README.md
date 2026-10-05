@@ -1,7 +1,7 @@
 # HelloQT
 
-A full-stack e-commerce shop for a real cruelty-free strip lash brand, built and run
-by its founder. Ten hand-finished lash styles across two collections, with real card
+A full-stack e-commerce shop for lash brand, built and run
+by its founder(me). Ten hand-finished lash styles across two collections, with real card
 payments, customer accounts, order tracking, a wear-tracking loyalty feature, verified
 reviews, and an AI lash advisor.
 
