@@ -10,6 +10,28 @@ import { pinterestTrack } from '../lib/pinterest'
 const MAX_ATTEMPTS = 12
 const RETRY_DELAY = 1000
 
+// Pinterest's own dedup only reliably matches an event sent by the tag
+// against one sent by the Conversions API - it does not promise to catch two
+// tag-only sends with the same event_id. Reloading or revisiting this page
+// after an order completed would otherwise fire the checkout event again
+// every time, inflating reported conversions for a single real sale.
+const TRACKED_KEY_PREFIX = 'helloqt-pinterest-checkout-tracked-'
+const alreadyTracked = (orderRef) => {
+  try {
+    return localStorage.getItem(TRACKED_KEY_PREFIX + orderRef) === '1'
+  } catch {
+    return false
+  }
+}
+const markTracked = (orderRef) => {
+  try {
+    localStorage.setItem(TRACKED_KEY_PREFIX + orderRef, '1')
+  } catch {
+    // Private browsing or storage disabled - worst case this order can
+    // fire again, same as before this fix
+  }
+}
+
 // Thank-you page shown after a successful Stripe payment
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams()
@@ -49,19 +71,24 @@ export default function CheckoutSuccess() {
 
           // Tells Pinterest the sale happened, so ad spend can be measured
           // against it. event_id matches the server-side Conversions API
-          // event sent from the same order, so Pinterest counts it once.
-          pinterestTrack('checkout', {
-            value: data.total,
-            currency: 'GBP',
-            order_id: data.orderRef,
-            event_id: data.orderRef,
-            line_items: (data.items ?? []).map((item) => ({
-              product_id: item.slug,
-              product_name: item.name,
-              product_price: item.price,
-              product_quantity: item.quantity,
-            })),
-          })
+          // event sent from the same order, so Pinterest counts it once -
+          // but only the first time we ever load this page for this order,
+          // so a reload or revisit never reports the same sale twice
+          if (!alreadyTracked(data.orderRef)) {
+            markTracked(data.orderRef)
+            pinterestTrack('checkout', {
+              value: data.total,
+              currency: 'GBP',
+              order_id: data.orderRef,
+              event_id: data.orderRef,
+              line_items: (data.items ?? []).map((item) => ({
+                product_id: item.slug,
+                product_name: item.name,
+                product_price: item.price,
+                product_quantity: item.quantity,
+              })),
+            })
+          }
           return
         }
       } catch {
