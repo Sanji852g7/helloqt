@@ -147,7 +147,16 @@ function emailFooter({ unsubscribeEmail } = {}) {
 }
 
 // Builds the order confirmation email's HTML body
-export function orderEmailHtml({ orderRef, fullName, items, total, address1, address2, city, postcode }) {
+export function orderEmailHtml({
+  orderRef,
+  fullName,
+  items,
+  total,
+  address1,
+  address2,
+  city,
+  postcode,
+}) {
   const itemRows = items
     .map((item) => {
       const imageUrl = mediaUrl(item.image)

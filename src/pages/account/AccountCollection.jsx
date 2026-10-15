@@ -8,13 +8,18 @@ import { useAccountData } from './AccountLayout'
 
 const formatDate = (value) =>
   value
-    ? new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    ? new Date(value).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
     : null
 
 // Always the UK's own date, whatever timezone a customer's device happens
 // to be set to - the reset always happens at UK midnight, correctly
 // accounting for GMT/BST, rather than each customer's own local day
-const todayStr = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date())
+const todayStr = () =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date())
 
 // One purchased pair: wear tracker, milestone message, and an overflow menu
 // to archive it once it's finished, damaged, or lost
@@ -238,7 +243,9 @@ export default function AccountCollection() {
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blush-50 text-blush-400">
               <HeartIcon className="h-6 w-6" />
             </span>
-            <h3 className="mt-4 font-display text-xl font-bold">Your QT Collection is waiting 💕</h3>
+            <h3 className="mt-4 font-display text-xl font-bold">
+              Your QT Collection is waiting 💕
+            </h3>
             <p className="mt-1.5 text-sm text-plum-500">Your purchased lashes will appear here.</p>
             <Link to="/shop" className="btn-primary mt-5">
               Shop lashes →
@@ -251,7 +258,9 @@ export default function AccountCollection() {
                 type="button"
                 onClick={() => setTab('active')}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  tab === 'active' ? 'bg-blush-600 text-white' : 'text-plum-600 hover:text-blush-700'
+                  tab === 'active'
+                    ? 'bg-blush-600 text-white'
+                    : 'text-plum-600 hover:text-blush-700'
                 }`}
               >
                 My Collection ({active.length})
@@ -260,7 +269,9 @@ export default function AccountCollection() {
                 type="button"
                 onClick={() => setTab('archived')}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  tab === 'archived' ? 'bg-blush-600 text-white' : 'text-plum-600 hover:text-blush-700'
+                  tab === 'archived'
+                    ? 'bg-blush-600 text-white'
+                    : 'text-plum-600 hover:text-blush-700'
                 }`}
               >
                 Archived ({archived.length})
@@ -269,7 +280,9 @@ export default function AccountCollection() {
 
             {visible.length === 0 ? (
               <p className="mt-5 text-sm text-plum-500">
-                {tab === 'active' ? 'Nothing active right now.' : "You haven't archived any pairs yet."}
+                {tab === 'active'
+                  ? 'Nothing active right now.'
+                  : "You haven't archived any pairs yet."}
               </p>
             ) : (
               <div className="mt-5 grid gap-4 sm:grid-cols-2">

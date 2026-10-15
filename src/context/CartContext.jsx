@@ -34,9 +34,7 @@ export function CartProvider({ children }) {
         const existing = current.find((item) => item.slug === product.slug)
         if (existing) {
           return current.map((item) =>
-            item.slug === product.slug
-              ? { ...item, quantity: item.quantity + quantity }
-              : item,
+            item.slug === product.slug ? { ...item, quantity: item.quantity + quantity } : item,
           )
         }
         return [
@@ -79,8 +77,7 @@ export function CartProvider({ children }) {
     }
 
     // Removes a single item from the cart
-    const removeItem = (slug) =>
-      setItems((current) => current.filter((item) => item.slug !== slug))
+    const removeItem = (slug) => setItems((current) => current.filter((item) => item.slug !== slug))
 
     // Empties the whole cart
     const clearCart = () => setItems([])

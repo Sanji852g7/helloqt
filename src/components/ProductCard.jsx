@@ -77,7 +77,11 @@ export default function ProductCard({ product, compact = false }) {
         </h3>
         <p className="mt-1 flex-1 text-sm font-semibold text-blush-600">{product.style}</p>
 
-        <div className={compact ? 'mt-3 flex flex-col gap-2' : 'mt-3 flex items-center justify-between gap-3'}>
+        <div
+          className={
+            compact ? 'mt-3 flex flex-col gap-2' : 'mt-3 flex items-center justify-between gap-3'
+          }
+        >
           <p className="font-display text-lg font-bold text-plum-900">
             {formatPrice(product.price)}
           </p>

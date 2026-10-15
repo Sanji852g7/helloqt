@@ -55,8 +55,7 @@ export default function Navbar() {
     pointerStartRef.current = null
     if (!start) return
     const movedTooFar =
-      Math.abs(e.clientX - start.x) > TAP_TOLERANCE ||
-      Math.abs(e.clientY - start.y) > TAP_TOLERANCE
+      Math.abs(e.clientX - start.x) > TAP_TOLERANCE || Math.abs(e.clientY - start.y) > TAP_TOLERANCE
     // Either way, the click that follows this pointer sequence is already decided here
     handledByPointerRef.current = true
     if (!movedTooFar) setOpen((v) => !v)

@@ -105,8 +105,5 @@ export function maintenancePageHtml() {
 // Keeps a custom maintenance message from being able to inject HTML, since
 // it comes from an environment variable someone could mistype or copy-paste
 function escapeForMaintenancePage(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }

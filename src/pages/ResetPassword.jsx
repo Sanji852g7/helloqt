@@ -27,8 +27,7 @@ export default function ResetPassword() {
     // real reason instead of a generic message when it does
     const params = new URLSearchParams(window.location.search)
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
-    const description =
-      params.get('error_description') || hashParams.get('error_description')
+    const description = params.get('error_description') || hashParams.get('error_description')
     if (description) {
       setLinkErrorMessage(description.replace(/\+/g, ' '))
       setCheckingLink(false)

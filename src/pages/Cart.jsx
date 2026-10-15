@@ -51,7 +51,10 @@ export default function Cart() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h2 className="font-display text-lg font-bold">
-                      <Link to={`/product/${item.slug}`} className="transition hover:text-blush-700">
+                      <Link
+                        to={`/product/${item.slug}`}
+                        className="transition hover:text-blush-700"
+                      >
                         {item.name}
                       </Link>
                     </h2>

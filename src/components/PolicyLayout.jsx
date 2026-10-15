@@ -60,7 +60,10 @@ export default function PolicyLayout({ eyebrow, title, intro, sections, children
         <p className="leading-relaxed text-plum-700">{intro}</p>
 
         {/* Long documents are much easier to use with a way to jump around */}
-        <nav aria-label="On this page" className="mt-8 rounded-3xl border border-blush-200 bg-cream p-6">
+        <nav
+          aria-label="On this page"
+          className="mt-8 rounded-3xl border border-blush-200 bg-cream p-6"
+        >
           <h2 className="font-display text-base font-bold text-plum-900">On this page</h2>
           <ol className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
             {sections.map(({ id, title }, index) => (

@@ -110,7 +110,10 @@ function spawnConfetti(host) {
     el.style.setProperty('--sx', `${Math.cos(angle) * dist}px`)
     el.style.setProperty('--sy-peak', `${Math.sin(angle) * dist}px`)
     el.style.setProperty('--sy-end', `${Math.sin(angle) * dist + gravityDrop}px`)
-    el.style.setProperty('--srot', `${(Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 60)}deg`)
+    el.style.setProperty(
+      '--srot',
+      `${(Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 60)}deg`,
+    )
     el.style.animationDelay = '0s'
 
     document.body.appendChild(el)

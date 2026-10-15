@@ -53,7 +53,11 @@ function CustomerAvatar({ initials = 'QT' }) {
 // Three bouncing dots shown while Mini Sanji is "typing"
 function TypingDots() {
   return (
-    <div className="flex items-center gap-1 px-1 py-1" role="status" aria-label="Mini Sanji is typing">
+    <div
+      className="flex items-center gap-1 px-1 py-1"
+      role="status"
+      aria-label="Mini Sanji is typing"
+    >
       <span
         className="h-1.5 w-1.5 animate-bounce rounded-full bg-plum-400"
         style={{ animationDelay: '0ms' }}
@@ -360,7 +364,10 @@ export default function AiLashChat() {
             )}
           </div>
 
-          <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-blush-100 p-3">
+          <form
+            onSubmit={sendMessage}
+            className="flex items-center gap-2 border-t border-blush-100 p-3"
+          >
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}

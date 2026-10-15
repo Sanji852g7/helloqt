@@ -14,7 +14,12 @@ export default function AccountDetails() {
     <div>
       <BackToAccount />
       <div className="mt-3">
-        <AddressCard user={user} profile={profile} fallbackOrder={savedAddress} onSaved={refreshProfile} />
+        <AddressCard
+          user={user}
+          profile={profile}
+          fallbackOrder={savedAddress}
+          onSaved={refreshProfile}
+        />
       </div>
     </div>
   )

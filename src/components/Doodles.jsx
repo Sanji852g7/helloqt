@@ -3,12 +3,7 @@
 
 // Wavy hand-drawn line used under headings
 export const Squiggle = ({ className = '' }) => (
-  <svg
-    viewBox="0 0 220 18"
-    className={className}
-    aria-hidden="true"
-    preserveAspectRatio="none"
-  >
+  <svg viewBox="0 0 220 18" className={className} aria-hidden="true" preserveAspectRatio="none">
     <path
       d="M2 12c14-14 28 4 42-4s28 12 42 4 28-12 42-4 28 12 42 4 28-10 42-2"
       fill="none"
@@ -22,17 +17,8 @@ export const Squiggle = ({ className = '' }) => (
 // Little heart-topped stem doodle for the letter section
 export const HeartStem = ({ className = '' }) => (
   <svg viewBox="0 0 40 90" className={className} aria-hidden="true">
-    <path
-      d="M20 88V30"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M20 30c0-7-6-11-11-8-4 2.4-4.4 8 1 11 3.4 2 7-.6 10-3Z"
-      fill="currentColor"
-    />
+    <path d="M20 88V30" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M20 30c0-7-6-11-11-8-4 2.4-4.4 8 1 11 3.4 2 7-.6 10-3Z" fill="currentColor" />
     <path
       d="M20 46c0-7-6.5-11.5-11.6-8.3-4.4 2.7-4.6 8.6 1 11.7 3.6 2 7.4-.7 10.6-3.4Z"
       fill="currentColor"
@@ -75,12 +61,7 @@ export const TapeStrip = ({ className = '' }) => (
 
 // Dashed stitch-style underline accent
 export const StitchUnderline = ({ className = '' }) => (
-  <svg
-    viewBox="0 0 160 10"
-    className={className}
-    aria-hidden="true"
-    preserveAspectRatio="none"
-  >
+  <svg viewBox="0 0 160 10" className={className} aria-hidden="true" preserveAspectRatio="none">
     <line
       x1="2"
       y1="5"

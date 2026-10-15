@@ -15,19 +15,19 @@ on Stripe's live keys.
 
 ## What it does
 
-| Area | Built |
-|---|---|
-| **Shop** | 10 products, 2 collections, filtering, product pages, basket |
-| **Payments** | Stripe Checkout, prices calculated server-side, webhook-confirmed orders, saved Stripe Customer records |
-| **Accounts** | Supabase Auth, a dashboard (orders, favourites, collection, details), editable name/address, forgot-password flow |
-| **Fulfilment** | Automatic order + shipping emails with Royal Mail tracking |
-| **Favourites** | Save products while logged in, revisit them from the account dashboard |
-| **My QT Collection** | Each delivered pair becomes a trackable item with once-a-day wear logging and milestones |
-| **Reviews** | Review link emailed on delivery, proof-of-purchase via a signed token, manually moderated before going live |
-| **Marketing** | Email capture, one-per-customer welcome code, signed unsubscribe links, GA4 and Pinterest tracking (client tag + server-side Conversions API) |
-| **AI** | Mini Sanji, a lash advisor grounded in the live product catalogue and site FAQs, kept on-topic |
-| **Ops** | Maintenance-mode toggle (one env var, payment/order webhooks stay exempt), a contact form with working replies |
-| **Legal** | UK-researched privacy policy and terms, GDPR lawful-basis table |
+| Area                 | Built                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Shop**             | 10 products, 2 collections, filtering, product pages, basket                                                                                  |
+| **Payments**         | Stripe Checkout, prices calculated server-side, webhook-confirmed orders, saved Stripe Customer records                                       |
+| **Accounts**         | Supabase Auth, a dashboard (orders, favourites, collection, details), editable name/address, forgot-password flow                             |
+| **Fulfilment**       | Automatic order + shipping emails with Royal Mail tracking                                                                                    |
+| **Favourites**       | Save products while logged in, revisit them from the account dashboard                                                                        |
+| **My QT Collection** | Each delivered pair becomes a trackable item with once-a-day wear logging and milestones                                                      |
+| **Reviews**          | Review link emailed on delivery, proof-of-purchase via a signed token, manually moderated before going live                                   |
+| **Marketing**        | Email capture, one-per-customer welcome code, signed unsubscribe links, GA4 and Pinterest tracking (client tag + server-side Conversions API) |
+| **AI**               | Mini Sanji, a lash advisor grounded in the live product catalogue and site FAQs, kept on-topic                                                |
+| **Ops**              | Maintenance-mode toggle (one env var, payment/order webhooks stay exempt), a contact form with working replies                                |
+| **Legal**            | UK-researched privacy policy and terms, GDPR lawful-basis table                                                                               |
 
 ---
 
@@ -113,7 +113,7 @@ existing order before inserting. The same payment processed twice produces one o
 
 ### Discounts consume with rollback
 
-The welcome code is one-use-per-customer. It's marked used *before* the order is
+The welcome code is one-use-per-customer. It's marked used _before_ the order is
 inserted, and rolled back if the insert fails — so a failed order never silently
 burns someone's discount.
 
@@ -166,16 +166,16 @@ sale invisible to ad spend reporting.
 After discovering that guest orders were readable by anyone holding the public key,
 the whole surface was audited. **17 tests, 8 vulnerabilities found and fixed:**
 
-| Issue | Fix |
-|---|---|
-| Client-controlled prices | Server-side pricing from the catalogue |
-| Open email relay | Public send endpoint removed; email only sent as part of a real order |
-| Forgeable shipping emails | Shared-secret header on the webhook, failing closed |
-| HTML injection via customer name | All interpolated values escaped |
-| Discount codes burnable by anyone | Public consume endpoint removed |
-| Customer email enumeration | Single shared response for "used" and "not subscribed" |
-| Anyone could unsubscribe anyone | HMAC-signed unsubscribe links |
-| No rate limiting | Per-IP limits on every endpoint |
+| Issue                             | Fix                                                                   |
+| --------------------------------- | --------------------------------------------------------------------- |
+| Client-controlled prices          | Server-side pricing from the catalogue                                |
+| Open email relay                  | Public send endpoint removed; email only sent as part of a real order |
+| Forgeable shipping emails         | Shared-secret header on the webhook, failing closed                   |
+| HTML injection via customer name  | All interpolated values escaped                                       |
+| Discount codes burnable by anyone | Public consume endpoint removed                                       |
+| Customer email enumeration        | Single shared response for "used" and "not subscribed"                |
+| Anyone could unsubscribe anyone   | HMAC-signed unsubscribe links                                         |
+| No rate limiting                  | Per-IP limits on every endpoint                                       |
 
 Each fix was re-tested by re-running the original attack. Every customer-entered
 value interpolated into an email (name, address, phone, message) passes through

@@ -61,7 +61,10 @@ export default function CustomCursor() {
         const isText = Boolean(event.target?.closest?.(TEXT_SELECTOR))
         handRef.current.classList.toggle('is-hand', Boolean(clickableEl))
         handRef.current.classList.toggle('is-text', isText)
-        handRef.current.classList.toggle('on-dark', Boolean(clickableEl && needsWhiteCursor(clickableEl)))
+        handRef.current.classList.toggle(
+          'on-dark',
+          Boolean(clickableEl && needsWhiteCursor(clickableEl)),
+        )
       }
     }
     const handleLeave = () => {

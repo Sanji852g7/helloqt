@@ -84,10 +84,7 @@ export default function FavouriteButton({ slug, className, iconClassName = 'h-4 
       aria-pressed={saved}
       className={className}
     >
-      <HeartIcon
-        className={iconClassName}
-        fill={saved ? 'currentColor' : 'none'}
-      />
+      <HeartIcon className={iconClassName} fill={saved ? 'currentColor' : 'none'} />
     </button>
   )
 }

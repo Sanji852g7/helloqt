@@ -267,15 +267,15 @@ export default function Privacy() {
       <Section id="reviews" title="Leaving a review">
         <p>
           After your order is marked delivered, I may email you a one-time link inviting you to
-          leave a review, no account or login needed. If you choose to leave one, I collect the
-          star rating and review text you write.
+          leave a review, no account or login needed. If you choose to leave one, I collect the star
+          rating and review text you write.
         </p>
         <p>
           Every review is checked by me before it goes live, so submitting one does not publish it
-          immediately. Once approved, it is shown publicly on the product page under your first
-          name and last initial only (for example, "Sarah M.") - this is generated automatically
-          from your order, and your full surname is never published. You can leave one review per
-          product per order.
+          immediately. Once approved, it is shown publicly on the product page under your first name
+          and last initial only (for example, "Sarah M.") - this is generated automatically from
+          your order, and your full surname is never published. You can leave one review per product
+          per order.
         </p>
       </Section>
 
@@ -308,8 +308,8 @@ export default function Privacy() {
           <li>Withdraw your consent to marketing at any time</li>
         </ul>
         <p>
-          Email <EmailLink /> and I will respond within one month. It is free, and I will not ask you
-          why.
+          Email <EmailLink /> and I will respond within one month. It is free, and I will not ask
+          you why.
         </p>
       </Section>
 

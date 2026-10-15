@@ -179,7 +179,9 @@ export default function Login() {
               {mode === 'signin' ? 'Log in' : 'Create an account'}
             </h1>
             <p className="mt-1.5 text-sm text-plum-600">
-              {mode === 'signin' ? 'Welcome back, QT 💕' : 'Track your orders and check out faster.'}
+              {mode === 'signin'
+                ? 'Welcome back, QT 💕'
+                : 'Track your orders and check out faster.'}
             </p>
 
             {error && (
@@ -248,7 +250,10 @@ export default function Login() {
               </div>
               <div>
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-plum-700">
+                  <label
+                    htmlFor="password"
+                    className="mb-1.5 block text-sm font-semibold text-plum-700"
+                  >
                     Password
                   </label>
                   {mode === 'signin' && (
@@ -325,7 +330,10 @@ export default function Login() {
               )}
 
               {mode === 'signup' && (
-                <label htmlFor="agreedToTerms" className="flex items-start gap-2.5 text-sm text-plum-600">
+                <label
+                  htmlFor="agreedToTerms"
+                  className="flex items-start gap-2.5 text-sm text-plum-600"
+                >
                   <input
                     id="agreedToTerms"
                     type="checkbox"
@@ -336,11 +344,19 @@ export default function Login() {
                   />
                   <span>
                     I agree to the{' '}
-                    <Link to="/terms" target="_blank" className="font-semibold text-blush-700 underline">
+                    <Link
+                      to="/terms"
+                      target="_blank"
+                      className="font-semibold text-blush-700 underline"
+                    >
                       Terms
                     </Link>{' '}
                     and{' '}
-                    <Link to="/privacy" target="_blank" className="font-semibold text-blush-700 underline">
+                    <Link
+                      to="/privacy"
+                      target="_blank"
+                      className="font-semibold text-blush-700 underline"
+                    >
                       Privacy Policy
                     </Link>
                   </span>
@@ -357,7 +373,9 @@ export default function Login() {
               onClick={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}
               className="mt-5 w-full text-center text-sm font-semibold text-blush-700 transition hover:text-blush-800"
             >
-              {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
+              {mode === 'signin'
+                ? "Don't have an account? Sign up"
+                : 'Already have an account? Log in'}
             </button>
           </>
         )}

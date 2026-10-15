@@ -55,7 +55,9 @@ const validate = (values) => {
 // server-side check on submit is the real, unbypassable gate either way.
 async function postcodeExists(postcode) {
   try {
-    const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}/validate`)
+    const res = await fetch(
+      `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}/validate`,
+    )
     if (!res.ok) return true
     const data = await res.json()
     return Boolean(data.result)
@@ -163,7 +165,10 @@ export default function Checkout() {
         // Ignore a stale result if they've since changed the postcode
         if (valuesRef.current.postcode?.trim() !== postcode) return
         if (!exists) {
-          setErrors((e) => ({ ...e, postcode: "That postcode doesn't seem to exist - please check it." }))
+          setErrors((e) => ({
+            ...e,
+            postcode: "That postcode doesn't seem to exist - please check it.",
+          }))
         }
       })
     }
@@ -215,7 +220,10 @@ export default function Checkout() {
     const postcodeIsReal = await postcodeExists(values.postcode.trim())
     if (!postcodeIsReal) {
       setSubmitting(false)
-      setErrors((e) => ({ ...e, postcode: "That postcode doesn't seem to exist - please check it." }))
+      setErrors((e) => ({
+        ...e,
+        postcode: "That postcode doesn't seem to exist - please check it.",
+      }))
       window.requestAnimationFrame(() => summaryRef.current?.focus())
       return
     }
@@ -307,7 +315,9 @@ export default function Checkout() {
 
           <fieldset className="rounded-3xl border border-blush-200 bg-white p-6 sm:p-8">
             <legend className="px-2 font-display text-xl font-bold">Delivery details</legend>
-            <p className="mt-1 text-sm text-plum-500">UK addresses only - I don't currently ship internationally.</p>
+            <p className="mt-1 text-sm text-plum-500">
+              UK addresses only - I don't currently ship internationally.
+            </p>
 
             <div className="mt-4 grid gap-5 sm:grid-cols-2">
               {fields.map((field) => {
@@ -347,7 +357,10 @@ export default function Checkout() {
                       required={!field.optional}
                       aria-invalid={invalid}
                       aria-describedby={
-                        [field.hint ? `${field.id}-hint` : null, invalid ? `${field.id}-error` : null]
+                        [
+                          field.hint ? `${field.id}-hint` : null,
+                          invalid ? `${field.id}-error` : null,
+                        ]
                           .filter(Boolean)
                           .join(' ') || undefined
                       }
@@ -359,7 +372,10 @@ export default function Checkout() {
                     )}
 
                     {invalid && (
-                      <p id={`${field.id}-error`} className="mt-1.5 text-sm font-medium text-red-700">
+                      <p
+                        id={`${field.id}-error`}
+                        className="mt-1.5 text-sm font-medium text-red-700"
+                      >
                         {errors[field.id]}
                       </p>
                     )}
@@ -379,8 +395,8 @@ export default function Checkout() {
           <div className="mt-6 flex items-center gap-2.5 rounded-2xl border border-gold-300 bg-gold-100/60 p-4 text-sm text-plum-700">
             <LockIcon className="h-5 w-5 shrink-0 text-gold-700" />
             <p>
-              Payment is handled securely by Stripe. Your card details go straight to them and
-              are never seen by HelloQT.
+              Payment is handled securely by Stripe. Your card details go straight to them and are
+              never seen by HelloQT.
             </p>
           </div>
 

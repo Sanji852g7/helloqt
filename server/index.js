@@ -202,7 +202,9 @@ if (!ORDER_WEBHOOK_SECRET) {
 
 // Checks a string looks like a real email address and is a sensible length
 function isValidEmail(value) {
-  return typeof value === 'string' && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  return (
+    typeof value === 'string' && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  )
 }
 
 // Trims a free-text field and cuts it off at a maximum length
@@ -222,15 +224,22 @@ function cleanText(value, maxLength) {
  */
 async function isRealUkPostcode(postcode) {
   try {
-    const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}/validate`)
+    const res = await fetch(
+      `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}/validate`,
+    )
     if (!res.ok) {
-      console.warn(`[helloqt-server] postcodes.io returned ${res.status}, allowing the order through`)
+      console.warn(
+        `[helloqt-server] postcodes.io returned ${res.status}, allowing the order through`,
+      )
       return true
     }
     const data = await res.json()
     return Boolean(data.result)
   } catch (error) {
-    console.warn('[helloqt-server] postcodes.io lookup failed, allowing the order through:', error.message)
+    console.warn(
+      '[helloqt-server] postcodes.io lookup failed, allowing the order through:',
+      error.message,
+    )
     return true
   }
 }
@@ -295,7 +304,10 @@ async function reportPinterestPurchase({ eventId, email, total, items }) {
       )
     }
   } catch (error) {
-    console.error(`[helloqt-server] Pinterest Conversions API call failed for order ${eventId}:`, error)
+    console.error(
+      `[helloqt-server] Pinterest Conversions API call failed for order ${eventId}:`,
+      error,
+    )
   }
 }
 
@@ -424,12 +436,15 @@ app.post('/api/lash-chat', chatLimit, async (req, res) => {
   )
 
   if (!validShape) {
-    return res.status(400).json({ error: 'Each message needs a role and text under 2000 characters' })
+    return res
+      .status(400)
+      .json({ error: 'Each message needs a role and text under 2000 characters' })
   }
 
   if (!client) {
     return res.status(503).json({
-      error: 'AI chat is not configured yet. Add ANTHROPIC_API_KEY to a .env file and restart the server.',
+      error:
+        'AI chat is not configured yet. Add ANTHROPIC_API_KEY to a .env file and restart the server.',
     })
   }
 
@@ -607,8 +622,18 @@ app.post('/api/create-checkout-session', orderLimit, async (req, res) => {
 // Saves a paid order and emails the confirmation. Only ever called after
 // Stripe has confirmed the money arrived.
 async function savePaidOrder(session) {
-  const { email, fullName, cart, userId, discountApplied, phone, address1, address2, city, postcode } =
-    session.metadata ?? {}
+  const {
+    email,
+    fullName,
+    cart,
+    userId,
+    discountApplied,
+    phone,
+    address1,
+    address2,
+    city,
+    postcode,
+  } = session.metadata ?? {}
   if (!email || !cart) throw new Error('payment is missing its order details')
 
   // Already handled? Stripe retries webhooks, and a customer refreshing the
@@ -820,9 +845,9 @@ app.post('/api/contact', emailLimit, async (req, res) => {
   })
 
   if (!sent) {
-    return res
-      .status(502)
-      .json({ error: 'Something went wrong sending your message. Please email us directly instead.' })
+    return res.status(502).json({
+      error: 'Something went wrong sending your message. Please email us directly instead.',
+    })
   }
   res.json({ sent: true })
 })
@@ -942,7 +967,11 @@ app.get('/api/unsubscribe', emailLimit, async (req, res) => {
   const email = cleanText(req.query.email, 254).toLowerCase()
   const token = cleanText(req.query.t, 64)
 
-  if (!isValidEmail(email) || !supabaseAdmin || !secretsMatch(token, unsubscribeToken(email) ?? '')) {
+  if (
+    !isValidEmail(email) ||
+    !supabaseAdmin ||
+    !secretsMatch(token, unsubscribeToken(email) ?? '')
+  ) {
     return res.status(400).send(unsubscribePageHtml({ success: false }))
   }
 
@@ -963,7 +992,10 @@ app.get('/api/unsubscribe', emailLimit, async (req, res) => {
 // request the moment it first flips to "delivered". The shared secret header
 // stops anyone else sending fake emails through this endpoint.
 app.post('/api/order-webhook', async (req, res) => {
-  if (!ORDER_WEBHOOK_SECRET || !secretsMatch(req.headers['x-webhook-secret'] ?? '', ORDER_WEBHOOK_SECRET)) {
+  if (
+    !ORDER_WEBHOOK_SECRET ||
+    !secretsMatch(req.headers['x-webhook-secret'] ?? '', ORDER_WEBHOOK_SECRET)
+  ) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
@@ -1176,7 +1208,9 @@ if (fs.existsSync(distDir)) {
     res.sendFile(path.join(distDir, 'index.html'))
   })
 } else {
-  console.log('[helloqt-server] No dist/ folder found — run `npm run build` to serve the shop from here.')
+  console.log(
+    '[helloqt-server] No dist/ folder found — run `npm run build` to serve the shop from here.',
+  )
 }
 
 // Starts the Express server: the API, and the shop itself once built

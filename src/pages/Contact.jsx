@@ -188,7 +188,9 @@ export default function Contact() {
                       setErrors(validate(values))
                     }}
                     aria-invalid={Boolean(errors.message && touched.message)}
-                    aria-describedby={errors.message && touched.message ? 'message-error' : undefined}
+                    aria-describedby={
+                      errors.message && touched.message ? 'message-error' : undefined
+                    }
                     className={`field resize-y ${errors.message && touched.message ? 'border-red-400 focus:border-red-500 focus:ring-red-200' : ''}`}
                   />
                   {errors.message && touched.message && (

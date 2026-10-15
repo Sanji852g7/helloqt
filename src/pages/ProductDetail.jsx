@@ -164,7 +164,8 @@ export default function ProductDetail() {
             <div className="mt-3 flex items-center gap-2">
               <Stars rating={averageRating} />
               <span className="text-sm text-plum-500">
-                {averageRating.toFixed(1)} · {reviews.length} review{reviews.length === 1 ? '' : 's'}
+                {averageRating.toFixed(1)} · {reviews.length} review
+                {reviews.length === 1 ? '' : 's'}
               </span>
             </div>
           )}
@@ -231,7 +232,10 @@ export default function ProductDetail() {
               { icon: RepeatIcon, text: product.wears },
               { icon: TruckIcon, text: 'Free over £40' },
             ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2.5 text-sm font-semibold text-plum-700">
+              <div
+                key={text}
+                className="flex items-center gap-2.5 text-sm font-semibold text-plum-700"
+              >
                 <Icon className="h-5 w-5 shrink-0 text-blush-600" />
                 {text}
               </div>
@@ -259,10 +263,7 @@ export default function ProductDetail() {
         ) : (
           <div className="mt-6 space-y-5">
             {reviews.map((review, i) => (
-              <div
-                key={i}
-                className="rounded-3xl border border-blush-200 bg-white p-6 shadow-soft"
-              >
+              <div key={i} className="rounded-3xl border border-blush-200 bg-white p-6 shadow-soft">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Stars rating={review.rating} />

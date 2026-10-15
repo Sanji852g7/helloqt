@@ -49,7 +49,9 @@ export default function Review() {
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'That review link is invalid or has expired.')
         setItems(data.items)
-        setSlug(data.items.find((item) => !item.alreadyReviewed)?.slug ?? data.items[0]?.slug ?? null)
+        setSlug(
+          data.items.find((item) => !item.alreadyReviewed)?.slug ?? data.items[0]?.slug ?? null,
+        )
       })
       .catch((err) => setLoadError(err.message))
       .finally(() => setLoading(false))
@@ -74,7 +76,9 @@ export default function Review() {
       if (!res.ok) throw new Error(data.error || 'Something went wrong saving your review.')
       // Marked locally too, so a second lash on the same order can be
       // reviewed straight away instead of needing the email link reopened
-      setItems((prev) => prev.map((item) => (item.slug === slug ? { ...item, alreadyReviewed: true } : item)))
+      setItems((prev) =>
+        prev.map((item) => (item.slug === slug ? { ...item, alreadyReviewed: true } : item)),
+      )
       setSent(true)
       playChime()
       setShowConfetti(true)
@@ -115,8 +119,8 @@ export default function Review() {
             </span>
             <h1 className="mt-5 font-display text-xl font-bold">Thank you! 💕</h1>
             <p className="mt-2 text-plum-600">
-              Your review has been sent - feedback like yours genuinely helps a small business
-              like mine grow, so thank you so much for taking the time.
+              Your review has been sent - feedback like yours genuinely helps a small business like
+              mine grow, so thank you so much for taking the time.
             </p>
 
             {nextUnreviewed && (
@@ -124,7 +128,11 @@ export default function Review() {
                 <p className="text-sm font-semibold text-plum-700">
                   Got a moment for {nextUnreviewed.name} too?
                 </p>
-                <button type="button" onClick={handleReviewAnother} className="btn-primary mt-3 w-full">
+                <button
+                  type="button"
+                  onClick={handleReviewAnother}
+                  className="btn-primary mt-3 w-full"
+                >
                   Review {nextUnreviewed.name}
                 </button>
               </div>
@@ -133,12 +141,17 @@ export default function Review() {
         ) : (
           <>
             <h1 className="font-display text-2xl font-bold">How was it?</h1>
-            <p className="mt-1.5 text-sm text-plum-600">Your review helps other QTs shop with confidence.</p>
+            <p className="mt-1.5 text-sm text-plum-600">
+              Your review helps other QTs shop with confidence.
+            </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-5 text-left">
               {items.length > 1 && (
                 <div>
-                  <label htmlFor="product" className="mb-1.5 block text-sm font-semibold text-plum-700">
+                  <label
+                    htmlFor="product"
+                    className="mb-1.5 block text-sm font-semibold text-plum-700"
+                  >
                     Which lash?
                   </label>
                   <select
@@ -171,7 +184,10 @@ export default function Review() {
                   </div>
 
                   <div>
-                    <label htmlFor="body" className="mb-1.5 block text-sm font-semibold text-plum-700">
+                    <label
+                      htmlFor="body"
+                      className="mb-1.5 block text-sm font-semibold text-plum-700"
+                    >
                       Your review
                     </label>
                     <textarea

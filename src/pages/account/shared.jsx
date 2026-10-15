@@ -285,7 +285,13 @@ export function AddressCard({ user, profile, fallbackOrder, onSaved }) {
     },
     { id: 'phone', label: 'Phone number', type: 'tel', autoComplete: 'tel', optional: true },
     { id: 'address1', label: 'Address line 1', type: 'text', autoComplete: 'address-line1' },
-    { id: 'address2', label: 'Address line 2', type: 'text', autoComplete: 'address-line2', optional: true },
+    {
+      id: 'address2',
+      label: 'Address line 2',
+      type: 'text',
+      autoComplete: 'address-line2',
+      optional: true,
+    },
     { id: 'city', label: 'Town or city', type: 'text', autoComplete: 'address-level2' },
     { id: 'postcode', label: 'Postcode', type: 'text', autoComplete: 'postal-code' },
   ]
@@ -313,7 +319,9 @@ export function AddressCard({ user, profile, fallbackOrder, onSaved }) {
         <div className="mt-4 space-y-4 text-sm">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-plum-400">Name</p>
-            <p className="mt-0.5 text-plum-700">{displayName || display?.full_name || 'Not set yet'}</p>
+            <p className="mt-0.5 text-plum-700">
+              {displayName || display?.full_name || 'Not set yet'}
+            </p>
           </div>
 
           <div>
@@ -321,7 +329,9 @@ export function AddressCard({ user, profile, fallbackOrder, onSaved }) {
             {user.user_metadata?.nickname ? (
               <p className="mt-0.5 text-plum-700">{user.user_metadata.nickname}</p>
             ) : (
-              <p className="mt-0.5 text-plum-500">Not set - add one to use in your greeting instead of your first name.</p>
+              <p className="mt-0.5 text-plum-500">
+                Not set - add one to use in your greeting instead of your first name.
+              </p>
             )}
           </div>
 
@@ -356,7 +366,9 @@ export function AddressCard({ user, profile, fallbackOrder, onSaved }) {
                 {display.postcode}
               </address>
             ) : (
-              <p className="mt-0.5 text-plum-500">Not added yet - we'll suggest it at checkout once you do.</p>
+              <p className="mt-0.5 text-plum-500">
+                Not added yet - we'll suggest it at checkout once you do.
+              </p>
             )}
           </div>
 
@@ -365,7 +377,10 @@ export function AddressCard({ user, profile, fallbackOrder, onSaved }) {
       ) : (
         <form onSubmit={handleSave} className="mt-4">
           <div className="mb-4">
-            <label htmlFor="account-email" className="mb-1.5 block text-sm font-semibold text-plum-700">
+            <label
+              htmlFor="account-email"
+              className="mb-1.5 block text-sm font-semibold text-plum-700"
+            >
               Email
             </label>
             <input
@@ -389,7 +404,10 @@ export function AddressCard({ user, profile, fallbackOrder, onSaved }) {
               const wide = ['address1', 'address2', 'nickname'].includes(field.id)
               return (
                 <div key={field.id} className={wide ? 'sm:col-span-2' : ''}>
-                  <label htmlFor={field.id} className="mb-1.5 block text-sm font-semibold text-plum-700">
+                  <label
+                    htmlFor={field.id}
+                    className="mb-1.5 block text-sm font-semibold text-plum-700"
+                  >
                     {field.label}
                     {!field.optional && (
                       <span className="ml-1 text-blush-600" aria-hidden="true">

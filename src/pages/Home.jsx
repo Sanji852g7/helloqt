@@ -22,8 +22,16 @@ const promises = [
 ]
 
 const steps = [
-  { n: '01', title: 'Pick your style', body: 'QT Luggage Set for drama, QT Vanity Set for every day.' },
-  { n: '02', title: 'Measure & trim', body: 'Trim the band to fit your lash line before applying.' },
+  {
+    n: '01',
+    title: 'Pick your style',
+    body: 'QT Luggage Set for drama, QT Vanity Set for every day.',
+  },
+  {
+    n: '02',
+    title: 'Measure & trim',
+    body: 'Trim the band to fit your lash line before applying.',
+  },
   { n: '03', title: 'Apply & go', body: 'A thin line of glue, wait 30 seconds, press into place.' },
 ]
 
@@ -40,7 +48,7 @@ export default function Home() {
   // tablet and phone always use tap regardless of what the device claims to
   // support. Reactive to resize/rotation, not just read once on mount.
   const [isDesktopWidth, setIsDesktopWidth] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches,
   )
   useEffect(() => {
     const mql = window.matchMedia('(min-width: 1024px)')
@@ -105,12 +113,16 @@ export default function Home() {
             to="/shop?collection=suitcase#suitcase"
             onMouseEnter={isDesktopWidth ? () => setHeroHover('left') : undefined}
             onMouseLeave={isDesktopWidth ? () => setHeroHover(null) : undefined}
-            onFocus={() => setHeroHover('left')}
-            onBlur={() => setHeroHover(null)}
+            onFocus={isDesktopWidth ? () => setHeroHover('left') : undefined}
+            onBlur={isDesktopWidth ? () => setHeroHover(null) : undefined}
             onTouchEnd={handleHeroActivate('left')}
             onClick={handleHeroActivate('left')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
-              heroHover === 'right' ? 'basis-[0%]' : heroHover === 'left' ? 'basis-full' : 'basis-1/2'
+              heroHover === 'right'
+                ? 'basis-[0%]'
+                : heroHover === 'left'
+                  ? 'basis-full'
+                  : 'basis-1/2'
             }`}
             aria-label="Shop the QT Luggage Set"
           >
@@ -120,7 +132,9 @@ export default function Home() {
               width="1080"
               height="1080"
               className={`h-full w-full ${
-                heroHover === 'left' ? 'object-cover' : 'object-contain bg-white lg:object-cover lg:bg-transparent'
+                heroHover === 'left'
+                  ? 'object-cover'
+                  : 'object-contain bg-white lg:object-cover lg:bg-transparent'
               }`}
             />
             {/* Crossfades in to focus on the lash itself once this side takes over the screen */}
@@ -144,7 +158,9 @@ export default function Home() {
                 heroHover === 'left' ? 'opacity-100 delay-150' : 'pointer-events-none opacity-0'
               }`}
             >
-              <span className="font-display text-2xl font-bold sm:text-3xl">The QT Luggage Set 🧳</span>
+              <span className="font-display text-2xl font-bold sm:text-3xl">
+                The QT Luggage Set 🧳
+              </span>
               <span className="max-w-xs text-sm text-white/85">
                 Our boldest, most dramatic lashes, tucked into their own little travel case.
               </span>
@@ -159,12 +175,16 @@ export default function Home() {
             to="/shop?collection=compact#compact"
             onMouseEnter={isDesktopWidth ? () => setHeroHover('right') : undefined}
             onMouseLeave={isDesktopWidth ? () => setHeroHover(null) : undefined}
-            onFocus={() => setHeroHover('right')}
-            onBlur={() => setHeroHover(null)}
+            onFocus={isDesktopWidth ? () => setHeroHover('right') : undefined}
+            onBlur={isDesktopWidth ? () => setHeroHover(null) : undefined}
             onTouchEnd={handleHeroActivate('right')}
             onClick={handleHeroActivate('right')}
             className={`relative min-h-0 min-w-0 overflow-hidden transition-all duration-700 ease-out ${
-              heroHover === 'left' ? 'basis-[0%]' : heroHover === 'right' ? 'basis-full' : 'basis-1/2'
+              heroHover === 'left'
+                ? 'basis-[0%]'
+                : heroHover === 'right'
+                  ? 'basis-full'
+                  : 'basis-1/2'
             }`}
             aria-label="Shop the QT Vanity Set"
           >
@@ -189,7 +209,9 @@ export default function Home() {
                 heroHover === 'right' ? 'opacity-100 delay-150' : 'pointer-events-none opacity-0'
               }`}
             >
-              <span className="font-display text-2xl font-bold sm:text-3xl">The QT Vanity Set 🪞</span>
+              <span className="font-display text-2xl font-bold sm:text-3xl">
+                The QT Vanity Set 🪞
+              </span>
               <span className="max-w-xs text-sm text-white/85">
                 Cute, compact everyday lashes with their own mirrored little home.
               </span>
@@ -204,29 +226,33 @@ export default function Home() {
               since there's no hover there to reveal it by moving the mouse away */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
               revealedSideRef.current = 'right'
               setHeroHover('right')
             }}
             aria-label="Show the QT Vanity Set"
-            className={`absolute right-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-plum-700 shadow-lift transition-opacity duration-200 lg:hidden ${
+            className={`absolute right-3 top-1/2 z-30 flex h-16 w-16 -translate-y-1/2 items-center justify-center rounded-full bg-white text-plum-700 shadow-lift transition-opacity duration-200 lg:hidden ${
               heroHover === 'left' ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <ArrowRightIcon className="h-5 w-5" />
+            <ArrowRightIcon className="h-6 w-6" />
           </button>
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
               revealedSideRef.current = 'left'
               setHeroHover('left')
             }}
             aria-label="Show the QT Luggage Set"
-            className={`absolute left-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-plum-700 shadow-lift transition-opacity duration-200 lg:hidden ${
+            className={`absolute left-3 top-1/2 z-30 flex h-16 w-16 -translate-y-1/2 items-center justify-center rounded-full bg-white text-plum-700 shadow-lift transition-opacity duration-200 lg:hidden ${
               heroHover === 'right' ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <ArrowLeftIcon className="h-5 w-5" />
+            <ArrowLeftIcon className="h-6 w-6" />
           </button>
         </div>
       </section>
@@ -280,7 +306,9 @@ export default function Home() {
               <SparkleIcon className="h-4 w-4" />
               My personal favourites
             </p>
-            <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">Loved by you (and me)</h2>
+            <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
+              Loved by you (and me)
+            </h2>
           </div>
           <Link
             to="/shop"
@@ -385,9 +413,7 @@ export default function Home() {
                     {collection.volume}
                   </span>
                   <h3 className="mt-4 font-display text-2xl font-bold">{collection.name}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-plum-600">
-                    {collection.tagline}
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-plum-600">{collection.tagline}</p>
                   <p className="mt-4 text-sm font-bold text-plum-800">{collection.length} length</p>
 
                   <span
@@ -421,9 +447,7 @@ export default function Home() {
           <p className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blush-600">
             The HelloQT promise
           </p>
-          <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
-            Why QT's choose us
-          </h2>
+          <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">Why QTs choose us</h2>
         </div>
 
         <div className="section mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -461,9 +485,9 @@ export default function Home() {
             </p>
             <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">Track every wear</h2>
             <p className="mx-auto mt-4 max-w-md text-plum-600 lg:mx-0">
-              Every account gets its own QT Collection - see every lash you&apos;ve bought, log
-              each wear with a tap, watch your count grow, and prepare to be amazed at how many
-              wears you actually get out of one pair.
+              Every account gets its own QT Collection - see every lash you&apos;ve bought, log each
+              wear with a tap, watch your count grow, and prepare to be amazed at how many wears you
+              actually get out of one pair.
             </p>
             <Link to="/login" className="btn-secondary mt-6 inline-flex">
               Create your account

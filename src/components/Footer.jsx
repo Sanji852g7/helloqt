@@ -81,10 +81,7 @@ export default function Footer() {
             </li>
             <li className="flex items-start gap-2.5">
               <MailIcon className="mt-0.5 h-4 w-4 shrink-0 text-blush-500" />
-              <a
-                href="mailto:helloqts@hotmail.com"
-                className="transition hover:text-blush-700"
-              >
+              <a href="mailto:helloqts@hotmail.com" className="transition hover:text-blush-700">
                 helloqts@hotmail.com
               </a>
             </li>

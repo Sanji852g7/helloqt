@@ -53,8 +53,8 @@ export default function Terms() {
 
       <Section id="products" title="Products and prices">
         <p>
-          All prices are in pounds sterling. Delivery is shown separately at checkout before you pay,
-          so you always see the full amount first.
+          All prices are in pounds sterling. Delivery is shown separately at checkout before you
+          pay, so you always see the full amount first.
         </p>
         <p>
           Every pair is photographed as honestly as I can manage, but screens vary and these are
@@ -62,8 +62,8 @@ export default function Terms() {
           Lash glue is not included with your lashes.
         </p>
         <p>
-          If a price is ever listed wrongly by mistake, I will contact you before dispatching and you
-          can choose to go ahead at the correct price or cancel for a full refund.
+          If a price is ever listed wrongly by mistake, I will contact you before dispatching and
+          you can choose to go ahead at the correct price or cancel for a full refund.
         </p>
       </Section>
 
@@ -95,8 +95,8 @@ export default function Terms() {
         </p>
         <p>
           Where a tracking number is available, I will email it to you when your parcel is posted,
-          and you can also see it in your account. By law your order will be delivered within 30 days
-          unless we have agreed otherwise.
+          and you can also see it in your account. By law your order will be delivered within 30
+          days unless we have agreed otherwise.
         </p>
       </Section>
 
@@ -127,8 +127,8 @@ export default function Terms() {
         </p>
         <p>
           In plain terms: if your lashes are still sealed and unopened, you can change your mind
-          within 14 days. Once you have opened them, I can only help if something is wrong with them,
-          which is covered next.
+          within 14 days. Once you have opened them, I can only help if something is wrong with
+          them, which is covered next.
         </p>
       </Section>
 
@@ -177,8 +177,8 @@ export default function Terms() {
       <Section id="accounts" title="Your account">
         <p>
           If you create an account, please keep your password to yourself and let me know if you
-          think somebody else has got hold of it. You can ask me to close your account at any time by
-          emailing <EmailLink />.
+          think somebody else has got hold of it. You can ask me to close your account at any time
+          by emailing <EmailLink />.
         </p>
       </Section>
 
@@ -197,8 +197,8 @@ export default function Terms() {
         </p>
         <p>
           Nothing in these terms limits or removes your legal rights as a consumer, and nothing here
-          limits my liability for death or personal injury caused by negligence, or for fraud. If any
-          part of these terms turns out to be unenforceable, the rest still applies.
+          limits my liability for death or personal injury caused by negligence, or for fraud. If
+          any part of these terms turns out to be unenforceable, the rest still applies.
         </p>
       </Section>
 
@@ -219,16 +219,16 @@ export default function Terms() {
         </p>
         <p>
           I am not responsible for delays outside my control, such as postal strikes or extreme
-          weather, but I will always keep you updated and you can cancel for a full refund if a delay
-          becomes substantial.
+          weather, but I will always keep you updated and you can cancel for a full refund if a
+          delay becomes substantial.
         </p>
       </Section>
 
       <Section id="law" title="Governing law">
         <p>
-          These terms are governed by the law of England and Wales, and any dispute can be brought in
-          the courts of England and Wales. If you live in Scotland or Northern Ireland, you can bring
-          proceedings in your own country instead.
+          These terms are governed by the law of England and Wales, and any dispute can be brought
+          in the courts of England and Wales. If you live in Scotland or Northern Ireland, you can
+          bring proceedings in your own country instead.
         </p>
       </Section>
     </PolicyLayout>

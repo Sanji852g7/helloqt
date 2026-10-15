@@ -50,18 +50,18 @@ export default function FounderLetter({ headingLevel = 'p' }) {
               </Heading>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">Hiya, I&apos;m Sanji 💕</p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                I&apos;m a developer and a huge beauty lover. HelloQT started because I kept
-                losing my lashes. I&apos;d leave them somewhere &quot;safe&quot;, and somehow one
-                would always disappear. So I thought, why not give them their own little home?
+                I&apos;m a developer and a huge beauty lover. HelloQT started because I kept losing
+                my lashes. I&apos;d leave them somewhere &quot;safe&quot;, and somehow one would
+                always disappear. So I thought, why not give them their own little home?
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
                 That&apos;s the idea behind HelloQT: reusable lashes with cute cases to keep your
                 favourite pairs safe and ready for next time.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
-                It&apos;s just me behind the brand, from coding this website to packing your
-                orders. I also added your own QT Collection, where you can keep track of your
-                lashes and how many times you&apos;ve worn them.
+                It&apos;s just me behind the brand, from coding this website to packing your orders.
+                I also added your own QT Collection, where you can keep track of your lashes and how
+                many times you&apos;ve worn them.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-plum-700">
                 Thank you for being here and supporting my little brand. It means a lot.

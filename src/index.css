@@ -64,7 +64,7 @@
   }
 
   .gold-rule {
-    background: linear-gradient(90deg, transparent, #D9B25A, #F4E2B4, #D9B25A, transparent);
+    background: linear-gradient(90deg, transparent, #d9b25a, #f4e2b4, #d9b25a, transparent);
   }
 }
 
@@ -164,7 +164,7 @@
   /* On a background too close to the cursor's own pink to show up well
      (mainly pink buttons), the hand switches to white instead */
   .custom-cursor-arrow.on-dark .custom-cursor-hand-shape {
-    fill: #FFFFFF;
+    fill: #ffffff;
   }
 }
 
@@ -255,7 +255,8 @@
     animation-timing-function: ease-in;
   }
   100% {
-    transform: translate(-50%, -50%) translate(var(--sx), var(--sy-end)) scale(0.85) rotate(var(--srot));
+    transform: translate(-50%, -50%) translate(var(--sx), var(--sy-end)) scale(0.85)
+      rotate(var(--srot));
     opacity: 0;
   }
 }

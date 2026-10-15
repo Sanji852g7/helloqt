@@ -62,9 +62,7 @@ export default function AccountLayout() {
       <div className="mt-5 flex items-center gap-4">
         <ProfileAvatar fullName={fullName} email={user.email} />
         <div>
-          <p className="text-lg font-semibold text-plum-800">
-            {timeGreeting(greetingName)} 💕
-          </p>
+          <p className="text-lg font-semibold text-plum-800">{timeGreeting(greetingName)} 💕</p>
           <p className="text-plum-600">{user.email}</p>
         </div>
       </div>

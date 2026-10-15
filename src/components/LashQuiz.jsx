@@ -101,9 +101,7 @@ export default function LashQuiz({ open, onClose }) {
 
         {(step === 'suitcase-style' || step === 'compact-style') && (
           <>
-            <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
-              Pick your vibe
-            </h2>
+            <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">Pick your vibe</h2>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {(step === 'suitcase-style' ? suitcaseStyles : compactStyles).map((s) => (
                 <button
