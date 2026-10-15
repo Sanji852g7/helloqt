@@ -19,6 +19,7 @@ import {
   SITE_BASE_URL,
   WELCOME_CODE,
   contactEnquiryEmailHtml,
+  escapeHtml,
   mediaUrl,
   orderEmailHtml,
   ownerOrderNotificationHtml,
@@ -1253,6 +1254,51 @@ const distDir = path.join(__dirname, '..', 'dist')
 
 if (fs.existsSync(distDir)) {
   app.use(express.static(distDir))
+
+  /**
+   * Product pages are a single-page app, so without help every one of them
+   * shares the same generic title/image when shared on Pinterest, iMessage,
+   * etc. - link-preview crawlers read the raw HTML and never run the React
+   * app that would otherwise set the real title. This swaps in that one
+   * product's actual name, blurb and photo before the HTML goes out, so a
+   * shared product link shows the right thing. Built once per slug, then
+   * reused - the page content itself never changes at runtime.
+   */
+  const productPageCache = new Map()
+
+  const buildProductHtml = (product) => {
+    const title = `${product.name} - HelloQT`
+    const description = product.tagline
+    const image = `${SITE_BASE_URL}${product.image}`
+    const url = `${SITE_BASE_URL}/product/${product.slug}`
+    const template = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8')
+
+    return template
+      .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`)
+      .replace(/(<meta\s+property="og:url"\s+content=")[^"]*(")/, `$1${escapeHtml(url)}$2`)
+      .replace(/(<meta\s+property="og:title"\s+content=")[^"]*(")/, `$1${escapeHtml(title)}$2`)
+      .replace(
+        /(<meta\s+property="og:description"\s+content=")[^"]*(")/,
+        `$1${escapeHtml(description)}$2`,
+      )
+      .replace(/(<meta\s+property="og:image"\s+content=")[^"]*(")/, `$1${escapeHtml(image)}$2`)
+      .replace(/(<meta\s+name="twitter:title"\s+content=")[^"]*(")/, `$1${escapeHtml(title)}$2`)
+      .replace(
+        /(<meta\s+name="twitter:description"\s+content=")[^"]*(")/,
+        `$1${escapeHtml(description)}$2`,
+      )
+      .replace(/(<meta\s+name="twitter:image"\s+content=")[^"]*(")/, `$1${escapeHtml(image)}$2`)
+  }
+
+  app.get('/product/:slug', (req, res, next) => {
+    const product = products.find((p) => p.slug === req.params.slug)
+    if (!product) return next()
+
+    if (!productPageCache.has(product.slug)) {
+      productPageCache.set(product.slug, buildProductHtml(product))
+    }
+    res.send(productPageCache.get(product.slug))
+  })
 
   // Any route that isn't an API call is a page in the React app, so let
   // React Router handle it client-side instead of a 404
