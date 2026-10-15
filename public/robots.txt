@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /login
+Disallow: /reset-password
+Disallow: /review/
+
+Sitemap: https://www.helloqt.co.uk/sitemap.xml

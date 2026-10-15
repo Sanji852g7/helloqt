@@ -1266,12 +1266,35 @@ if (fs.existsSync(distDir)) {
    */
   const productPageCache = new Map()
 
+  // Product structured data (schema.org), so Google can show the price and
+  // "in stock" straight in search results instead of just a plain blue
+  // link - a rich result tends to get clicked more for the same ranking.
+  const productJsonLd = (product, url, image) =>
+    JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Product',
+      name: product.name,
+      image,
+      description: product.description,
+      sku: product.slug,
+      offers: {
+        '@type': 'Offer',
+        url,
+        priceCurrency: 'GBP',
+        price: String(product.price),
+        availability: 'https://schema.org/InStock',
+      },
+    })
+
   const buildProductHtml = (product) => {
     const title = `${product.name} - HelloQT`
     const description = product.tagline
     const image = `${SITE_BASE_URL}${product.image}`
     const url = `${SITE_BASE_URL}/product/${product.slug}`
     const template = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8')
+    // Escaping "<" stops a stray "</script>" inside a product description
+    // from ever being able to close the tag early - still valid JSON either way
+    const jsonLd = productJsonLd(product, url, image).replace(/</g, '\\u003c')
 
     return template
       .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`)
@@ -1288,6 +1311,7 @@ if (fs.existsSync(distDir)) {
         `$1${escapeHtml(description)}$2`,
       )
       .replace(/(<meta\s+name="twitter:image"\s+content=")[^"]*(")/, `$1${escapeHtml(image)}$2`)
+      .replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n  </head>`)
   }
 
   app.get('/product/:slug', (req, res, next) => {
@@ -1298,6 +1322,25 @@ if (fs.existsSync(distDir)) {
       productPageCache.set(product.slug, buildProductHtml(product))
     }
     res.send(productPageCache.get(product.slug))
+  })
+
+  // Lists every real page so Google can find them all, including product
+  // pages that have no link anywhere else in the site's own navigation.
+  // Built from the same product data the rest of the server already uses,
+  // not a hand-maintained file, so it can't drift out of sync with the shop.
+  // Pages that are private (account, checkout) or need a one-time token
+  // (review links) are left out on purpose - see robots.txt for the same list.
+  let sitemapXml = null
+  app.get('/sitemap.xml', (req, res) => {
+    if (!sitemapXml) {
+      const staticPaths = ['/', '/shop', '/about', '/contact', '/privacy', '/terms']
+      const productPaths = products.map((product) => `/product/${product.slug}`)
+      const urls = [...staticPaths, ...productPaths]
+        .map((p) => `  <url><loc>${SITE_BASE_URL}${p}</loc></url>`)
+        .join('\n')
+      sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
+    }
+    res.type('application/xml').send(sitemapXml)
   })
 
   // Any route that isn't an API call is a page in the React app, so let
