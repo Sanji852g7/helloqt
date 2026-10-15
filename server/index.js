@@ -4,6 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import express from 'express'
+import helmet from 'helmet'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import Anthropic from '@anthropic-ai/sdk'
@@ -32,6 +33,57 @@ import { MAINTENANCE_EXEMPT_PATHS, isMaintenanceMode, maintenancePageHtml } from
 const app = express()
 
 const PORT = process.env.PORT || 8787
+
+// Security headers for every response, including the maintenance page.
+// CSP is the guest list for what the page is allowed to load - anything
+// not on it gets silently blocked by the browser. Each entry here matches
+// something the site genuinely loads: Google Fonts, the GA4 and Pinterest
+// tags, Supabase, and the site's own origin. style-src needs 'unsafe-inline'
+// because several components use inline style={{}} (clip-paths, aspect
+// ratios) - script-src does not, since nothing in the codebase uses an
+// inline <script> or eval, so that's the directive doing the real work.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          'https://www.googletagmanager.com',
+          'https://s.pinimg.com',
+          'https://ct.pinterest.com',
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'https://bhyazywkerxunrmfpqjs.supabase.co',
+          'https://www.google-analytics.com',
+          'https://ct.pinterest.com',
+          'https://*.pinimg.com',
+        ],
+        connectSrc: [
+          "'self'",
+          'https://bhyazywkerxunrmfpqjs.supabase.co',
+          'https://www.google-analytics.com',
+          'https://analytics.google.com',
+          'https://*.google-analytics.com',
+          'https://www.googletagmanager.com',
+          'https://ct.pinterest.com',
+          'https://*.pinimg.com',
+        ],
+        // Pinterest's tag opens a hidden iframe from ct.pinterest.com for
+        // its own tracking, so frame-src can't be a flat 'none' here
+        frameSrc: ['https://ct.pinterest.com'],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+      },
+    },
+  }),
+)
 
 /**
  * Pauses the whole shop for a bigger change, without touching any code —
